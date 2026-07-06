@@ -16,9 +16,7 @@ export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
   );
   const [message, setMessage] = useState(initialError ?? "");
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (typeof window === "undefined" ? "" : window.location.origin);
+  const siteUrl = getSiteUrl();
   const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/callback` : undefined;
   const hasSupabasePublicEnv = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -177,4 +175,24 @@ function getLoginErrorMessage(error: unknown, fallback: string) {
   }
 
   return fallback;
+}
+
+function getSiteUrl() {
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "";
+
+  if (typeof window === "undefined") {
+    return configuredSiteUrl;
+  }
+
+  const currentOrigin = window.location.origin;
+  const configuredIsLocalhost =
+    configuredSiteUrl.includes("localhost") || configuredSiteUrl.includes("127.0.0.1");
+  const currentIsLocalhost =
+    currentOrigin.includes("localhost") || currentOrigin.includes("127.0.0.1");
+
+  if (!configuredSiteUrl || (configuredIsLocalhost && !currentIsLocalhost)) {
+    return currentOrigin;
+  }
+
+  return configuredSiteUrl;
 }
