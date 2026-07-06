@@ -66,7 +66,7 @@
 - [ ] 온보딩 미완료 유저의 카드 생성/신청 진입을 막는다.
   - [x] 보호된 `/feed` 진입 guard
   - [x] 보호된 `GET /api/cards` guard
-  - [ ] `/cards/new` guard
+  - [x] `/cards/new` guard
   - [ ] 신청 API guard
 
 ### P2. 카드 피드와 카드 생성
@@ -78,16 +78,16 @@
 - [x] `GET /api/cards` 구현
   - [x] `status='open'`만 반환
   - [x] 필터 파라미터 검증
-- [ ] `/cards/new` 멀티스텝 폼 구현
-  - 기본 정보
-  - 호스트가 건 것
-  - 마감 시간
-  - 현금 사례비 입력 필드 없음
-- [ ] `POST /api/cards` 구현
-  - L3 하드 차단
-  - banned words block/flag 처리
-  - 현금성 정규식 flag 처리
-  - 즉시 공개 또는 검수 대기 분기
+- [x] `/cards/new` 멀티스텝 폼 구현
+  - [x] 기본 정보
+  - [x] 호스트가 건 것
+  - [x] 마감 시간
+  - [x] 현금 사례비 입력 필드 없음
+- [x] `POST /api/cards` 구현
+  - [x] L3 하드 차단
+  - [x] banned words block/flag 처리
+  - [x] 현금성 정규식 flag 처리
+  - [x] 즉시 공개 또는 검수 대기 분기
 
 ### P3. 신청과 호스트 승인
 
