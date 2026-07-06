@@ -6,17 +6,20 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type LoginFormProps = {
   canUseKakao: boolean;
+  initialError?: string;
 };
 
-export function LoginForm({ canUseKakao }: LoginFormProps) {
+export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle");
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">(
+    initialError ? "error" : "idle"
+  );
+  const [message, setMessage] = useState(initialError ?? "");
 
-  const redirectTo =
-    typeof window === "undefined"
-      ? undefined
-      : `${window.location.origin}/auth/callback`;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (typeof window === "undefined" ? "" : window.location.origin);
+  const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/callback` : undefined;
 
   async function handleKakaoLogin() {
     const supabase = createBrowserSupabaseClient();
@@ -56,7 +59,7 @@ export function LoginForm({ canUseKakao }: LoginFormProps) {
     }
 
     setStatus("sent");
-    setMessage("메일함에서 Mate 로그인 링크를 확인해주세요.");
+    setMessage("메일함에서 Mate 로그인 링크를 확인해주세요. 링크가 열리지 않으면 Supabase Redirect URL 설정을 확인해야 합니다.");
   }
 
   return (
