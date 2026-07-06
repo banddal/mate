@@ -3,6 +3,7 @@ import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { verifyOtp } from "@/lib/auth/otp";
 import { fail, ok } from "@/lib/api/responses";
 import { PHONE_OTP_MAX_ATTEMPTS } from "@/shared/config";
+import { hasServiceEnv } from "@/lib/env";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -13,6 +14,16 @@ const verifySchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!hasServiceEnv()) {
+    return fail(
+      {
+        code: "SERVER_CONFIG_MISSING",
+        message: "서버 환경변수 설정이 필요합니다."
+      },
+      500
+    );
+  }
+
   const body = verifySchema.safeParse(await request.json().catch(() => null));
 
   if (!body.success) {

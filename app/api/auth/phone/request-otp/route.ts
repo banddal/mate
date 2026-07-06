@@ -7,6 +7,7 @@ import {
   PHONE_OTP_EXPIRY_MINUTES,
   PHONE_OTP_RESEND_COOLDOWN_SECONDS
 } from "@/shared/config";
+import { hasServiceEnv } from "@/lib/env";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -16,6 +17,16 @@ const requestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!hasServiceEnv()) {
+    return fail(
+      {
+        code: "SERVER_CONFIG_MISSING",
+        message: "서버 환경변수 설정이 필요합니다."
+      },
+      500
+    );
+  }
+
   const body = requestSchema.safeParse(await request.json().catch(() => null));
 
   if (!body.success) {

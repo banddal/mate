@@ -6,6 +6,7 @@ import { getCategoryLevel } from "@/lib/cards/categories";
 import { createCardSchema } from "@/lib/cards/schema";
 import { moderateCardText } from "@/lib/cards/moderation";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
+import { hasServiceEnv } from "@/lib/env";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!hasServiceEnv()) {
+    return fail(
+      {
+        code: "SERVER_CONFIG_MISSING",
+        message: "서버 환경변수 설정이 필요합니다."
+      },
+      500
+    );
+  }
+
   const { user, profile } = await getCurrentUserAndProfile();
 
   if (!user) {

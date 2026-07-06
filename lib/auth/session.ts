@@ -1,6 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { hasPublicEnv } from "@/lib/env";
 
 export type MateProfile = {
   id: string;
@@ -24,6 +25,10 @@ export function isProfileComplete(profile: MateProfile | null) {
 }
 
 export async function getCurrentUserAndProfile() {
+  if (!hasPublicEnv()) {
+    return { user: null, profile: null };
+  }
+
   const supabase = createServerSupabaseClient();
   const {
     data: { user },
