@@ -20,46 +20,64 @@ export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     (typeof window === "undefined" ? "" : window.location.origin);
   const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/callback` : undefined;
+  const hasSupabasePublicEnv = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   async function handleKakaoLogin() {
-    const supabase = createBrowserSupabaseClient();
     setStatus("loading");
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "kakao",
-      options: {
-        redirectTo
+    try {
+      if (!hasSupabasePublicEnv) {
+        throw new Error("Supabase 공개 환경변수가 설정되지 않았습니다.");
       }
-    });
 
-    if (error) {
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "kakao",
+        options: {
+          redirectTo
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
       setStatus("error");
-      setMessage("카카오 로그인을 시작하지 못했어요. 잠시 후 다시 시도해주세요.");
+      setMessage(getLoginErrorMessage(error, "카카오 로그인을 시작하지 못했어요."));
     }
   }
 
   async function handleEmailLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const supabase = createBrowserSupabaseClient();
     setStatus("loading");
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectTo
+    try {
+      if (!hasSupabasePublicEnv) {
+        throw new Error("Supabase 공개 환경변수가 설정되지 않았습니다.");
       }
-    });
 
-    if (error) {
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectTo
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setStatus("sent");
+      setMessage("메일함에서 Mate 로그인 링크를 확인해주세요. 링크가 열리지 않으면 Supabase Redirect URL 설정을 확인해야 합니다.");
+    } catch (error) {
       setStatus("error");
-      setMessage("매직링크를 보내지 못했어요. 이메일을 확인하고 다시 시도해주세요.");
-      return;
+      setMessage(getLoginErrorMessage(error, "매직링크를 보내지 못했어요."));
     }
-
-    setStatus("sent");
-    setMessage("메일함에서 Mate 로그인 링크를 확인해주세요. 링크가 열리지 않으면 Supabase Redirect URL 설정을 확인해야 합니다.");
   }
 
   return (
@@ -92,6 +110,14 @@ export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
         </div>
 
         <div className="mt-10 rounded-lg border border-line bg-white p-4 shadow-soft">
+          {!hasSupabasePublicEnv ? (
+            <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm leading-6 text-red-700">
+              Vercel에 Supabase 공개 환경변수가 필요합니다:
+              <br />
+              NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+            </div>
+          ) : null}
+
           {canUseKakao ? (
             <button
               type="button"
@@ -143,4 +169,12 @@ export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
       </section>
     </main>
   );
+}
+
+function getLoginErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) {
+    return `${fallback} (${error.message})`;
+  }
+
+  return fallback;
 }
