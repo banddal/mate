@@ -64,16 +64,20 @@
   - [x] attempt count, expiry, hash 검증
   - [x] 성공 시 `profiles.phone_verified = true`
 - [ ] 온보딩 미완료 유저의 카드 생성/신청 진입을 막는다.
+  - [x] 보호된 `/feed` 진입 guard
+  - [x] 보호된 `GET /api/cards` guard
+  - [ ] `/cards/new` guard
+  - [ ] 신청 API guard
 
 ### P2. 카드 피드와 카드 생성
 
-- [ ] `/feed` 구현
-  - 오늘, 이번주, 마감임박, 카테고리 필터
-  - 프로필 사진 없음
-  - 모바일 pull-to-refresh 또는 새로고침 액션
-- [ ] `GET /api/cards` 구현
-  - `status='open'`만 반환
-  - 필터 파라미터 검증
+- [x] `/feed` 구현
+  - [x] 오늘, 이번주, 마감임박, 카테고리 필터
+  - [x] 프로필 사진 없음
+  - [ ] 모바일 pull-to-refresh 또는 새로고침 액션
+- [x] `GET /api/cards` 구현
+  - [x] `status='open'`만 반환
+  - [x] 필터 파라미터 검증
 - [ ] `/cards/new` 멀티스텝 폼 구현
   - 기본 정보
   - 호스트가 건 것
