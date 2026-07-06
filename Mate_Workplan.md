@@ -50,18 +50,19 @@
 
 ### P1. 인증과 온보딩
 
-- [ ] `/login` 구현
-  - `KAKAO_CLIENT_ID`가 있으면 Kakao OAuth
-  - 없으면 Supabase email magic link
-- [ ] `/onboarding` 구현
-  - 닉네임, 연령대, 성별, 관심 카테고리
-  - L3 선택지는 표시하지 않는다.
-- [ ] `POST /api/auth/phone/request-otp` 구현
-  - SMS key가 없으면 `{ devOtp }` 반환
-  - 실제 OTP row, 만료, 재전송 쿨다운 로직은 그대로 실행
-- [ ] `POST /api/auth/phone/verify-otp` 구현
-  - attempt count, expiry, hash 검증
-  - 성공 시 `profiles.phone_verified = true`
+- [x] `/login` 구현
+  - [x] `KAKAO_CLIENT_ID`가 있으면 Kakao OAuth
+  - [x] 없으면 Supabase email magic link
+- [x] `/onboarding` 구현
+  - [x] 닉네임, 연령대, 성별, 관심 카테고리
+  - [x] L3 선택지는 표시하지 않는다.
+- [x] `POST /api/auth/phone/request-otp` 구현
+  - [x] SMS key가 없으면 `{ devOtp }` 반환
+  - [x] 실제 OTP row, 만료, 재전송 쿨다운 로직은 그대로 실행
+  - [ ] 실제 SMS 벤더 발송 연동
+- [x] `POST /api/auth/phone/verify-otp` 구현
+  - [x] attempt count, expiry, hash 검증
+  - [x] 성공 시 `profiles.phone_verified = true`
 - [ ] 온보딩 미완료 유저의 카드 생성/신청 진입을 막는다.
 
 ### P2. 카드 피드와 카드 생성
