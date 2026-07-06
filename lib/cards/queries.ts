@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type FeedCard = {
   id: string;
+  host_id?: string;
   title: string;
   category: string;
   level: "L1" | "L2" | "L3";
@@ -15,6 +16,11 @@ export type FeedCard = {
   deadline_at: string;
   status: "open";
   created_at: string;
+};
+
+export type CardDetail = FeedCard & {
+  host_id: string;
+  status: "open" | "pending_review" | "closed" | "cancelled" | "rejected";
 };
 
 export async function getOpenCards(filters: CardFeedFilter) {
@@ -59,4 +65,21 @@ export async function getOpenCards(filters: CardFeedFilter) {
   }
 
   return (data ?? []) as FeedCard[];
+}
+
+export async function getCardDetail(cardId: string) {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("cards")
+    .select(
+      "id, host_id, title, category, level, event_datetime, location, capacity, host_offer, cost_info, description, deadline_at, status, created_at"
+    )
+    .eq("id", cardId)
+    .maybeSingle<CardDetail>();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ?? null;
 }

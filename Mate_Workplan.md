@@ -91,13 +91,14 @@
 
 ### P3. 신청과 호스트 승인
 
-- [ ] `/cards/[id]` 상세 구현
-  - 상황 중심 정보 위계
-  - 신청 bottom sheet
-  - 신청 사유 100자 제한은 `APPLICATION_REASON_MAX_LENGTH` 참조
-- [ ] `POST /api/cards/:id/apply` 구현
-  - 중복 신청 방지
-  - 마감/정원/상태 검증
+- [x] `/cards/[id]` 상세 구현
+  - [x] 상황 중심 정보 위계
+  - [x] 신청 bottom sheet
+  - [x] 신청 사유 100자 제한은 `APPLICATION_REASON_MAX_LENGTH` 참조
+- [x] `POST /api/cards/:id/apply` 구현
+  - [x] 중복 신청 방지
+  - [x] 마감/상태 검증
+  - [ ] 정원 검증
 - [ ] `/cards/[id]/applicants` 구현
   - 호스트 전용
   - 기본 정보: 신청 사유, 인증 여부, 완료/노쇼 이력
