@@ -1,16 +1,18 @@
 import Link from "next/link";
-import { ArrowLeft, ClipboardList, ShieldAlert, UserCog } from "lucide-react";
+import { ArrowLeft, ClipboardList, ShieldAlert, ShieldX, UserCog } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import {
   getDemoAdminCandidates,
   getDemoAdminUsers,
+  getDemoBannedWords,
   getDemoReports,
   getDemoReviewCards
 } from "@/lib/demo-data";
 import { AdminActionButton } from "./AdminActionButton";
 import { AdminGrantForm, AdminRevokeButton } from "./AdminUserControls";
+import { BannedWordDeleteButton, BannedWordForm } from "./BannedWordControls";
 
 type AdminReport = {
   id: string;
@@ -38,13 +40,21 @@ type AdminCandidate = {
   nickname: string;
 };
 
+type BannedWord = {
+  id: string;
+  word: string;
+  severity: "block" | "flag";
+  category_hint: string | null;
+};
+
 export default async function AdminPage() {
   await requireOnboarded();
-  const [reports, reviewCards, adminUsers, adminCandidates] = await Promise.all([
+  const [reports, reviewCards, adminUsers, adminCandidates, bannedWords] = await Promise.all([
     getReports(),
     getReviewCards(),
     getAdminUsers(),
-    getAdminCandidates()
+    getAdminCandidates(),
+    getBannedWords()
   ]);
 
   return (
@@ -137,6 +147,49 @@ export default async function AdminPage() {
                 ))
               ) : (
                 <p className="text-sm text-ink/60">등록된 운영자가 없습니다.</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <ShieldX className="h-5 w-5 text-moss" aria-hidden />
+            금지어 관리
+          </div>
+
+          <div className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
+            <BannedWordForm />
+
+            <div className="space-y-2">
+              {bannedWords.length > 0 ? (
+                bannedWords.map((bannedWord) => (
+                  <div
+                    key={bannedWord.id}
+                    className="grid grid-cols-[1fr_76px] items-center gap-3 rounded-md bg-warm px-3 py-3"
+                  >
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-ink">{bannedWord.word}</p>
+                        <span
+                          className={
+                            bannedWord.severity === "block"
+                              ? "rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
+                              : "rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700"
+                          }
+                        >
+                          {bannedWord.severity === "block" ? "차단" : "검수"}
+                        </span>
+                      </div>
+                      <p className="truncate text-xs text-ink/45">
+                        {bannedWord.category_hint ?? "분류 없음"}
+                      </p>
+                    </div>
+                    <BannedWordDeleteButton wordId={bannedWord.id} />
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-ink/60">등록된 금지어가 없습니다.</p>
               )}
             </div>
           </div>
@@ -252,6 +305,30 @@ async function getAdminCandidates(): Promise<AdminCandidate[]> {
       id: profile.id,
       nickname: profile.nickname
     }));
+}
+
+async function getBannedWords(): Promise<BannedWord[]> {
+  if (!hasServiceEnv()) {
+    return getDemoBannedWords();
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data: bannedWords, error } = await admin
+    .from("banned_words")
+    .select("id, word, severity, category_hint")
+    .order("word", { ascending: true })
+    .limit(50);
+
+  if (error || !bannedWords) {
+    return getDemoBannedWords();
+  }
+
+  return bannedWords.map((bannedWord) => ({
+    id: bannedWord.id,
+    word: bannedWord.word,
+    severity: bannedWord.severity,
+    category_hint: bannedWord.category_hint
+  }));
 }
 
 function formatDateTime(value: string) {

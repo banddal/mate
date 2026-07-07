@@ -166,7 +166,7 @@
   - [x] 카드 검수 대기열 조회
   - [x] 신고 대기열 조회
   - [x] 신고 처리
-  - 금지어 관리
+  - [x] 금지어 관리
   - 유저 정지
   - [x] admin 부여/회수
 - [ ] admin API 구현
@@ -175,6 +175,7 @@
   - [x] `/api/admin/cards/:id/reject`
   - [x] `/api/admin/reports/:id/resolve`
   - [x] `/api/admin/admins`
+  - [x] `/api/admin/banned-words`
 - [ ] 내부 cron endpoint 구현
   - `/internal/cron/resolve-cards`
   - `/internal/cron/dispatch-notifications`

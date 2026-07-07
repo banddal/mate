@@ -49,6 +49,13 @@ export type DemoAdminCandidate = {
   nickname: string;
 };
 
+export type DemoBannedWord = {
+  id: string;
+  word: string;
+  severity: "block" | "flag";
+  category_hint: string | null;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -195,6 +202,23 @@ export function getDemoAdminCandidates(): DemoAdminCandidate[] {
     {
       id: "demo-admin-candidate-2",
       nickname: "운영 후보 B"
+    }
+  ];
+}
+
+export function getDemoBannedWords(): DemoBannedWord[] {
+  return [
+    {
+      id: "demo-banned-word-1",
+      word: "외로움",
+      severity: "block",
+      category_hint: "emotional_vulnerability"
+    },
+    {
+      id: "demo-banned-word-2",
+      word: "사례비",
+      severity: "flag",
+      category_hint: "cash_compensation"
     }
   ];
 }
