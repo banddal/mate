@@ -1,7 +1,5 @@
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
-
-const amountPattern = /\d+\s*(원|만원|천원)/;
-const paymentIntentPattern = /(드립니다|드려요|드릴게요|지불|송금|입금|사례|페이|용돈|보상)/;
+import { hasCashPaymentPattern } from "@/lib/cards/cash-pattern";
 
 export type ModerationDecision =
   | { status: "open"; reason: null }
@@ -37,8 +35,4 @@ export async function moderateCardText(fields: string[]): Promise<ModerationDeci
   }
 
   return { status: "open", reason: null };
-}
-
-function hasCashPaymentPattern(text: string) {
-  return amountPattern.test(text) && paymentIntentPattern.test(text);
 }

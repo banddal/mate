@@ -198,16 +198,19 @@
 
 ### P7. 품질 보증
 
-- [ ] API 입력 검증 유닛 테스트
-- [ ] 카드 검수 분기 테스트
-  - L3 차단
-  - block 단어 차단
-  - flag 단어 검수 대기
-  - 금액+지급 의사 검수 대기
-- [ ] 신청자 목록 2계층 응답 테스트
-- [ ] Room 종료 후 접근 차단 테스트
-- [ ] 신고 상태 머신 테스트
-- [ ] Playwright 모바일 흐름 테스트
+- [x] API 입력 검증 유닛 테스트 (구독/푸시 스키마 — vitest)
+- [x] 카드 검수 분기 테스트
+  - [x] L3 차단 (카테고리 레벨 테스트)
+  - [x] 금액+지급 의사 검수 대기 (현금성 패턴 테스트, 스펙 §7 핵심 케이스)
+  - [ ] block/flag 단어 분기 (moderation의 DB 조회 부분 — 통합테스트 필요)
+- [x] cron secret 검증 테스트 (secret 미설정/오헤더 거부)
+- [x] 알림 24h dedup 테스트
+- [x] subscription_match 매칭 테스트 (호스트 제외, location 매칭, 유저당 1회, 식별정보 미포함)
+- [x] CI 워크플로우 (typecheck/lint/test/build on push·PR)
+- [ ] 신청자 목록 2계층 응답 테스트 (통합테스트)
+- [ ] Room 종료 후 접근 차단 테스트 (통합테스트)
+- [ ] 신고 상태 머신 테스트 (통합테스트 — resolved 재처리 차단은 라우트에 구현됨)
+- [ ] Playwright 모바일 흐름 테스트 (프론트 완성 후 — 코덱스와 조율)
   - login fallback
   - onboarding
   - card create
