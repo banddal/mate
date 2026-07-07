@@ -159,7 +159,7 @@
 - [ ] `/alerts` 구현 (프론트 — 코덱스)
   - 장소, 시간 패턴, 카테고리만
   - 사람 구독 옵션 없음
-- [ ] `GET/POST /api/subscriptions` 구현 (구독 CRUD — 아직 미구현, subscriptions 테이블은 존재)
+- [x] `GET/POST /api/subscriptions` 구현 (+ `DELETE /api/subscriptions/:id`, L3 차단·중복 방지·상한 20)
 - [x] notification dispatch 로직 구현
   - [x] 410 endpoint 정리
   - [x] 24시간 dedup
