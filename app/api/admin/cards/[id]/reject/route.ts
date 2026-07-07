@@ -2,6 +2,7 @@ import { fail, ok } from "@/lib/api/responses";
 import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
+import { createNotification } from "@/lib/notifications/create";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -52,7 +53,7 @@ export async function POST(request: Request, { params }: CardRejectRouteContext)
     })
     .eq("id", params.id)
     .eq("status", "pending_review")
-    .select("id, status, rejection_reason")
+    .select("id, status, rejection_reason, host_id")
     .single();
 
   if (error || !card) {
@@ -66,5 +67,26 @@ export async function POST(request: Request, { params }: CardRejectRouteContext)
     notes: parsed.data.rejectionReason
   });
 
-  return ok({ card });
+  // 호스트에게 반려 알림(§7/§9). 정확한 매칭 단어는 노출하지 않고 일반화된 결과만 전달한다.
+  try {
+    await createNotification(admin, {
+      userId: card.host_id,
+      type: "card_review_resolved",
+      cardId: card.id,
+      payload: {
+        cardId: card.id,
+        outcome: "rejected"
+      }
+    });
+  } catch {
+    // 알림 실패 무시
+  }
+
+  return ok({
+    card: {
+      id: card.id,
+      status: card.status,
+      rejection_reason: card.rejection_reason
+    }
+  });
 }

@@ -2,6 +2,7 @@ import { fail, ok } from "@/lib/api/responses";
 import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
+import { createNotification } from "@/lib/notifications/create";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export async function POST(_request: Request, { params }: CardApproveRouteContex
     })
     .eq("id", params.id)
     .eq("status", "pending_review")
-    .select("id, status")
+    .select("id, status, host_id")
     .single();
 
   if (error || !card) {
@@ -54,5 +55,20 @@ export async function POST(_request: Request, { params }: CardApproveRouteContex
     notes: "검수 카드 공개 승인"
   });
 
-  return ok({ card });
+  // 호스트에게 검수 결과 알림(§7/§9).
+  try {
+    await createNotification(admin, {
+      userId: card.host_id,
+      type: "card_review_resolved",
+      cardId: card.id,
+      payload: {
+        cardId: card.id,
+        outcome: "approved"
+      }
+    });
+  } catch {
+    // 알림 실패 무시
+  }
+
+  return ok({ card: { id: card.id, status: card.status } });
 }

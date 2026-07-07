@@ -2,5 +2,19 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "buildCommand": "npm run build",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "crons": [
+    {
+      "path": "/api/internal/cron/resolve-cards",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/internal/cron/dispatch-notifications",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/internal/cron/cleanup-rooms",
+      "schedule": "0 4 * * *"
+    }
+  ]
 }

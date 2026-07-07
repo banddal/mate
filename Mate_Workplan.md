@@ -183,12 +183,12 @@
   - [x] `/api/admin/reports/:id/resolve`
   - [x] `/api/admin/admins`
   - [x] `/api/admin/banned-words`
-- [ ] 내부 cron endpoint 구현
-  - `/internal/cron/resolve-cards`
-  - `/internal/cron/dispatch-notifications`
-  - `/internal/cron/cleanup-rooms`
-- [ ] `vercel.json` cron 설정 추가
-- [ ] Cron secret header 검증
+- [x] 내부 cron endpoint 구현
+  - [x] `/api/internal/cron/resolve-cards` (마감 지난 카드 일괄 해소)
+  - [x] `/api/internal/cron/dispatch-notifications` (pending 알림 Web Push 발송)
+  - [x] `/api/internal/cron/cleanup-rooms` (종료 48h 경과 room 정리 + retention_archive 이관)
+- [x] `vercel.json` cron 설정 추가
+- [x] Cron secret header 검증 (`CRON_SECRET` Bearer, 미설정 시 거부)
 
 ### P7. 품질 보증
 

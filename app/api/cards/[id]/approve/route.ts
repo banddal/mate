@@ -3,6 +3,7 @@ import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session"
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { DEMO_CREATED_CARD_ID, DEMO_ROOM_ID } from "@/lib/demo-data";
+import { createNotification } from "@/lib/notifications/create";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -101,13 +102,14 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
 
   const { data: application, error: applicationError } = await admin
     .from("applications")
-    .select("id, card_id, status")
+    .select("id, card_id, status, applicant_id")
     .eq("id", parsed.data.applicationId)
     .eq("card_id", card.id)
     .maybeSingle<{
       id: string;
       card_id: string;
       status: string;
+      applicant_id: string;
     }>();
 
   if (applicationError) {
@@ -167,6 +169,22 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
 
   if (roomError || !room) {
     return fail({ code: "ROOM_CREATE_FAILED", message: "Mate Room을 만들지 못했어요." }, 500);
+  }
+
+  // 승인된 신청자에게 확정 알림(§9). 알림 실패가 승인을 되돌리지 않도록 예외를 삼킨다.
+  try {
+    await createNotification(admin, {
+      userId: application.applicant_id,
+      type: "application_resolved",
+      cardId: card.id,
+      payload: {
+        cardId: card.id,
+        roomId: room.id,
+        outcome: "approved"
+      }
+    });
+  } catch {
+    // 알림 생성 실패는 무시(승인 자체는 성공). dispatch/모니터링에서 별도로 다룬다.
   }
 
   return ok({
