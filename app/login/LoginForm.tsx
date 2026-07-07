@@ -184,15 +184,5 @@ function getSiteUrl() {
     return configuredSiteUrl;
   }
 
-  const currentOrigin = window.location.origin;
-  const configuredIsLocalhost =
-    configuredSiteUrl.includes("localhost") || configuredSiteUrl.includes("127.0.0.1");
-  const currentIsLocalhost =
-    currentOrigin.includes("localhost") || currentOrigin.includes("127.0.0.1");
-
-  if (!configuredSiteUrl || (configuredIsLocalhost && !currentIsLocalhost)) {
-    return currentOrigin;
-  }
-
-  return configuredSiteUrl;
+  return window.location.origin;
 }
