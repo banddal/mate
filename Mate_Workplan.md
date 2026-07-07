@@ -99,6 +99,8 @@
   - [x] 상황 중심 정보 위계
   - [x] 신청 bottom sheet
   - [x] 신청 사유 100자 제한은 `APPLICATION_REASON_MAX_LENGTH` 참조
+  - [x] 호스트/신청 대기/승인/마감 상태 안내
+  - [x] 신청 완료 후 내 활동으로 이어지는 액션
 - [x] `POST /api/cards/:id/apply` 구현
   - [x] 중복 신청 방지 (선제 조회 + unique 제약 위반 409 폴백)
   - [x] 마감/상태 검증

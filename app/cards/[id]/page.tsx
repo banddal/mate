@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock3, MapPin, Ticket, UsersRound } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, Hourglass, MapPin, Ticket, UsersRound } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { getCardDetail } from "@/lib/cards/queries";
+import { hasServiceEnv } from "@/lib/env";
+import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { ApplyCardSheet } from "./ApplyCardSheet";
 
 type CardDetailPageProps = {
@@ -20,7 +22,8 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
   }
 
   const isHost = card.host_id === user.id;
-  const canApply = card.status === "open" && !isHost;
+  const myApplication = isHost ? null : await getMyApplicationStatus(card.id, user.id);
+  const canApply = card.status === "open" && !isHost && !myApplication;
 
   return (
     <main className={`min-h-dvh px-5 pt-[calc(24px+env(safe-area-inset-top))] ${canApply ? "pb-72" : "pb-8"}`}>
@@ -62,6 +65,12 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
             </CardMeta>
           </div>
 
+          <StatusPanel
+            isHost={isHost}
+            cardStatus={card.status}
+            applicationStatus={myApplication?.status ?? null}
+          />
+
           <section className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-semibold text-ink">
               <Ticket className="h-5 w-5 text-moss" aria-hidden />
@@ -100,6 +109,76 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
   );
 }
 
+function StatusPanel({
+  isHost,
+  cardStatus,
+  applicationStatus
+}: {
+  isHost: boolean;
+  cardStatus: string;
+  applicationStatus: "pending" | "approved" | "rejected_closed" | null;
+}) {
+  if (isHost) {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-moss/30 bg-moss/10 px-4 py-3">
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-moss" aria-hidden />
+        <div>
+          <p className="text-sm font-semibold text-ink">내가 연 카드입니다</p>
+          <p className="mt-1 text-sm leading-6 text-ink/60">
+            신청자를 검토하고 승인하면 Mate Room이 열립니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (applicationStatus === "pending") {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-moss/30 bg-moss/10 px-4 py-3">
+        <Hourglass className="mt-0.5 h-5 w-5 shrink-0 text-moss" aria-hidden />
+        <div>
+          <p className="text-sm font-semibold text-ink">신청이 접수되어 있어요</p>
+          <p className="mt-1 text-sm leading-6 text-ink/60">
+            호스트가 승인하면 내 활동과 알림에서 다음 단계를 확인할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (applicationStatus === "approved") {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-moss/30 bg-moss/10 px-4 py-3">
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-moss" aria-hidden />
+        <div>
+          <p className="text-sm font-semibold text-ink">승인된 신청입니다</p>
+          <p className="mt-1 text-sm leading-6 text-ink/60">
+            내 활동에서 열린 Mate Room으로 이동할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (applicationStatus === "rejected_closed") {
+    return (
+      <div className="rounded-lg border border-line bg-paper px-4 py-3 text-sm leading-6 text-ink/60">
+        이 신청은 마감되었습니다. 피드에서 다른 카드를 찾아보세요.
+      </div>
+    );
+  }
+
+  if (cardStatus !== "open") {
+    return (
+      <div className="rounded-lg border border-line bg-paper px-4 py-3 text-sm leading-6 text-ink/60">
+        현재 상태는 {formatCardStatus(cardStatus)}입니다. 지금은 새 신청을 받을 수 없습니다.
+      </div>
+    );
+  }
+
+  return null;
+}
+
 function CardMeta({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2">
@@ -107,6 +186,42 @@ function CardMeta({ icon, children }: { icon: React.ReactNode; children: React.R
       <span>{children}</span>
     </div>
   );
+}
+
+async function getMyApplicationStatus(cardId: string, userId: string) {
+  if (!hasServiceEnv()) {
+    return null;
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data } = await admin
+    .from("applications")
+    .select("id, status")
+    .eq("card_id", cardId)
+    .eq("applicant_id", userId)
+    .maybeSingle<{ id: string; status: "pending" | "approved" | "rejected_closed" }>();
+
+  return data ?? null;
+}
+
+function formatCardStatus(status: string) {
+  if (status === "pending_review") {
+    return "검수 중";
+  }
+
+  if (status === "closed") {
+    return "마감";
+  }
+
+  if (status === "rejected") {
+    return "반려";
+  }
+
+  if (status === "cancelled") {
+    return "취소";
+  }
+
+  return "모집 중";
 }
 
 function formatDateTime(value: string) {
