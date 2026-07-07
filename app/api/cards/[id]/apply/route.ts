@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: ApplyRouteContext) {
     return fail({ code: "INVALID_REASON", message: "신청 사유를 확인해주세요." }, 400);
   }
 
-  if (!hasServiceEnv() && [DEMO_APPLY_CARD_ID, DEMO_CREATED_CARD_ID].includes(params.id)) {
+  if ([DEMO_APPLY_CARD_ID, DEMO_CREATED_CARD_ID].includes(params.id)) {
     return ok({
       application: {
         id: "demo-application",

@@ -3,6 +3,17 @@ import type { CardDetail, FeedCard } from "@/lib/cards/queries";
 
 export const DEMO_APPLY_CARD_ID = "demo-apply-card";
 export const DEMO_CREATED_CARD_ID = "demo-created-card";
+export const DEMO_ROOM_ID = "demo-room";
+
+export type DemoApplicant = {
+  id: string;
+  applicant_id: string;
+  nickname: string;
+  reason_text: string;
+  status: "pending" | "approved" | "rejected_closed";
+  phone_verified: boolean;
+  created_at: string;
+};
 
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
@@ -64,4 +75,27 @@ export function getDemoCardDetail(cardId: string): CardDetail | null {
   }
 
   return getDemoFeedCards().find((card) => card.id === cardId) as CardDetail | null;
+}
+
+export function getDemoApplicants(): DemoApplicant[] {
+  return [
+    {
+      id: "demo-application-1",
+      applicant_id: "00000000-0000-4000-8000-000000000201",
+      nickname: "야구초보",
+      reason_text: "혼자 가기 아쉬웠는데 같은 경기 보며 가볍게 응원하고 싶어요.",
+      status: "pending",
+      phone_verified: true,
+      created_at: new Date(Date.now() - 1000 * 60 * 12).toISOString()
+    },
+    {
+      id: "demo-application-2",
+      applicant_id: "00000000-0000-4000-8000-000000000202",
+      nickname: "주말러너",
+      reason_text: "경기 끝나고 바로 이동할 수 있고, 부담 없는 일정이면 좋겠습니다.",
+      status: "pending",
+      phone_verified: true,
+      created_at: new Date(Date.now() - 1000 * 60 * 35).toISOString()
+    }
+  ];
 }

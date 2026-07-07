@@ -103,14 +103,15 @@
   - [x] 중복 신청 방지
   - [x] 마감/상태 검증
   - [ ] 정원 검증
-- [ ] `POST /api/cards/:id/approve` 구현
-  - 호스트 전용
-  - 승인 신청 `approved`, 나머지 `rejected_closed`
-  - 카드 `closed`
-  - `rooms` row 생성
+- [x] `POST /api/cards/:id/approve` 구현
+  - [x] 호스트 전용
+  - [x] 승인 신청 `approved`, 나머지 `rejected_closed`
+  - [x] 카드 `closed`
+  - [x] `rooms` row 생성
 - [ ] `/cards/[id]/applicants` 구현
-  - 호스트 전용
-  - 기본 정보: 신청 사유, 인증 여부, 완료/노쇼 이력
+  - [x] 호스트 전용
+  - [x] 기본 정보: 신청 사유, 인증 여부
+  - [ ] 완료/노쇼 이력
   - 경쟁 시에만 블러 프로필, 평점 지수, 성사 지수 표시
   - 지수가 `null`이면 "신규" 배지
 - [ ] `GET /api/cards/:id/applicants` 구현
@@ -124,9 +125,10 @@
 ### P4. Mate Room, 후기, 신고
 
 - [ ] `/rooms/[id]` 구현
-  - 참여자만 입장
-  - 신고 버튼 sticky
-  - 연락처 교환 경고 배너
+  - [x] 승인 후 진입용 기본 화면
+  - [ ] 참여자만 입장
+  - [ ] 신고 버튼 sticky
+  - [x] 연락처 교환 경고 배너
   - 종료된 방 접근 차단
 - [ ] messages Realtime 전송/구독 구현
 - [ ] `POST /api/rooms/:id/close` 구현
