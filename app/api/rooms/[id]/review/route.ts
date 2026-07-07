@@ -3,6 +3,7 @@ import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session"
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { DEMO_ROOM_ID } from "@/lib/demo-data";
+import { getRoomAccess } from "@/lib/rooms/access";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +47,16 @@ export async function POST(request: Request, { params }: ReviewRouteContext) {
       },
       next: "/feed"
     });
+  }
+
+  const room = await getRoomAccess(params.id, user.id);
+
+  if (!room) {
+    return fail({ code: "ROOM_NOT_FOUND", message: "방을 찾지 못했어요." }, 404);
+  }
+
+  if (room.status !== "closed") {
+    return fail({ code: "ROOM_NOT_CLOSED", message: "만남 종료 후 후기를 남길 수 있어요." }, 400);
   }
 
   const admin = createServiceRoleSupabaseClient();

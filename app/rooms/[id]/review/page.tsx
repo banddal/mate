@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
+import { hasServiceEnv } from "@/lib/env";
+import { DEMO_ROOM_ID } from "@/lib/demo-data";
+import { getRoomAccess } from "@/lib/rooms/access";
 import { ReviewForm } from "./ReviewForm";
 
 type ReviewPageProps = {
@@ -10,7 +14,19 @@ type ReviewPageProps = {
 };
 
 export default async function ReviewPage({ params }: ReviewPageProps) {
-  await requireOnboarded();
+  const { user } = await requireOnboarded();
+
+  if (hasServiceEnv() && params.id !== DEMO_ROOM_ID) {
+    const room = await getRoomAccess(params.id, user.id);
+
+    if (!room) {
+      notFound();
+    }
+
+    if (room.status === "active") {
+      redirect(`/rooms/${room.id}`);
+    }
+  }
 
   return (
     <main className="min-h-dvh px-5 pb-8 pt-[calc(24px+env(safe-area-inset-top))]">

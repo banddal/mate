@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { ArrowLeft, LockKeyhole, ShieldAlert } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { DEMO_ROOM_ID, getDemoCardDetail, getDemoMessages, DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
+import { getRoomAccess } from "@/lib/rooms/access";
 import { RoomMessagePanel } from "./RoomMessagePanel";
 import { CloseRoomButton } from "./CloseRoomButton";
 import { ReportRoomForm } from "./ReportRoomForm";
@@ -18,6 +19,7 @@ type RoomPageProps = {
 type RoomView = {
   id: string;
   status: "active" | "closed";
+  role: "host" | "participant";
   card: {
     id: string;
     title: string;
@@ -28,10 +30,14 @@ type RoomView = {
 
 export default async function RoomPage({ params }: RoomPageProps) {
   const { user } = await requireOnboarded();
-  const room = await getRoom(params.id);
+  const room = await getRoom(params.id, user.id);
 
   if (!room) {
     notFound();
+  }
+
+  if (room.status === "closed") {
+    redirect(`/rooms/${room.id}/review`);
   }
 
   const messages = await getMessages(room.id, user.id);
@@ -50,6 +56,10 @@ export default async function RoomPage({ params }: RoomPageProps) {
           <p className="text-sm leading-6 text-ink/60">
             확정된 참여자만 보는 임시 방입니다. 종료되면 대화는 남기지 않는 방향으로 구현합니다.
           </p>
+          <span className="inline-flex items-center gap-1 rounded-full bg-moss/10 px-3 py-1 text-xs font-semibold text-moss">
+            <LockKeyhole className="h-3.5 w-3.5" aria-hidden />
+            {room.role === "host" ? "호스트" : "확정 참여자"}
+          </span>
         </header>
 
         <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
@@ -73,7 +83,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
   );
 }
 
-async function getRoom(roomId: string): Promise<RoomView | null> {
+async function getRoom(roomId: string, userId: string): Promise<RoomView | null> {
   if (!hasServiceEnv() || roomId === DEMO_ROOM_ID) {
     const card = getDemoCardDetail(DEMO_CREATED_CARD_ID);
 
@@ -84,6 +94,7 @@ async function getRoom(roomId: string): Promise<RoomView | null> {
     return {
       id: DEMO_ROOM_ID,
       status: "active",
+      role: "host",
       card: {
         id: card.id,
         title: card.title,
@@ -93,40 +104,22 @@ async function getRoom(roomId: string): Promise<RoomView | null> {
     };
   }
 
-  const admin = createServiceRoleSupabaseClient();
-  const { data: room, error } = await admin
-    .from("rooms")
-    .select("id, status, card_id")
-    .eq("id", roomId)
-    .maybeSingle<{
-      id: string;
-      status: "active" | "closed";
-      card_id: string;
-    }>();
+  const access = await getRoomAccess(roomId, userId);
 
-  if (error || !room) {
-    return null;
-  }
-
-  const { data: card } = await admin
-    .from("cards")
-    .select("id, title, location, event_datetime")
-    .eq("id", room.card_id)
-    .maybeSingle<{
-      id: string;
-      title: string;
-      location: string;
-      event_datetime: string;
-    }>();
-
-  if (!card) {
+  if (!access) {
     return null;
   }
 
   return {
-    id: room.id,
-    status: room.status,
-    card
+    id: access.id,
+    status: access.status,
+    role: access.role,
+    card: {
+      id: access.card.id,
+      title: access.card.title,
+      location: access.card.location,
+      event_datetime: access.card.event_datetime
+    }
   };
 }
 

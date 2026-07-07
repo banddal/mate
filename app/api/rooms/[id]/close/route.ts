@@ -3,6 +3,7 @@ import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session"
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { DEMO_ROOM_ID } from "@/lib/demo-data";
+import { getRoomAccess } from "@/lib/rooms/access";
 
 export const dynamic = "force-dynamic";
 
@@ -33,17 +34,9 @@ export async function POST(_request: Request, { params }: CloseRouteContext) {
     });
   }
 
-  const admin = createServiceRoleSupabaseClient();
-  const { data: room, error: roomError } = await admin
-    .from("rooms")
-    .select("id, status")
-    .eq("id", params.id)
-    .maybeSingle<{
-      id: string;
-      status: "active" | "closed";
-    }>();
+  const room = await getRoomAccess(params.id, user.id);
 
-  if (roomError || !room) {
+  if (!room) {
     return fail({ code: "ROOM_NOT_FOUND", message: "방을 찾지 못했어요." }, 404);
   }
 
@@ -51,6 +44,7 @@ export async function POST(_request: Request, { params }: CloseRouteContext) {
     return fail({ code: "ROOM_ALREADY_CLOSED", message: "이미 종료된 방입니다." }, 400);
   }
 
+  const admin = createServiceRoleSupabaseClient();
   const { error: closeError } = await admin
     .from("rooms")
     .update({
