@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
 
 type AdminActionButtonProps = {
-  action: "resolve-report" | "approve-card" | "reject-card";
+  action: "approve-card" | "reject-card";
   targetId: string;
 };
 
@@ -15,12 +15,6 @@ type ApiResponse<T> = {
 };
 
 const actionConfig = {
-  "resolve-report": {
-    label: "해결 처리",
-    icon: Check,
-    endpoint: (id: string) => `/api/admin/reports/${id}/resolve`,
-    body: { resolution: "dismissed" }
-  },
   "approve-card": {
     label: "공개 승인",
     icon: Check,
@@ -78,6 +72,84 @@ export function AdminActionButton({ action, targetId }: AdminActionButtonProps) 
         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Icon className="h-4 w-4" aria-hidden />}
         {config.label}
       </button>
+      {error ? <p className="text-xs font-medium text-red-700">{error}</p> : null}
+    </div>
+  );
+}
+
+const reportResolutionOptions = [
+  { value: "dismissed", label: "문제 없음" },
+  { value: "warned", label: "경고" },
+  { value: "suspended_temp", label: "임시 정지" },
+  { value: "suspended_perm", label: "영구 정지" },
+  { value: "escalated", label: "추가 확인" }
+] as const;
+
+type ReportResolution = (typeof reportResolutionOptions)[number]["value"];
+
+type ReportResolveFormProps = {
+  reportId: string;
+};
+
+export function ReportResolveForm({ reportId }: ReportResolveFormProps) {
+  const router = useRouter();
+  const [resolution, setResolution] = useState<ReportResolution>("dismissed");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function runAction() {
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`/api/admin/reports/${reportId}/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resolution })
+      });
+      const payload = (await response.json()) as ApiResponse<unknown>;
+
+      if (!response.ok || payload.error) {
+        setError(payload.error?.message ?? "신고를 처리하지 못했어요.");
+        return;
+      }
+
+      router.refresh();
+    } catch {
+      setError("신고 처리 중 문제가 생겼어요.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="grid grid-cols-[1fr_auto] gap-2">
+        <select
+          className="min-h-10 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink outline-none focus:border-moss"
+          value={resolution}
+          onChange={(event) => setResolution(event.target.value as ReportResolution)}
+        >
+          {reportResolutionOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={runAction}
+          disabled={isSubmitting}
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isSubmitting ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <Check className="h-4 w-4" aria-hidden />
+          )}
+          처리
+        </button>
+      </div>
       {error ? <p className="text-xs font-medium text-red-700">{error}</p> : null}
     </div>
   );

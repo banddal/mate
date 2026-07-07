@@ -47,5 +47,12 @@ export async function POST(_request: Request, { params }: CardApproveRouteContex
     return fail({ code: "CARD_APPROVE_FAILED", message: "카드를 승인하지 못했어요." }, 500);
   }
 
+  await admin.from("admin_actions").insert({
+    admin_id: user.id,
+    action_type: "card_approve",
+    target_id: params.id,
+    notes: "검수 카드 공개 승인"
+  });
+
   return ok({ card });
 }

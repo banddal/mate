@@ -59,5 +59,12 @@ export async function POST(request: Request, { params }: CardRejectRouteContext)
     return fail({ code: "CARD_REJECT_FAILED", message: "카드를 반려하지 못했어요." }, 500);
   }
 
+  await admin.from("admin_actions").insert({
+    admin_id: user.id,
+    action_type: "card_reject",
+    target_id: params.id,
+    notes: parsed.data.rejectionReason
+  });
+
   return ok({ card });
 }

@@ -60,5 +60,12 @@ export async function POST(request: Request, { params }: ResolveRouteContext) {
     return fail({ code: "REPORT_RESOLVE_FAILED", message: "신고를 해결 처리하지 못했어요." }, 500);
   }
 
+  await admin.from("admin_actions").insert({
+    admin_id: user.id,
+    action_type: "report_resolve",
+    target_id: params.id,
+    notes: parsed.data.resolution
+  });
+
   return ok({ report });
 }

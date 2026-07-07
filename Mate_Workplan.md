@@ -169,6 +169,7 @@
   - [x] 금지어 관리
   - 유저 정지
   - [x] admin 부여/회수
+  - [x] 관리자 작업 이력 조회
 - [ ] admin API 구현
   - `/api/admin/cards/review-queue`
   - [x] `/api/admin/cards/:id/approve`

@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { ArrowLeft, ClipboardList, ShieldAlert, ShieldX, UserCog } from "lucide-react";
+import { ArrowLeft, ClipboardList, History, ShieldAlert, ShieldX, UserCog } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import {
   getDemoAdminCandidates,
+  getDemoAdminActions,
   getDemoAdminUsers,
   getDemoBannedWords,
   getDemoReports,
   getDemoReviewCards
 } from "@/lib/demo-data";
-import { AdminActionButton } from "./AdminActionButton";
+import { AdminActionButton, ReportResolveForm } from "./AdminActionButton";
 import { AdminGrantForm, AdminRevokeButton } from "./AdminUserControls";
 import { BannedWordDeleteButton, BannedWordForm } from "./BannedWordControls";
 
@@ -47,14 +48,24 @@ type BannedWord = {
   category_hint: string | null;
 };
 
+type AdminAction = {
+  id: string;
+  admin_name: string;
+  action_type: string;
+  target_id: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 export default async function AdminPage() {
   await requireOnboarded();
-  const [reports, reviewCards, adminUsers, adminCandidates, bannedWords] = await Promise.all([
+  const [reports, reviewCards, adminUsers, adminCandidates, bannedWords, adminActions] = await Promise.all([
     getReports(),
     getReviewCards(),
     getAdminUsers(),
     getAdminCandidates(),
-    getBannedWords()
+    getBannedWords(),
+    getAdminActions()
   ]);
 
   return (
@@ -89,7 +100,7 @@ export default async function AdminPage() {
                 </div>
                 <p className="text-sm leading-6 text-ink/70">{report.reason}</p>
                 <p className="text-xs text-ink/40">{formatDateTime(report.created_at)}</p>
-                <AdminActionButton action="resolve-report" targetId={report.id} />
+                <ReportResolveForm reportId={report.id} />
               </article>
             ))
           ) : (
@@ -192,6 +203,35 @@ export default async function AdminPage() {
                 <p className="text-sm text-ink/60">등록된 금지어가 없습니다.</p>
               )}
             </div>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <History className="h-5 w-5 text-moss" aria-hidden />
+            작업 이력
+          </div>
+
+          <div className="space-y-2 rounded-lg border border-line bg-white p-4 shadow-soft">
+            {adminActions.length > 0 ? (
+              adminActions.map((action) => (
+                <div key={action.id} className="space-y-1 rounded-md bg-warm px-3 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-sm font-semibold text-ink">
+                      {formatActionType(action.action_type)}
+                    </p>
+                    <p className="shrink-0 text-xs text-ink/40">{formatDateTime(action.created_at)}</p>
+                  </div>
+                  <p className="text-xs text-ink/55">
+                    {action.admin_name}
+                    {action.notes ? ` · ${action.notes}` : ""}
+                  </p>
+                  {action.target_id ? <p className="truncate text-[11px] text-ink/35">{action.target_id}</p> : null}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-ink/60">아직 기록된 작업 이력이 없습니다.</p>
+            )}
           </div>
         </section>
       </section>
@@ -331,6 +371,36 @@ async function getBannedWords(): Promise<BannedWord[]> {
   }));
 }
 
+async function getAdminActions(): Promise<AdminAction[]> {
+  if (!hasServiceEnv()) {
+    return getDemoAdminActions();
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data: actions, error } = await admin
+    .from("admin_actions")
+    .select("id, admin_id, action_type, target_id, notes, created_at")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error || !actions) {
+    return getDemoAdminActions();
+  }
+
+  const adminIds = actions.map((action) => action.admin_id);
+  const { data: profiles } = await admin.from("profiles").select("id, nickname").in("id", adminIds);
+  const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile.nickname]));
+
+  return actions.map((action) => ({
+    id: action.id,
+    admin_name: profileMap.get(action.admin_id) ?? "운영자",
+    action_type: action.action_type,
+    target_id: action.target_id,
+    notes: action.notes,
+    created_at: action.created_at
+  }));
+}
+
 function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "short",
@@ -338,4 +408,18 @@ function formatDateTime(value: string) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(new Date(value));
+}
+
+function formatActionType(actionType: string) {
+  const labels: Record<string, string> = {
+    admin_grant: "운영자 부여",
+    admin_revoke: "운영자 회수",
+    banned_word_create: "금지어 추가",
+    banned_word_delete: "금지어 삭제",
+    card_approve: "카드 승인",
+    card_reject: "카드 반려",
+    report_resolve: "신고 처리"
+  };
+
+  return labels[actionType] ?? actionType;
 }

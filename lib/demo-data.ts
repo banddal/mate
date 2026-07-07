@@ -56,6 +56,15 @@ export type DemoBannedWord = {
   category_hint: string | null;
 };
 
+export type DemoAdminAction = {
+  id: string;
+  admin_name: string;
+  action_type: string;
+  target_id: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -219,6 +228,27 @@ export function getDemoBannedWords(): DemoBannedWord[] {
       word: "사례비",
       severity: "flag",
       category_hint: "cash_compensation"
+    }
+  ];
+}
+
+export function getDemoAdminActions(): DemoAdminAction[] {
+  return [
+    {
+      id: "demo-admin-action-1",
+      admin_name: "Dev Mate",
+      action_type: "report_resolve",
+      target_id: "demo-report-1",
+      notes: "dismissed",
+      created_at: new Date(Date.now() - 1000 * 60 * 8).toISOString()
+    },
+    {
+      id: "demo-admin-action-2",
+      admin_name: "Dev Mate",
+      action_type: "banned_word_create",
+      target_id: "demo-banned-word-2",
+      notes: "flag:사례비",
+      created_at: new Date(Date.now() - 1000 * 60 * 16).toISOString()
     }
   ];
 }
