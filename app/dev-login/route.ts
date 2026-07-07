@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-  const response = NextResponse.redirect(new URL("/feed", request.url));
+  const next = request.nextUrl.searchParams.get("next") ?? "/feed";
+  const response = NextResponse.redirect(new URL(next, request.url));
 
   response.cookies.set(DEV_AUTH_COOKIE, DEV_AUTH_FALLBACK_USER_ID, {
     httpOnly: true,

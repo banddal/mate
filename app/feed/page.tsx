@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Clock3, MapPin, Plus, RotateCw, Ticket } from "lucide-react";
+import { CalendarDays, Clock3, MapPin, Plus, RotateCw, ShieldCheck, Ticket } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
@@ -35,13 +35,22 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                 {profile?.nickname}님, 오늘의 상황
               </h1>
             </div>
-            <Link
-              href="/cards/new"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-white shadow-soft"
-              aria-label="카드 만들기"
-            >
-              <Plus className="h-5 w-5" aria-hidden />
-            </Link>
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                href="/admin"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white text-moss shadow-soft"
+                aria-label="관리자"
+              >
+                <ShieldCheck className="h-5 w-5" aria-hidden />
+              </Link>
+              <Link
+                href="/cards/new"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-ink text-white shadow-soft"
+                aria-label="카드 만들기"
+              >
+                <Plus className="h-5 w-5" aria-hidden />
+              </Link>
+            </div>
           </div>
 
           <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="기간 필터">
@@ -187,8 +196,8 @@ function BottomNav() {
         <Link className="rounded-md px-2 py-2" href="/alerts">
           알림
         </Link>
-        <Link className="rounded-md px-2 py-2" href="/my">
-          마이
+        <Link className="rounded-md px-2 py-2" href="/admin">
+          관리자
         </Link>
       </div>
     </nav>
