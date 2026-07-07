@@ -23,6 +23,14 @@ export type DemoMessage = {
   is_mine: boolean;
 };
 
+export type DemoReport = {
+  id: string;
+  reporter_name: string;
+  reason: string;
+  status: "open" | "reviewing" | "resolved";
+  created_at: string;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -123,6 +131,18 @@ export function getDemoMessages(): DemoMessage[] {
       body: "좋아요. 1루 출입구 앞에서 가볍게 만나요.",
       created_at: new Date(Date.now() - 1000 * 60 * 9).toISOString(),
       is_mine: true
+    }
+  ];
+}
+
+export function getDemoReports(): DemoReport[] {
+  return [
+    {
+      id: "demo-report-1",
+      reporter_name: "Dev Mate",
+      reason: "상대가 외부 메신저로 이동하자고 반복해서 말했어요.",
+      status: "open",
+      created_at: new Date(Date.now() - 1000 * 60 * 18).toISOString()
     }
   ];
 }

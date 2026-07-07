@@ -7,6 +7,7 @@ import { hasServiceEnv } from "@/lib/env";
 import { DEMO_ROOM_ID, getDemoCardDetail, getDemoMessages, DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
 import { RoomMessagePanel } from "./RoomMessagePanel";
 import { CloseRoomButton } from "./CloseRoomButton";
+import { ReportRoomForm } from "./ReportRoomForm";
 
 type RoomPageProps = {
   params: {
@@ -65,6 +66,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         </section>
 
         <RoomMessagePanel roomId={room.id} initialMessages={messages} />
+        <ReportRoomForm roomId={room.id} />
         <CloseRoomButton roomId={room.id} />
       </section>
     </main>
