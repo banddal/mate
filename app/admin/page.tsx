@@ -3,7 +3,8 @@ import { ArrowLeft, ClipboardList, ShieldAlert } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
-import { getDemoReports } from "@/lib/demo-data";
+import { getDemoReports, getDemoReviewCards } from "@/lib/demo-data";
+import { AdminActionButton } from "./AdminActionButton";
 
 type AdminReport = {
   id: string;
@@ -56,6 +57,7 @@ export default async function AdminPage() {
                 </div>
                 <p className="text-sm leading-6 text-ink/70">{report.reason}</p>
                 <p className="text-xs text-ink/40">{formatDateTime(report.created_at)}</p>
+                <AdminActionButton action="resolve-report" targetId={report.id} />
               </article>
             ))
           ) : (
@@ -72,9 +74,13 @@ export default async function AdminPage() {
           </div>
           {reviewCards.length > 0 ? (
             reviewCards.map((card) => (
-              <article key={card.id} className="rounded-lg border border-line bg-white p-4 shadow-soft">
+              <article key={card.id} className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
                 <p className="text-sm font-semibold text-ink">{card.title}</p>
                 <p className="mt-1 text-xs text-ink/45">{formatDateTime(card.created_at)}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <AdminActionButton action="approve-card" targetId={card.id} />
+                  <AdminActionButton action="reject-card" targetId={card.id} />
+                </div>
               </article>
             ))
           ) : (
@@ -123,7 +129,7 @@ async function getReports(): Promise<AdminReport[]> {
 
 async function getReviewCards(): Promise<ReviewCard[]> {
   if (!hasServiceEnv()) {
-    return [];
+    return getDemoReviewCards();
   }
 
   const admin = createServiceRoleSupabaseClient();
@@ -135,7 +141,7 @@ async function getReviewCards(): Promise<ReviewCard[]> {
     .limit(20);
 
   if (error || !cards) {
-    return [];
+    return getDemoReviewCards();
   }
 
   return cards;

@@ -165,15 +165,15 @@
 - [ ] `/admin/*` 단일 관리자 화면 구현
   - [x] 카드 검수 대기열 조회
   - [x] 신고 대기열 조회
-  - [ ] 신고 처리
+  - [x] 신고 처리
   - 금지어 관리
   - 유저 정지
   - admin 부여/회수
 - [ ] admin API 구현
   - `/api/admin/cards/review-queue`
-  - `/api/admin/cards/:id/approve`
-  - `/api/admin/cards/:id/reject`
-  - `/api/admin/reports/:id/resolve`
+  - [x] `/api/admin/cards/:id/approve`
+  - [x] `/api/admin/cards/:id/reject`
+  - [x] `/api/admin/reports/:id/resolve`
   - `/api/admin/admins`
 - [ ] 내부 cron endpoint 구현
   - `/internal/cron/resolve-cards`

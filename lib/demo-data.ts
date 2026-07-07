@@ -31,6 +31,13 @@ export type DemoReport = {
   created_at: string;
 };
 
+export type DemoReviewCard = {
+  id: string;
+  title: string;
+  status: "pending_review";
+  created_at: string;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -143,6 +150,17 @@ export function getDemoReports(): DemoReport[] {
       reason: "상대가 외부 메신저로 이동하자고 반복해서 말했어요.",
       status: "open",
       created_at: new Date(Date.now() - 1000 * 60 * 18).toISOString()
+    }
+  ];
+}
+
+export function getDemoReviewCards(): DemoReviewCard[] {
+  return [
+    {
+      id: "demo-review-card",
+      title: "금액 표현이 있어 검수가 필요한 데모 카드",
+      status: "pending_review",
+      created_at: new Date(Date.now() - 1000 * 60 * 24).toISOString()
     }
   ];
 }
