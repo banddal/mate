@@ -9,7 +9,7 @@ export const DEV_AUTH_COOKIE = "mate_dev_user_id";
 export const DEV_AUTH_EMAIL = "dev-mate@local.test";
 
 export function isDevAuthBypassEnabled() {
-  return process.env.ENABLE_DEV_AUTH_BYPASS === "1" || process.env.NODE_ENV === "development";
+  return process.env.DISABLE_DEV_AUTH_BYPASS !== "1";
 }
 
 export async function getDevAuthSession() {

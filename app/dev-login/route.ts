@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const message =
       error instanceof Error && error.message === "DEV_AUTH_BYPASS_DISABLED"
         ? "개발용 우회 로그인이 꺼져 있습니다."
-        : "개발용 우회 로그인을 준비하지 못했어요. Supabase 서버 환경변수를 확인해주세요.";
+        : "개발용 우회 로그인을 준비하지 못했어요. Vercel의 Supabase 서버 환경변수를 확인해주세요.";
 
     return NextResponse.json(
       {
