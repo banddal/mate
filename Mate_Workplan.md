@@ -105,12 +105,15 @@
   - [ ] 정원 검증
 - [x] `POST /api/cards/:id/approve` 구현
   - [x] 호스트 전용
-  - [x] 승인 신청 `approved`, 나머지 `rejected_closed`
-  - [x] 카드 `closed`
+  - [x] 승인 신청 `approved`
+  - [x] 정원 도달 시 나머지 `rejected_closed`
+  - [x] 정원 도달 시 카드 `closed`
   - [x] `rooms` row 생성
 - [ ] `/cards/[id]/applicants` 구현
   - [x] 호스트 전용
   - [x] 기본 정보: 신청 사유, 인증 여부
+  - [x] 승인/대기/남은 자리 요약
+  - [x] 승인 후 Mate Room 이동
   - [ ] 완료/노쇼 이력
   - 경쟁 시에만 블러 프로필, 평점 지수, 성사 지수 표시
   - 지수가 `null`이면 "신규" 배지

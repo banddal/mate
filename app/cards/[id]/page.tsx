@@ -74,12 +74,17 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
           </section>
 
           {isHost ? (
-            <Link
-              href={`/cards/${card.id}/applicants`}
-              className="flex min-h-12 w-full items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
-            >
-              신청자 보기
-            </Link>
+            <div className="space-y-2">
+              <Link
+                href={`/cards/${card.id}/applicants`}
+                className="flex min-h-12 w-full items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
+              >
+                신청자 검토하기
+              </Link>
+              <p className="text-center text-xs font-medium text-ink/45">
+                승인하면 Mate Room이 열리고 정원이 차면 카드가 마감됩니다.
+              </p>
+            </div>
           ) : null}
 
           {!canApply && !isHost ? (

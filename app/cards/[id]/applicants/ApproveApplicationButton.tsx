@@ -7,6 +7,7 @@ import { Check, Loader2 } from "lucide-react";
 type ApproveApplicationButtonProps = {
   cardId: string;
   applicationId: string;
+  disabled?: boolean;
 };
 
 type ApiResponse<T> = {
@@ -16,13 +17,18 @@ type ApiResponse<T> = {
 
 export function ApproveApplicationButton({
   cardId,
-  applicationId
+  applicationId,
+  disabled = false
 }: ApproveApplicationButtonProps) {
   const router = useRouter();
   const [isApproving, setIsApproving] = useState(false);
   const [error, setError] = useState("");
 
   async function approve() {
+    if (disabled) {
+      return;
+    }
+
     setError("");
     setIsApproving(true);
 
@@ -35,6 +41,10 @@ export function ApproveApplicationButton({
       const payload = (await response.json()) as ApiResponse<{
         room: {
           id: string;
+        };
+        capacity?: {
+          remaining: number;
+          closed: boolean;
         };
       }>;
 
@@ -57,11 +67,11 @@ export function ApproveApplicationButton({
       <button
         type="button"
         onClick={approve}
-        disabled={isApproving}
+        disabled={isApproving || disabled}
         className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isApproving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Check className="h-4 w-4" aria-hidden />}
-        이 신청자 승인
+        {disabled ? "정원 마감" : "이 신청자 승인"}
       </button>
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
     </div>

@@ -60,12 +60,13 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
   const admin = createServiceRoleSupabaseClient();
   const { data: card, error: cardError } = await admin
     .from("cards")
-    .select("id, host_id, status")
+    .select("id, host_id, status, capacity")
     .eq("id", params.id)
     .maybeSingle<{
       id: string;
       host_id: string;
       status: string;
+      capacity: number;
     }>();
 
   if (cardError) {
@@ -82,6 +83,20 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
 
   if (card.status !== "open") {
     return fail({ code: "CARD_NOT_OPEN", message: "이미 마감된 카드입니다." }, 400);
+  }
+
+  const { count: approvedCount, error: approvedCountError } = await admin
+    .from("applications")
+    .select("id", { count: "exact", head: true })
+    .eq("card_id", card.id)
+    .eq("status", "approved");
+
+  if (approvedCountError) {
+    return fail({ code: "CAPACITY_CHECK_FAILED", message: "남은 자리를 확인하지 못했어요." }, 500);
+  }
+
+  if ((approvedCount ?? 0) >= card.capacity) {
+    return fail({ code: "CAPACITY_FULL", message: "이미 정원이 찼어요." }, 400);
   }
 
   const { data: application, error: applicationError } = await admin
@@ -112,24 +127,29 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
     return fail({ code: "APPLICATION_APPROVE_FAILED", message: "신청을 승인하지 못했어요." }, 500);
   }
 
-  const { error: rejectRestError } = await admin
-    .from("applications")
-    .update({ status: "rejected_closed" })
-    .eq("card_id", card.id)
-    .neq("id", application.id)
-    .eq("status", "pending");
+  const nextApprovedCount = (approvedCount ?? 0) + 1;
+  const isCapacityFull = nextApprovedCount >= card.capacity;
 
-  if (rejectRestError) {
-    return fail({ code: "APPLICATION_CLOSE_FAILED", message: "다른 신청을 마감하지 못했어요." }, 500);
-  }
+  if (isCapacityFull) {
+    const { error: rejectRestError } = await admin
+      .from("applications")
+      .update({ status: "rejected_closed" })
+      .eq("card_id", card.id)
+      .neq("id", application.id)
+      .eq("status", "pending");
 
-  const { error: closeCardError } = await admin
-    .from("cards")
-    .update({ status: "closed" })
-    .eq("id", card.id);
+    if (rejectRestError) {
+      return fail({ code: "APPLICATION_CLOSE_FAILED", message: "다른 신청을 마감하지 못했어요." }, 500);
+    }
 
-  if (closeCardError) {
-    return fail({ code: "CARD_CLOSE_FAILED", message: "카드를 마감하지 못했어요." }, 500);
+    const { error: closeCardError } = await admin
+      .from("cards")
+      .update({ status: "closed" })
+      .eq("id", card.id);
+
+    if (closeCardError) {
+      return fail({ code: "CARD_CLOSE_FAILED", message: "카드를 마감하지 못했어요." }, 500);
+    }
   }
 
   const { data: room, error: roomError } = await admin
@@ -154,6 +174,12 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
       id: application.id,
       status: "approved"
     },
-    room
+    room,
+    capacity: {
+      approved: nextApprovedCount,
+      total: card.capacity,
+      remaining: Math.max(card.capacity - nextApprovedCount, 0),
+      closed: isCapacityFull
+    }
   });
 }
