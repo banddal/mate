@@ -1,5 +1,18 @@
 import Link from "next/link";
-import { ArrowLeft, Bell, CalendarDays, ClipboardList, DoorOpen, Plus, Send, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  Bell,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  Clock3,
+  DoorOpen,
+  FileCheck2,
+  Hourglass,
+  Plus,
+  Send,
+  UserRound
+} from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
@@ -24,11 +37,25 @@ type ActivityRoom = {
   event_datetime: string;
 };
 
+type NextAction = {
+  title: string;
+  body: string;
+  href: string;
+  label: string;
+  priority: "high" | "normal";
+};
+
 export default async function MePage() {
   const { user, profile } = await requireOnboarded();
   const [cards, rooms] = await Promise.all([getActivityCards(user.id), getActivityRooms(user.id)]);
-  const hostingCount = cards.filter((card) => card.role === "host").length;
-  const applyingCount = cards.filter((card) => card.role === "applicant").length;
+
+  const hostedCards = cards.filter((card) => card.role === "host");
+  const appliedCards = cards.filter((card) => card.role === "applicant");
+  const activeRooms = rooms.filter((room) => room.status === "active");
+  const reviewRooms = rooms.filter((room) => room.status === "closed");
+  const pendingApplications = appliedCards.filter((card) => card.application_status === "pending");
+  const approvedApplications = appliedCards.filter((card) => card.application_status === "approved");
+  const nextActions = buildNextActions({ hostedCards, pendingApplications, activeRooms, reviewRooms });
 
   return (
     <main className="min-h-dvh px-5 pb-[calc(88px+env(safe-area-inset-bottom))] pt-[calc(24px+env(safe-area-inset-top))]">
@@ -38,22 +65,22 @@ export default async function MePage() {
           피드로 돌아가기
         </Link>
 
-        <header className="space-y-3">
+        <header className="space-y-4">
           <div className="space-y-2">
             <p className="text-sm font-semibold text-moss">My Activity</p>
             <h1 className="text-3xl font-bold leading-tight tracking-normal text-ink">
-              {profile?.nickname ?? "나"}님의 활동
+              {profile?.nickname ?? "나"}님의 진행 현황
             </h1>
             <p className="text-sm leading-6 text-ink/60">
-              내가 연 카드, 신청한 카드, 확정된 Mate Room을 한곳에서 확인합니다.
+              만든 카드, 신청한 카드, 열린 Room, 남은 후속 작업을 한 화면에서 확인합니다.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <Metric label="연 카드" value={hostingCount} />
-            <Metric label="신청" value={applyingCount} />
-            <Metric label="Room" value={rooms.length} />
-          </div>
+          <section className="grid grid-cols-3 gap-2" aria-label="활동 요약">
+            <Metric label="처리할 일" value={nextActions.length} tone={nextActions.length > 0 ? "strong" : "calm"} />
+            <Metric label="진행 Room" value={activeRooms.length} tone="calm" />
+            <Metric label="승인 신청" value={approvedApplications.length} tone="calm" />
+          </section>
         </header>
 
         <section className="grid grid-cols-2 gap-2">
@@ -69,76 +96,126 @@ export default async function MePage() {
             className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink"
           >
             <Bell className="h-4 w-4" aria-hidden />
-            알림 설정
+            알림 보기
           </Link>
         </section>
 
         <section className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <DoorOpen className="h-5 w-5 text-moss" aria-hidden />
-            Mate Room
-          </div>
-          {rooms.length > 0 ? (
+          <SectionTitle icon={<Clock3 className="h-5 w-5" aria-hidden />} title="지금 할 일" />
+          {nextActions.length > 0 ? (
             <div className="space-y-2">
-              {rooms.map((room) => (
+              {nextActions.map((action) => (
                 <Link
-                  key={room.id}
-                  href={room.status === "active" ? `/rooms/${room.id}` : `/rooms/${room.id}/review`}
-                  className="block rounded-lg border border-line bg-white p-4 shadow-soft"
+                  key={`${action.href}-${action.title}`}
+                  href={action.href}
+                  className={`block rounded-lg border p-4 shadow-soft transition hover:border-moss ${
+                    action.priority === "high" ? "border-moss bg-moss/10" : "border-line bg-white"
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 space-y-1">
-                      <p className="truncate text-sm font-semibold text-ink">{room.title}</p>
-                      <p className="text-xs text-ink/45">{formatDateTime(room.event_datetime)}</p>
+                      <p className="text-sm font-semibold text-ink">{action.title}</p>
+                      <p className="text-sm leading-6 text-ink/60">{action.body}</p>
                     </div>
-                    <StatusBadge status={room.status === "active" ? "진행 중" : "종료"} tone={room.status === "active" ? "moss" : "paper"} />
+                    <span className="shrink-0 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-white">
+                      {action.label}
+                    </span>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <EmptyState title="아직 열린 Room이 없어요" body="신청이 승인되거나 호스트가 신청자를 승인하면 Room이 여기에 표시됩니다." />
+            <EmptyState
+              icon={<CheckCircle2 className="h-4 w-4" aria-hidden />}
+              title="지금 처리할 일은 없어요"
+              body="새 카드를 만들거나 피드에서 관심 있는 카드를 신청하면 다음 액션이 여기에 모입니다."
+              href="/feed"
+              action="피드 보기"
+            />
           )}
         </section>
 
         <section className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <ClipboardList className="h-5 w-5 text-moss" aria-hidden />
-            카드 활동
-          </div>
-          {cards.length > 0 ? (
+          <SectionTitle icon={<DoorOpen className="h-5 w-5" aria-hidden />} title="Mate Room" />
+          {rooms.length > 0 ? (
             <div className="space-y-2">
-              {cards.map((card) => (
-                <Link
-                  key={`${card.role}-${card.id}`}
-                  href={card.role === "host" ? `/cards/${card.id}/applicants` : `/cards/${card.id}`}
-                  className="block rounded-lg border border-line bg-white p-4 shadow-soft"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 space-y-1">
-                        <div className="flex flex-wrap gap-2">
-                          <span className="rounded-full bg-moss/10 px-2.5 py-1 text-xs font-semibold text-moss">
-                            {card.category}
-                          </span>
-                          <span className="rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink/55">
-                            {card.role === "host" ? "호스트" : "신청"}
-                          </span>
-                        </div>
-                        <p className="truncate text-sm font-semibold text-ink">{card.title}</p>
-                      </div>
-                      <StatusBadge status={formatCardStatus(card)} tone={card.role === "host" ? "moss" : "paper"} />
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-ink/50">
-                      <CalendarDays className="h-3.5 w-3.5 text-moss" aria-hidden />
-                      {formatDateTime(card.event_datetime)}
-                    </div>
-                  </div>
-                </Link>
+              {rooms.map((room) => (
+                <ActivityRow
+                  key={room.id}
+                  href={room.status === "active" ? `/rooms/${room.id}` : `/rooms/${room.id}/review`}
+                  eyebrow={room.status === "active" ? "진행 중" : "후기 필요"}
+                  title={room.title}
+                  meta={formatDateTime(room.event_datetime)}
+                  badge={room.status === "active" ? "입장" : "후기"}
+                  icon={<DoorOpen className="h-4 w-4" aria-hidden />}
+                  urgent={room.status === "closed"}
+                />
               ))}
             </div>
           ) : (
-            <EmptyState title="카드 활동이 아직 없어요" body="카드를 만들거나 피드에서 신청하면 이곳에 모입니다." />
+            <EmptyState
+              icon={<DoorOpen className="h-4 w-4" aria-hidden />}
+              title="아직 열린 Room이 없어요"
+              body="신청이 승인되거나 호스트가 신청자를 승인하면 확정 Room이 표시됩니다."
+              href="/feed"
+              action="신청할 카드 찾기"
+            />
+          )}
+        </section>
+
+        <section className="space-y-3">
+          <SectionTitle icon={<FileCheck2 className="h-5 w-5" aria-hidden />} title="내가 만든 카드" />
+          {hostedCards.length > 0 ? (
+            <div className="space-y-2">
+              {hostedCards.map((card) => (
+                <ActivityRow
+                  key={`host-${card.id}`}
+                  href={`/cards/${card.id}/applicants`}
+                  eyebrow={`${card.category} · 호스트`}
+                  title={card.title}
+                  meta={formatDateTime(card.event_datetime)}
+                  badge={formatCardStatus(card)}
+                  icon={<ClipboardList className="h-4 w-4" aria-hidden />}
+                  urgent={card.status === "open"}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Plus className="h-4 w-4" aria-hidden />}
+              title="아직 만든 카드가 없어요"
+              body="같이 하고 싶은 활동이 생기면 카드로 열고 신청자를 받을 수 있습니다."
+              href="/cards/new"
+              action="카드 만들기"
+            />
+          )}
+        </section>
+
+        <section className="space-y-3">
+          <SectionTitle icon={<Send className="h-5 w-5" aria-hidden />} title="내가 신청한 카드" />
+          {appliedCards.length > 0 ? (
+            <div className="space-y-2">
+              {appliedCards.map((card) => (
+                <ActivityRow
+                  key={`apply-${card.id}`}
+                  href={`/cards/${card.id}`}
+                  eyebrow={`${card.category} · 신청`}
+                  title={card.title}
+                  meta={formatDateTime(card.event_datetime)}
+                  badge={formatCardStatus(card)}
+                  icon={<Hourglass className="h-4 w-4" aria-hidden />}
+                  urgent={card.application_status === "approved"}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<UserRound className="h-4 w-4" aria-hidden />}
+              title="아직 신청한 카드가 없어요"
+              body="가볍게 참여할 수 있는 활동을 피드에서 찾아보세요."
+              href="/feed"
+              action="피드 보기"
+            />
           )}
         </section>
       </section>
@@ -148,38 +225,88 @@ export default async function MePage() {
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({ label, value, tone }: { label: string; value: number; tone: "strong" | "calm" }) {
   return (
-    <div className="rounded-lg border border-line bg-white px-3 py-3 shadow-soft">
+    <div className={`rounded-lg border px-3 py-3 shadow-soft ${tone === "strong" ? "border-moss bg-moss/10" : "border-line bg-white"}`}>
       <p className="text-xs font-semibold text-ink/45">{label}</p>
       <p className="mt-1 text-xl font-bold tracking-normal text-ink">{value}</p>
     </div>
   );
 }
 
-function EmptyState({ title, body }: { title: string; body: string }) {
+function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <div className="rounded-lg border border-line bg-white p-4 shadow-soft">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-paper text-moss">
-        <UserRound className="h-4 w-4" aria-hidden />
-      </div>
-      <p className="text-sm font-semibold text-ink">{title}</p>
-      <p className="mt-1 text-sm leading-6 text-ink/60">{body}</p>
+    <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+      <span className="text-moss">{icon}</span>
+      {title}
     </div>
   );
 }
 
-function StatusBadge({ status, tone }: { status: string; tone: "moss" | "paper" }) {
+function ActivityRow({
+  href,
+  eyebrow,
+  title,
+  meta,
+  badge,
+  icon,
+  urgent
+}: {
+  href: string;
+  eyebrow: string;
+  title: string;
+  meta: string;
+  badge: string;
+  icon: React.ReactNode;
+  urgent?: boolean;
+}) {
   return (
-    <span
-      className={
-        tone === "moss"
-          ? "shrink-0 rounded-full bg-moss/10 px-2 py-1 text-xs font-semibold text-moss"
-          : "shrink-0 rounded-full bg-paper px-2 py-1 text-xs font-semibold text-ink/55"
-      }
+    <Link
+      href={href}
+      className={`block rounded-lg border p-4 shadow-soft transition hover:border-moss ${urgent ? "border-moss/40 bg-white" : "border-line bg-white"}`}
     >
-      {status}
-    </span>
+      <div className="flex items-start gap-3">
+        <span className={`mt-0.5 rounded-md p-2 ${urgent ? "bg-moss/10 text-moss" : "bg-paper text-moss"}`}>
+          {icon}
+        </span>
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-xs font-semibold text-ink/45">{eyebrow}</p>
+            <span className="shrink-0 rounded-full bg-paper px-2 py-1 text-xs font-semibold text-ink/55">{badge}</span>
+          </div>
+          <p className="truncate text-sm font-semibold text-ink">{title}</p>
+          <p className="flex items-center gap-1.5 text-xs text-ink/50">
+            <CalendarDays className="h-3.5 w-3.5 text-moss" aria-hidden />
+            {meta}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function EmptyState({
+  icon,
+  title,
+  body,
+  href,
+  action
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+  href: string;
+  action: string;
+}) {
+  return (
+    <div className="rounded-lg border border-line bg-white p-4 shadow-soft">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-paper text-moss">{icon}</div>
+      <p className="text-sm font-semibold text-ink">{title}</p>
+      <p className="mt-1 text-sm leading-6 text-ink/60">{body}</p>
+      <Link href={href} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md bg-ink px-3 text-sm font-semibold text-white">
+        {action}
+      </Link>
+    </div>
   );
 }
 
@@ -206,10 +333,7 @@ async function getActivityCards(userId: string): Promise<ActivityCard[]> {
   const cardIds = [...new Set((applications ?? []).map((application) => application.card_id))];
   const { data: appliedCards } =
     cardIds.length > 0
-      ? await admin
-          .from("cards")
-          .select("id, title, category, status, event_datetime")
-          .in("id", cardIds)
+      ? await admin.from("cards").select("id, title, category, status, event_datetime").in("id", cardIds)
       : { data: [] };
 
   const appliedCardMap = new Map((appliedCards ?? []).map((card) => [card.id, card]));
@@ -279,10 +403,7 @@ async function getActivityRooms(userId: string): Promise<ActivityRoom[]> {
   const roomCardIds = [...new Set((rooms ?? []).map((room) => room.card_id))];
   const { data: cards } =
     roomCardIds.length > 0
-      ? await admin
-          .from("cards")
-          .select("id, title, event_datetime")
-          .in("id", roomCardIds)
+      ? await admin.from("cards").select("id, title, event_datetime").in("id", roomCardIds)
       : { data: [] };
   const cardMap = new Map((cards ?? []).map((card) => [card.id, card]));
 
@@ -302,6 +423,66 @@ async function getActivityRooms(userId: string): Promise<ActivityRoom[]> {
       };
     })
     .filter((room): room is ActivityRoom => Boolean(room));
+}
+
+function buildNextActions({
+  hostedCards,
+  pendingApplications,
+  activeRooms,
+  reviewRooms
+}: {
+  hostedCards: ActivityCard[];
+  pendingApplications: ActivityCard[];
+  activeRooms: ActivityRoom[];
+  reviewRooms: ActivityRoom[];
+}): NextAction[] {
+  const actions: NextAction[] = [];
+  const openHostCard = hostedCards.find((card) => card.status === "open");
+  const pendingApplication = pendingApplications[0];
+  const activeRoom = activeRooms[0];
+  const reviewRoom = reviewRooms[0];
+
+  if (reviewRoom) {
+    actions.push({
+      title: "후기 확인이 남았어요",
+      body: reviewRoom.title,
+      href: `/rooms/${reviewRoom.id}/review`,
+      label: "후기",
+      priority: "high"
+    });
+  }
+
+  if (openHostCard) {
+    actions.push({
+      title: "신청자를 확인할 수 있어요",
+      body: openHostCard.title,
+      href: `/cards/${openHostCard.id}/applicants`,
+      label: "검토",
+      priority: "high"
+    });
+  }
+
+  if (activeRoom) {
+    actions.push({
+      title: "진행 중인 Room이 있어요",
+      body: activeRoom.title,
+      href: `/rooms/${activeRoom.id}`,
+      label: "입장",
+      priority: "normal"
+    });
+  }
+
+  if (pendingApplication) {
+    actions.push({
+      title: "호스트 응답을 기다리는 중이에요",
+      body: pendingApplication.title,
+      href: `/cards/${pendingApplication.id}`,
+      label: "대기",
+      priority: "normal"
+    });
+  }
+
+  return actions.slice(0, 3);
 }
 
 function formatCardStatus(card: ActivityCard) {

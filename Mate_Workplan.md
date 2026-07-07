@@ -160,6 +160,10 @@
   - [x] 장소, 시간 패턴, 카테고리만
   - [x] 사람 구독 옵션 없음
   - [x] 구독 생성/삭제 UI
+- [x] `/me` 활동 허브 개선 (프론트 — 코덱스)
+  - [x] 지금 할 일 큐
+  - [x] Mate Room / 내가 만든 카드 / 내가 신청한 카드 분리
+  - [x] 빈 상태별 다음 액션 연결
 - [x] `GET/POST /api/subscriptions` 구현 (+ `DELETE /api/subscriptions/:id`, L3 차단·중복 방지·상한 20)
 - [x] notification dispatch 로직 구현
   - [x] 410 endpoint 정리
