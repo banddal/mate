@@ -168,13 +168,13 @@
   - [x] 신고 처리
   - 금지어 관리
   - 유저 정지
-  - admin 부여/회수
+  - [x] admin 부여/회수
 - [ ] admin API 구현
   - `/api/admin/cards/review-queue`
   - [x] `/api/admin/cards/:id/approve`
   - [x] `/api/admin/cards/:id/reject`
   - [x] `/api/admin/reports/:id/resolve`
-  - `/api/admin/admins`
+  - [x] `/api/admin/admins`
 - [ ] 내부 cron endpoint 구현
   - `/internal/cron/resolve-cards`
   - `/internal/cron/dispatch-notifications`

@@ -1,10 +1,16 @@
 import Link from "next/link";
-import { ArrowLeft, ClipboardList, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ClipboardList, ShieldAlert, UserCog } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
-import { getDemoReports, getDemoReviewCards } from "@/lib/demo-data";
+import {
+  getDemoAdminCandidates,
+  getDemoAdminUsers,
+  getDemoReports,
+  getDemoReviewCards
+} from "@/lib/demo-data";
 import { AdminActionButton } from "./AdminActionButton";
+import { AdminGrantForm, AdminRevokeButton } from "./AdminUserControls";
 
 type AdminReport = {
   id: string;
@@ -21,9 +27,25 @@ type ReviewCard = {
   created_at: string;
 };
 
+type AdminUser = {
+  user_id: string;
+  nickname: string;
+  granted_at: string;
+};
+
+type AdminCandidate = {
+  id: string;
+  nickname: string;
+};
+
 export default async function AdminPage() {
   await requireOnboarded();
-  const [reports, reviewCards] = await Promise.all([getReports(), getReviewCards()]);
+  const [reports, reviewCards, adminUsers, adminCandidates] = await Promise.all([
+    getReports(),
+    getReviewCards(),
+    getAdminUsers(),
+    getAdminCandidates()
+  ]);
 
   return (
     <main className="min-h-dvh px-5 pb-8 pt-[calc(24px+env(safe-area-inset-top))]">
@@ -89,6 +111,36 @@ export default async function AdminPage() {
             </p>
           )}
         </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <UserCog className="h-5 w-5 text-moss" aria-hidden />
+            운영자 권한
+          </div>
+
+          <div className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
+            <AdminGrantForm candidates={adminCandidates} />
+
+            <div className="space-y-2">
+              {adminUsers.length > 0 ? (
+                adminUsers.map((adminUser) => (
+                  <div
+                    key={adminUser.user_id}
+                    className="grid grid-cols-[1fr_80px] items-center gap-3 rounded-md bg-warm px-3 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-ink">{adminUser.nickname}</p>
+                      <p className="text-xs text-ink/45">{formatDateTime(adminUser.granted_at)}</p>
+                    </div>
+                    <AdminRevokeButton userId={adminUser.user_id} />
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-ink/60">등록된 운영자가 없습니다.</p>
+              )}
+            </div>
+          </div>
+        </section>
       </section>
     </main>
   );
@@ -145,6 +197,61 @@ async function getReviewCards(): Promise<ReviewCard[]> {
   }
 
   return cards;
+}
+
+async function getAdminUsers(): Promise<AdminUser[]> {
+  if (!hasServiceEnv()) {
+    return getDemoAdminUsers();
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data: rows, error } = await admin
+    .from("admin_users")
+    .select("user_id, granted_at")
+    .order("granted_at", { ascending: false })
+    .limit(20);
+
+  if (error || !rows) {
+    return getDemoAdminUsers();
+  }
+
+  const userIds = rows.map((row) => row.user_id);
+  const { data: profiles } = await admin.from("profiles").select("id, nickname").in("id", userIds);
+  const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile.nickname]));
+
+  return rows.map((row) => ({
+    user_id: row.user_id,
+    nickname: profileMap.get(row.user_id) ?? "운영자",
+    granted_at: row.granted_at
+  }));
+}
+
+async function getAdminCandidates(): Promise<AdminCandidate[]> {
+  if (!hasServiceEnv()) {
+    return getDemoAdminCandidates();
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data: adminRows } = await admin.from("admin_users").select("user_id");
+  const adminIds = new Set((adminRows ?? []).map((row) => row.user_id));
+
+  const { data: profiles, error } = await admin
+    .from("profiles")
+    .select("id, nickname")
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  if (error || !profiles) {
+    return getDemoAdminCandidates();
+  }
+
+  return profiles
+    .filter((profile) => !adminIds.has(profile.id))
+    .slice(0, 10)
+    .map((profile) => ({
+      id: profile.id,
+      nickname: profile.nickname
+    }));
 }
 
 function formatDateTime(value: string) {

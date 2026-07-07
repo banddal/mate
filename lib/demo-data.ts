@@ -38,6 +38,17 @@ export type DemoReviewCard = {
   created_at: string;
 };
 
+export type DemoAdminUser = {
+  user_id: string;
+  nickname: string;
+  granted_at: string;
+};
+
+export type DemoAdminCandidate = {
+  id: string;
+  nickname: string;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -161,6 +172,29 @@ export function getDemoReviewCards(): DemoReviewCard[] {
       title: "금액 표현이 있어 검수가 필요한 데모 카드",
       status: "pending_review",
       created_at: new Date(Date.now() - 1000 * 60 * 24).toISOString()
+    }
+  ];
+}
+
+export function getDemoAdminUsers(): DemoAdminUser[] {
+  return [
+    {
+      user_id: DEV_AUTH_FALLBACK_USER_ID,
+      nickname: "Dev Mate",
+      granted_at: new Date(Date.now() - 1000 * 60 * 120).toISOString()
+    }
+  ];
+}
+
+export function getDemoAdminCandidates(): DemoAdminCandidate[] {
+  return [
+    {
+      id: "demo-admin-candidate-1",
+      nickname: "운영 후보 A"
+    },
+    {
+      id: "demo-admin-candidate-2",
+      nickname: "운영 후보 B"
     }
   ];
 }
