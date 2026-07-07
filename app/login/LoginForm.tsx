@@ -72,7 +72,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
       }
 
       setStatus("sent");
-      setMessage("메일함에서 Mate 로그인 링크를 확인해주세요. 링크가 열리지 않으면 Supabase Redirect URL 설정을 확인해야 합니다.");
+      setMessage("메일함에서 Mate 로그인 링크를 확인해주세요. 매직링크는 요청한 브라우저에서 바로 열어야 합니다.");
     } catch (error) {
       setStatus("error");
       setMessage(getLoginErrorMessage(error, "매직링크를 보내지 못했어요."));
