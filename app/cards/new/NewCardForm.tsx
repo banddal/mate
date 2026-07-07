@@ -48,6 +48,16 @@ export function NewCardForm() {
         return;
       }
 
+      if (new Date(eventIso).getTime() <= Date.now()) {
+        setError("모임 일시는 현재보다 이후여야 합니다.");
+        return;
+      }
+
+      if (new Date(deadlineIso).getTime() >= new Date(eventIso).getTime()) {
+        setError("신청 마감시간은 모임 일시보다 이전이어야 합니다.");
+        return;
+      }
+
       const response = await fetch("/api/cards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -51,7 +51,13 @@ export async function POST(request: Request) {
   const parsed = createCardSchema.safeParse(await request.json().catch(() => null));
 
   if (!parsed.success) {
-    return fail({ code: "INVALID_CARD_INPUT", message: "카드 내용을 확인해주세요." }, 400);
+    return fail(
+      {
+        code: "INVALID_CARD_INPUT",
+        message: getCreateCardErrorMessage(parsed.error)
+      },
+      400
+    );
   }
 
   const level = getCategoryLevel(parsed.data.category);
@@ -125,4 +131,8 @@ export async function POST(request: Request) {
   } catch {
     return fail({ code: "CARD_REVIEW_FAILED", message: "카드를 검수하지 못했어요." }, 500);
   }
+}
+
+function getCreateCardErrorMessage(error: z.ZodError) {
+  return error.issues[0]?.message ?? "카드 내용을 확인해주세요.";
 }
