@@ -74,7 +74,16 @@ export async function POST(request: Request, { params }: ReviewRouteContext) {
     .select("id, room_id")
     .single();
 
-  if (error || !review) {
+  if (error) {
+    // reviews 테이블의 unique (room_id, user_id) 제약 위반 → 이미 후기를 남긴 경우
+    if (error.code === "23505") {
+      return fail({ code: "REVIEW_ALREADY_SUBMITTED", message: "이미 후기를 남겼어요." }, 409);
+    }
+
+    return fail({ code: "REVIEW_CREATE_FAILED", message: "후기를 저장하지 못했어요." }, 500);
+  }
+
+  if (!review) {
     return fail({ code: "REVIEW_CREATE_FAILED", message: "후기를 저장하지 못했어요." }, 500);
   }
 

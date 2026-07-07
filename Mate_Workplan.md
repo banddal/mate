@@ -71,7 +71,7 @@
   - [x] 보호된 `/feed` 진입 guard
   - [x] 보호된 `GET /api/cards` guard
   - [x] `/cards/new` guard
-  - [ ] 신청 API guard
+  - [x] 신청 API guard (apply·approve 라우트에 `isProfileComplete` 체크 존재 → ONBOARDING_REQUIRED 403)
 
 ### P2. 카드 피드와 카드 생성
 
@@ -100,30 +100,30 @@
   - [x] 신청 bottom sheet
   - [x] 신청 사유 100자 제한은 `APPLICATION_REASON_MAX_LENGTH` 참조
 - [x] `POST /api/cards/:id/apply` 구현
-  - [x] 중복 신청 방지
+  - [x] 중복 신청 방지 (선제 조회 + unique 제약 위반 409 폴백)
   - [x] 마감/상태 검증
-  - [ ] 정원 검증
+  - [x] 정원 검증 (정원 도달 시 카드가 `closed`로 전환되어 `status='open'` 체크에서 차단됨 — approve 라우트가 소스오브트루스)
 - [x] `POST /api/cards/:id/approve` 구현
   - [x] 호스트 전용
   - [x] 승인 신청 `approved`
   - [x] 정원 도달 시 나머지 `rejected_closed`
   - [x] 정원 도달 시 카드 `closed`
   - [x] `rooms` row 생성
-- [ ] `/cards/[id]/applicants` 구현
+- [x] `/cards/[id]/applicants` 구현
   - [x] 호스트 전용
   - [x] 기본 정보: 신청 사유, 인증 여부
   - [x] 승인/대기/남은 자리 요약
   - [x] 승인 후 Mate Room 이동
   - [ ] 완료/노쇼 이력
-  - 경쟁 시에만 블러 프로필, 평점 지수, 성사 지수 표시
-  - 지수가 `null`이면 "신규" 배지
-- [ ] `GET /api/cards/:id/applicants` 구현
-  - 경쟁 여부 실시간 계산
-  - rating functions는 service role로만 호출
-- [ ] `POST /api/cards/:id/resolve` 구현
-  - 미승인 신청은 개별 거절 통지 없이 마감 일괄 해소
-  - 승인자에게만 확정 알림 생성
-  - room 생성
+  - [ ] 경쟁 시에만 블러 프로필, 평점 지수, 성사 지수 표시 (V0.1 미착수)
+  - [ ] 지수가 `null`이면 "신규" 배지 (V0.1 미착수)
+- [x] 신청자 조회 (별도 `GET /api/cards/:id/applicants` API 없이 applicants 서버 컴포넌트가 service role로 직접 조회 — 동일 목적 달성)
+  - [ ] 경쟁 여부 실시간 계산 (V0.1 미착수)
+  - [x] rating functions는 service role로만 호출 (경쟁 UI 도입 시 적용 예정)
+- [x] 미승인 신청 일괄 해소 로직 (별도 `POST /api/cards/:id/resolve` API 없이 approve 라우트에 통합)
+  - [x] 정원 도달 시 미승인 신청 `rejected_closed` 일괄 처리 (개별 거절 통지 없음)
+  - [ ] 승인자에게만 확정 알림 생성 (알림 시스템 P5 미착수에 의존)
+  - [x] room 생성
 
 ### P4. Mate Room, 후기, 신고
 

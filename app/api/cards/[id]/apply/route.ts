@@ -107,6 +107,11 @@ export async function POST(request: Request, { params }: ApplyRouteContext) {
       .single();
 
     if (insertError) {
+      // applications 테이블의 unique (card_id, applicant_id) 제약 위반 → 동시 신청 등으로 이미 신청된 경우
+      if (insertError.code === "23505") {
+        return fail({ code: "ALREADY_APPLIED", message: "이미 신청한 카드입니다." }, 409);
+      }
+
       return fail({ code: "APPLICATION_CREATE_FAILED", message: "신청을 저장하지 못했어요." }, 500);
     }
 
