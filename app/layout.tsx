@@ -3,7 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Mate",
-  description: "상황 카드로 오늘의 mate를 찾는 모바일 웹"
+  description: "상황 카드로 오늘의 mate를 찾는 모바일 웹",
+  manifest: "/manifest.webmanifest"
 };
 
 export const viewport: Viewport = {

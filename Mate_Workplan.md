@@ -153,12 +153,13 @@
 
 ### P5. 알림, 구독, PWA
 
-- [ ] PWA manifest와 service worker 구성 (프론트 — 코덱스)
-- [ ] Web Push 구독 등록 UI 구현 (프론트 — 코덱스, `/api/push/*` 호출)
+- [x] PWA manifest와 service worker 구성 (프론트 — 코덱스)
+- [x] Web Push 구독 등록 UI 구현 (프론트 — 코덱스, `/api/push/*` 호출)
 - [x] `POST /api/push/subscribe` 구현 (+ `/api/push/unsubscribe`, `/api/push/config`)
-- [ ] `/alerts` 구현 (프론트 — 코덱스)
-  - 장소, 시간 패턴, 카테고리만
-  - 사람 구독 옵션 없음
+- [x] `/alerts` 구현 (프론트 — 코덱스)
+  - [x] 장소, 시간 패턴, 카테고리만
+  - [x] 사람 구독 옵션 없음
+  - [x] 구독 생성/삭제 UI
 - [x] `GET/POST /api/subscriptions` 구현 (+ `DELETE /api/subscriptions/:id`, L3 차단·중복 방지·상한 20)
 - [x] notification dispatch 로직 구현
   - [x] 410 endpoint 정리
