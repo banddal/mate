@@ -122,7 +122,7 @@
   - [x] rating functions는 service role로만 호출 (경쟁 UI 도입 시 적용 예정)
 - [x] 미승인 신청 일괄 해소 로직 (별도 `POST /api/cards/:id/resolve` API 없이 approve 라우트에 통합)
   - [x] 정원 도달 시 미승인 신청 `rejected_closed` 일괄 처리 (개별 거절 통지 없음)
-  - [ ] 승인자에게만 확정 알림 생성 (알림 시스템 P5 미착수에 의존)
+  - [x] 승인자에게만 확정 알림 생성 (approve 라우트 + resolve-cards cron)
   - [x] room 생성
 
 ### P4. Mate Room, 후기, 신고
@@ -153,17 +153,23 @@
 
 ### P5. 알림, 구독, PWA
 
-- [ ] PWA manifest와 service worker 구성
-- [ ] Web Push 구독 등록 UI 구현
-- [ ] `POST /api/push/subscribe` 구현
-- [ ] `/alerts` 구현
+- [ ] PWA manifest와 service worker 구성 (프론트 — 코덱스)
+- [ ] Web Push 구독 등록 UI 구현 (프론트 — 코덱스, `/api/push/*` 호출)
+- [x] `POST /api/push/subscribe` 구현 (+ `/api/push/unsubscribe`, `/api/push/config`)
+- [ ] `/alerts` 구현 (프론트 — 코덱스)
   - 장소, 시간 패턴, 카테고리만
   - 사람 구독 옵션 없음
-- [ ] `GET/POST /api/subscriptions` 구현
-- [ ] notification dispatch 로직 구현
-  - 410 endpoint 정리
-  - 24시간 dedup
-  - 1회 재시도
+- [ ] `GET/POST /api/subscriptions` 구현 (구독 CRUD — 아직 미구현, subscriptions 테이블은 존재)
+- [x] notification dispatch 로직 구현
+  - [x] 410 endpoint 정리
+  - [x] 24시간 dedup
+  - [x] 1회 재시도
+- [x] 알림 생성 트리거 5종 연결
+  - [x] `application_resolved` (approve / resolve-cards cron)
+  - [x] `card_review_resolved` (admin approve/reject)
+  - [x] `subscription_match` (카드 생성 / admin approve, 상대방 식별정보 미포함)
+  - [x] `card_deadline_imminent` (resolve-cards cron, pending 신청 있는 카드 호스트)
+  - [x] `report_status_change` (admin report resolve)
 
 ### P6. 관리자와 Cron
 

@@ -3,6 +3,7 @@ import { isAuthorizedCronRequest } from "@/lib/cron/auth";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { createNotification } from "@/lib/notifications/create";
+import { notifyDeadlineImminent } from "@/lib/notifications/deadline-imminent";
 
 export const dynamic = "force-dynamic";
 
@@ -145,7 +146,15 @@ export async function POST(request: Request) {
     }
   }
 
-  return ok({ summary });
+  // 마감 임박(1시간 이내) open 카드의 호스트에게 승인 재촉 알림(§9).
+  let deadlineImminentNotified = 0;
+  try {
+    deadlineImminentNotified = await notifyDeadlineImminent(admin);
+  } catch {
+    // 알림 실패가 카드 해소 결과를 되돌리지 않는다.
+  }
+
+  return ok({ summary: { ...summary, deadlineImminentNotified } });
 }
 
 // Vercel Cron은 스케줄된 path로 GET 요청을 보낸다(Authorization: Bearer CRON_SECRET 포함).

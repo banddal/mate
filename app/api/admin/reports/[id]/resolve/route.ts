@@ -2,6 +2,7 @@ import { fail, ok } from "@/lib/api/responses";
 import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
+import { createNotification } from "@/lib/notifications/create";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +45,23 @@ export async function POST(request: Request, { params }: ResolveRouteContext) {
   }
 
   const admin = createServiceRoleSupabaseClient();
+
+  // 이미 종결된 신고의 재처리 방지(§6: escalated/suspended_perm는 되돌릴 수 없고
+  // resolved 이후 update를 막는다). status='resolved' 조건으로 update를 제한한다.
+  const { data: existing } = await admin
+    .from("reports")
+    .select("id, status, reporter_id")
+    .eq("id", params.id)
+    .maybeSingle<{ id: string; status: string; reporter_id: string }>();
+
+  if (!existing) {
+    return fail({ code: "REPORT_NOT_FOUND", message: "신고를 찾지 못했어요." }, 404);
+  }
+
+  if (existing.status === "resolved") {
+    return fail({ code: "REPORT_ALREADY_RESOLVED", message: "이미 종결된 신고입니다." }, 400);
+  }
+
   const { data: report, error } = await admin
     .from("reports")
     .update({
@@ -53,6 +71,7 @@ export async function POST(request: Request, { params }: ResolveRouteContext) {
       resolved_at: new Date().toISOString()
     })
     .eq("id", params.id)
+    .neq("status", "resolved")
     .select("id, status, resolution")
     .single();
 
@@ -66,6 +85,20 @@ export async function POST(request: Request, { params }: ResolveRouteContext) {
     target_id: params.id,
     notes: parsed.data.resolution
   });
+
+  // 신고자에게 처리 결과 알림(§6/§9). 구체적 처분 내용은 담지 않고 상태 변경만 알린다.
+  try {
+    await createNotification(admin, {
+      userId: existing.reporter_id,
+      type: "report_status_change",
+      payload: {
+        reportId: report.id,
+        status: "resolved"
+      }
+    });
+  } catch {
+    // 알림 실패 무시
+  }
 
   return ok({ report });
 }

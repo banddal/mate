@@ -14,6 +14,9 @@ export const REPORT_SUSPENSION_DAYS = 7;
 
 export const NOTIFICATION_DEDUP_WINDOW_HOURS = 24;
 
+// 마감 임박 알림을 보내는 기준: 마감까지 남은 시간이 이 값 이하인 open 카드.
+export const CARD_DEADLINE_IMMINENT_MINUTES = 60;
+
 // 위 값 중 프론트가 폼 검증 힌트로 참조해야 하는 것만 공개 상수로 분리.
 // GET /api/config는 이 객체를 그대로 JSON으로 반환한다(DB 조회 없음).
 export const PUBLIC_CONFIG = {

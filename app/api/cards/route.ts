@@ -6,6 +6,7 @@ import { getCategoryLevel } from "@/lib/cards/categories";
 import { createCardSchema } from "@/lib/cards/schema";
 import { moderateCardText } from "@/lib/cards/moderation";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
+import { notifySubscriptionMatches } from "@/lib/notifications/subscription-match";
 import { hasServiceEnv } from "@/lib/env";
 import { DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
 import { DEV_AUTH_FALLBACK_USER_ID } from "@/lib/dev-auth";
@@ -134,7 +135,7 @@ export async function POST(request: Request) {
         deadline_at: parsed.data.deadlineAt,
         status: decision.status
       })
-      .select("id, status")
+      .select("id, status, category, location, host_id")
       .single();
 
     if (error) {
@@ -147,7 +148,21 @@ export async function POST(request: Request) {
       );
     }
 
-    return ok({ card });
+    // 즉시 공개된 카드만 구독자 매칭 알림 대상(pending_review는 피드에 안 뜨므로 제외).
+    if (card.status === "open") {
+      try {
+        await notifySubscriptionMatches(admin, {
+          id: card.id,
+          host_id: card.host_id,
+          category: card.category,
+          location: card.location
+        });
+      } catch {
+        // 알림 실패가 카드 생성을 되돌리지 않는다.
+      }
+    }
+
+    return ok({ card: { id: card.id, status: card.status } });
   } catch {
     return fail({ code: "CARD_CREATE_FAILED", message: "카드 저장 중 문제가 생겼어요." }, 500);
   }
