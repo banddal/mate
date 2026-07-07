@@ -14,6 +14,7 @@
   - `shared/config.ts` 공용 상수 작성
   - Codex 온보딩 통합 문서 작성
   - R18 안정화: SMS 벤더 키가 있어도 devOtp 흐름 유지, Supabase 세션 갱신 middleware 추가
+  - R19 임시 개발용 진입로: `/dev-login`으로 메일 링크 없이 후속 프로세스 검증 가능
 - 로컬 미추적 파일:
   - `.claude/settings.local.json`
 

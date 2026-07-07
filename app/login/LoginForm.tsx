@@ -6,10 +6,11 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type LoginFormProps = {
   canUseKakao: boolean;
+  canUseDevAuth: boolean;
   initialError?: string;
 };
 
-export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
+export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">(
     initialError ? "error" : "idle"
@@ -162,6 +163,15 @@ export function LoginForm({ canUseKakao, initialError }: LoginFormProps) {
             >
               {message}
             </p>
+          ) : null}
+
+          {canUseDevAuth ? (
+            <a
+              href="/dev-login"
+              className="mt-3 flex min-h-11 w-full items-center justify-center rounded-md border border-line bg-paper px-4 text-sm font-semibold text-ink transition hover:bg-paper/70"
+            >
+              개발용 계정으로 바로 들어가기
+            </a>
           ) : null}
         </div>
       </section>

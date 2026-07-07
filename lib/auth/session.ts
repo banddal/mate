@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { hasPublicEnv } from "@/lib/env";
+import { getDevAuthSession } from "@/lib/dev-auth";
 
 export type MateProfile = {
   id: string;
@@ -25,6 +26,12 @@ export function isProfileComplete(profile: MateProfile | null) {
 }
 
 export async function getCurrentUserAndProfile() {
+  const devSession = await getDevAuthSession();
+
+  if (devSession) {
+    return devSession;
+  }
+
   if (!hasPublicEnv()) {
     return { user: null, profile: null };
   }
