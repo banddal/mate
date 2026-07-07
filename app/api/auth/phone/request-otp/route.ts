@@ -89,18 +89,14 @@ export async function POST(request: Request) {
     return fail({ code: "OTP_CREATE_FAILED", message: "인증번호를 만들지 못했어요." }, 500);
   }
 
-  if (!process.env.SMS_VENDOR_API_KEY) {
-    return ok({
-      devOtp: otp,
-      expiresInMinutes: PHONE_OTP_EXPIRY_MINUTES
-    });
+  if (process.env.SMS_VENDOR_API_KEY) {
+    console.warn(
+      "SMS_VENDOR_API_KEY is configured, but SMS delivery is not implemented yet. Returning devOtp."
+    );
   }
 
-  return fail(
-    {
-      code: "SMS_VENDOR_NOT_IMPLEMENTED",
-      message: "SMS 발송 연동이 아직 준비되지 않았어요."
-    },
-    501
-  );
+  return ok({
+    devOtp: otp,
+    expiresInMinutes: PHONE_OTP_EXPIRY_MINUTES
+  });
 }

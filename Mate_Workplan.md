@@ -13,6 +13,7 @@
   - Supabase migration 4개 작성: schema, RLS, banned words seed, rating functions
   - `shared/config.ts` 공용 상수 작성
   - Codex 온보딩 통합 문서 작성
+  - R18 안정화: SMS 벤더 키가 있어도 devOtp 흐름 유지, Supabase 세션 갱신 middleware 추가
 - 로컬 미추적 파일:
   - `.claude/settings.local.json`
 
@@ -99,6 +100,11 @@
   - [x] 중복 신청 방지
   - [x] 마감/상태 검증
   - [ ] 정원 검증
+- [ ] `POST /api/cards/:id/approve` 구현
+  - 호스트 전용
+  - 승인 신청 `approved`, 나머지 `rejected_closed`
+  - 카드 `closed`
+  - `rooms` row 생성
 - [ ] `/cards/[id]/applicants` 구현
   - 호스트 전용
   - 기본 정보: 신청 사유, 인증 여부, 완료/노쇼 이력
@@ -107,7 +113,6 @@
 - [ ] `GET /api/cards/:id/applicants` 구현
   - 경쟁 여부 실시간 계산
   - rating functions는 service role로만 호출
-- [ ] `POST /api/cards/:id/approve` 구현
 - [ ] `POST /api/cards/:id/resolve` 구현
   - 미승인 신청은 개별 거절 통지 없이 마감 일괄 해소
   - 승인자에게만 확정 알림 생성
