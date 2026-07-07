@@ -17,6 +17,7 @@ import { requireOnboarded } from "@/lib/auth/session";
 import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { getDemoActivityCards, getDemoActivityRooms } from "@/lib/demo-data";
+import { BottomNav } from "@/components/BottomNav";
 
 export const dynamic = "force-dynamic";
 
@@ -220,7 +221,7 @@ export default async function MePage() {
         </section>
       </section>
 
-      <BottomNav />
+      <BottomNav active="me" />
     </main>
   );
 }
@@ -515,27 +516,6 @@ function formatCardStatus(card: ActivityCard) {
   }
 
   return "취소";
-}
-
-function BottomNav() {
-  return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/95 px-5 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur">
-      <div className="mx-auto grid max-w-md grid-cols-4 text-center text-xs font-semibold text-ink/55">
-        <Link className="rounded-md px-2 py-2" href="/feed">
-          피드
-        </Link>
-        <Link className="rounded-md px-2 py-2 text-moss" href="/me">
-          내 활동
-        </Link>
-        <Link className="rounded-md px-2 py-2" href="/alerts">
-          알림
-        </Link>
-        <Link className="rounded-md px-2 py-2" href="/admin">
-          관리자
-        </Link>
-      </div>
-    </nav>
-  );
 }
 
 function formatDateTime(value: string) {

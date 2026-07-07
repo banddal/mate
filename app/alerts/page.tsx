@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { CARD_CATEGORY_OPTIONS } from "@/lib/cards/categories";
+import { BottomNav } from "@/components/BottomNav";
 import { AlertsClient } from "./AlertsClient";
 
 export const dynamic = "force-dynamic";
@@ -31,28 +32,7 @@ export default async function AlertsPage() {
         <AlertsClient categories={categories} />
       </section>
 
-      <BottomNav />
+      <BottomNav active="alerts" />
     </main>
-  );
-}
-
-function BottomNav() {
-  return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/95 px-5 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur">
-      <div className="mx-auto grid max-w-md grid-cols-4 text-center text-xs font-semibold text-ink/55">
-        <Link className="rounded-md px-2 py-2" href="/feed">
-          피드
-        </Link>
-        <Link className="rounded-md px-2 py-2" href="/me">
-          내 활동
-        </Link>
-        <Link className="rounded-md px-2 py-2 text-moss" href="/alerts">
-          알림
-        </Link>
-        <Link className="rounded-md px-2 py-2" href="/admin">
-          관리자
-        </Link>
-      </div>
-    </nav>
   );
 }
