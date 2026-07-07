@@ -8,6 +8,7 @@ import { moderateCardText } from "@/lib/cards/moderation";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
+import { DEV_AUTH_FALLBACK_USER_ID } from "@/lib/dev-auth";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!hasServiceEnv()) {
+  if (!hasServiceEnv() || user.id === DEV_AUTH_FALLBACK_USER_ID) {
     return ok({
       card: {
         id: DEMO_CREATED_CARD_ID,
@@ -85,24 +86,37 @@ export async function POST(request: Request) {
     });
   }
 
+  let decision;
+
   try {
-    const decision = await moderateCardText([
+    decision = await moderateCardText([
       parsed.data.title,
       parsed.data.description,
       parsed.data.hostOffer,
       parsed.data.costInfo ?? ""
     ]);
+  } catch {
+    return fail(
+      {
+        code: "CARD_REVIEW_FAILED",
+        message:
+          "금지어 검수용 DB 조회 또는 Supabase service role 설정 문제로 카드를 검수하지 못했어요."
+      },
+      500
+    );
+  }
 
-    if (decision.status === "blocked") {
-      return fail(
-        {
-          code: "CONTENT_BLOCKED",
-          message: "활동 중심으로 구체적으로 작성해주세요."
-        },
-        400
-      );
-    }
+  if (decision.status === "blocked") {
+    return fail(
+      {
+        code: "CONTENT_BLOCKED",
+        message: "금지어 기준에 걸려 공개할 수 없어요. 활동 중심으로 다시 작성해주세요."
+      },
+      400
+    );
+  }
 
+  try {
     const admin = createServiceRoleSupabaseClient();
     const { data: card, error } = await admin
       .from("cards")
@@ -124,12 +138,18 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      return fail({ code: "CARD_CREATE_FAILED", message: "카드를 만들지 못했어요." }, 500);
+      return fail(
+        {
+          code: "CARD_CREATE_FAILED",
+          message: "카드 저장에 실패했어요. Supabase service role 권한이나 cards 테이블 설정을 확인해주세요."
+        },
+        500
+      );
     }
 
     return ok({ card });
   } catch {
-    return fail({ code: "CARD_REVIEW_FAILED", message: "카드를 검수하지 못했어요." }, 500);
+    return fail({ code: "CARD_CREATE_FAILED", message: "카드 저장 중 문제가 생겼어요." }, 500);
   }
 }
 
