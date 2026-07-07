@@ -20,6 +20,12 @@ type AlertsClientProps = {
   categories: string[];
 };
 
+const suggestedTemplates = [
+  { location: "잠실", timePattern: "이번 주말", category: "야구 직관" },
+  { location: "성수", timePattern: "평일 저녁", category: "전시" },
+  { location: "홍대", timePattern: "금요일 밤", category: "공연" }
+];
+
 export function AlertsClient({ categories }: AlertsClientProps) {
   const [subscriptions, setSubscriptions] = useState<SubscriptionRow[]>([]);
   const [location, setLocation] = useState("");
@@ -270,6 +276,24 @@ export function AlertsClient({ categories }: AlertsClientProps) {
 
       <form className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft" onSubmit={submitSubscription}>
         <h2 className="text-base font-bold tracking-normal text-ink">상황 템플릿 추가</h2>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {suggestedTemplates
+            .filter((template) => categories.includes(template.category))
+            .map((template) => (
+              <button
+                key={`${template.location}-${template.timePattern}-${template.category}`}
+                type="button"
+                onClick={() => {
+                  setLocation(template.location);
+                  setTimePattern(template.timePattern);
+                  setCategory(template.category);
+                }}
+                className="flex min-h-9 shrink-0 items-center rounded-full border border-line bg-white px-3 text-xs font-semibold text-ink/65 hover:border-moss hover:text-ink"
+              >
+                {template.location} · {template.timePattern}
+              </button>
+            ))}
+        </div>
         <input
           className="field-input text-sm"
           value={location}
@@ -346,9 +370,26 @@ export function AlertsClient({ categories }: AlertsClientProps) {
             ))}
           </div>
         ) : (
-          <p className="rounded-lg border border-line bg-white p-4 text-sm leading-6 text-ink/60 shadow-soft">
-            아직 저장한 상황이 없습니다. 관심 있는 장소와 시간대를 저장하면 새 카드가 공개될 때 알림을 받을 수 있어요.
-          </p>
+          <div className="rounded-lg border border-line bg-white p-4 shadow-soft">
+            <p className="text-sm font-semibold text-ink">아직 저장한 상황이 없습니다.</p>
+            <p className="mt-1 text-sm leading-6 text-ink/60">
+              관심 있는 장소와 시간대를 저장하면 새 카드가 공개될 때 알림을 받을 수 있어요.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                const [firstTemplate] = suggestedTemplates.filter((template) => categories.includes(template.category));
+                if (firstTemplate) {
+                  setLocation(firstTemplate.location);
+                  setTimePattern(firstTemplate.timePattern);
+                  setCategory(firstTemplate.category);
+                }
+              }}
+              className="mt-4 flex min-h-10 w-full items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink"
+            >
+              추천 상황 채우기
+            </button>
+          </div>
         )}
       </section>
     </div>

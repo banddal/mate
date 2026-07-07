@@ -65,6 +65,23 @@ export type DemoAdminAction = {
   created_at: string;
 };
 
+export type DemoActivityCard = {
+  id: string;
+  title: string;
+  category: string;
+  status: string;
+  event_datetime: string;
+  role: "host" | "applicant";
+  application_status?: "pending" | "approved" | "rejected_closed";
+};
+
+export type DemoActivityRoom = {
+  id: string;
+  title: string;
+  status: "active" | "closed";
+  event_datetime: string;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -251,4 +268,52 @@ export function getDemoAdminActions(): DemoAdminAction[] {
       created_at: new Date(Date.now() - 1000 * 60 * 16).toISOString()
     }
   ];
+}
+
+export function getDemoActivityCards(): DemoActivityCard[] {
+  const created = getDemoCardDetail(DEMO_CREATED_CARD_ID);
+  const applying = getDemoCardDetail(DEMO_APPLY_CARD_ID);
+
+  return [
+    ...(created
+      ? [
+          {
+            id: created.id,
+            title: created.title,
+            category: created.category,
+            status: created.status,
+            event_datetime: created.event_datetime,
+            role: "host" as const
+          }
+        ]
+      : []),
+    ...(applying
+      ? [
+          {
+            id: applying.id,
+            title: applying.title,
+            category: applying.category,
+            status: applying.status,
+            event_datetime: applying.event_datetime,
+            role: "applicant" as const,
+            application_status: "pending" as const
+          }
+        ]
+      : [])
+  ];
+}
+
+export function getDemoActivityRooms(): DemoActivityRoom[] {
+  const card = getDemoCardDetail(DEMO_CREATED_CARD_ID);
+
+  return card
+    ? [
+        {
+          id: DEMO_ROOM_ID,
+          title: card.title,
+          status: "active",
+          event_datetime: card.event_datetime
+        }
+      ]
+    : [];
 }
