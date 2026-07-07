@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Bell, BellOff, Loader2, Plus, Trash2 } from "lucide-react";
+import { Bell, BellOff, CheckCircle2, Clock3, Loader2, MessageCircle, Plus, Trash2 } from "lucide-react";
 
 type SubscriptionRow = {
   id: string;
@@ -231,9 +231,26 @@ export function AlertsClient({ categories }: AlertsClientProps) {
       <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
         <div className="flex items-start justify-between gap-3">
           <div>
+            <h2 className="text-base font-bold tracking-normal text-ink">내 활동 알림</h2>
+            <p className="mt-1 text-sm leading-6 text-ink/60">
+              실제 알림은 신청/승인/후기처럼 내가 처리해야 하는 일 중심으로 모입니다.
+            </p>
+          </div>
+          <span className="rounded-full bg-moss/10 px-2 py-1 text-xs font-semibold text-moss">우선</span>
+        </div>
+        <div className="grid gap-2">
+          <ActivityNotice icon={<Clock3 className="h-4 w-4" aria-hidden />} title="신청 상태" body="대기, 승인, 마감 상태를 내 활동에서 확인합니다." />
+          <ActivityNotice icon={<MessageCircle className="h-4 w-4" aria-hidden />} title="Mate Room" body="승인 후 열린 Room과 조율 메시지를 놓치지 않게 합니다." />
+          <ActivityNotice icon={<CheckCircle2 className="h-4 w-4" aria-hidden />} title="후기 요청" body="만남 종료 후 필요한 사실 확인만 남깁니다." />
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
+        <div className="flex items-start justify-between gap-3">
+          <div>
             <h2 className="text-base font-bold tracking-normal text-ink">브라우저 푸시</h2>
             <p className="mt-1 text-sm leading-6 text-ink/60">
-              조건에 맞는 카드나 승인 결과가 생기면 이 기기로 알려드립니다.
+              내 활동 알림과 저장한 상황 알림을 이 기기로 받을 수 있습니다.
             </p>
           </div>
           <span
@@ -275,7 +292,10 @@ export function AlertsClient({ categories }: AlertsClientProps) {
       </section>
 
       <form className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft" onSubmit={submitSubscription}>
-        <h2 className="text-base font-bold tracking-normal text-ink">상황 템플릿 추가</h2>
+        <h2 className="text-base font-bold tracking-normal text-ink">관심 상황 저장</h2>
+        <p className="text-sm leading-6 text-ink/60">
+          사람을 구독하지 않고 장소, 시간대, 카테고리 조합만 저장합니다.
+        </p>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {suggestedTemplates
             .filter((template) => categories.includes(template.category))
@@ -392,6 +412,18 @@ export function AlertsClient({ categories }: AlertsClientProps) {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function ActivityNotice({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="flex items-start gap-3 rounded-md bg-paper/70 px-3 py-3">
+      <span className="mt-0.5 text-moss">{icon}</span>
+      <div>
+        <p className="text-sm font-semibold text-ink">{title}</p>
+        <p className="mt-0.5 text-sm leading-6 text-ink/60">{body}</p>
+      </div>
     </div>
   );
 }

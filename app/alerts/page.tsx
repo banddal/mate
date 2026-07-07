@@ -22,9 +22,9 @@ export default async function AlertsPage() {
 
         <header className="space-y-2">
           <p className="text-sm font-semibold text-moss">Alerts</p>
-          <h1 className="text-3xl font-bold leading-tight tracking-normal text-ink">상황 알림</h1>
+          <h1 className="text-3xl font-bold leading-tight tracking-normal text-ink">내 알림</h1>
           <p className="text-sm leading-6 text-ink/60">
-            사람을 구독하지 않고, 장소와 시간대와 카테고리 조합만 저장합니다.
+            신청, 승인, 후기처럼 내 활동에 필요한 알림을 먼저 보고, 관심 상황은 가볍게 저장합니다.
           </p>
         </header>
 

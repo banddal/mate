@@ -59,20 +59,32 @@ export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelPr
 
   return (
     <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
+      <div>
+        <h2 className="text-base font-bold tracking-normal text-ink">만남 조율</h2>
+        <p className="mt-1 text-sm leading-6 text-ink/60">
+          도착 시간, 입구, 자리 확인처럼 만남에 필요한 내용만 남겨주세요.
+        </p>
+      </div>
       <div className="space-y-3">
-        {messages.map((message) => (
-          <article
-            key={message.id}
-            className={`rounded-lg px-3 py-2 text-sm leading-6 ${
-              message.is_mine ? "ml-8 bg-ink text-white" : "mr-8 bg-paper/80 text-ink/75"
-            }`}
-          >
-            <p className={`mb-1 text-xs font-semibold ${message.is_mine ? "text-white/65" : "text-ink/45"}`}>
-              {message.sender_name}
-            </p>
-            <p>{message.body}</p>
-          </article>
-        ))}
+        {messages.length > 0 ? (
+          messages.map((message) => (
+            <article
+              key={message.id}
+              className={`rounded-lg px-3 py-2 text-sm leading-6 ${
+                message.is_mine ? "ml-8 bg-ink text-white" : "mr-8 bg-paper/80 text-ink/75"
+              }`}
+            >
+              <p className={`mb-1 text-xs font-semibold ${message.is_mine ? "text-white/65" : "text-ink/45"}`}>
+                {message.sender_name}
+              </p>
+              <p>{message.body}</p>
+            </article>
+          ))
+        ) : (
+          <p className="rounded-md bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/60">
+            아직 메시지가 없습니다. 먼저 도착 예정 시간이나 만날 위치를 남겨보세요.
+          </p>
+        )}
       </div>
 
       <form className="space-y-2" onSubmit={sendMessage}>
