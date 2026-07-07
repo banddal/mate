@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MessageCircle, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ShieldAlert } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
-import { DEMO_ROOM_ID, getDemoCardDetail, DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
+import { DEMO_ROOM_ID, getDemoCardDetail, getDemoMessages, DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
+import { RoomMessagePanel } from "./RoomMessagePanel";
+import { CloseRoomButton } from "./CloseRoomButton";
 
 type RoomPageProps = {
   params: {
@@ -24,12 +26,14 @@ type RoomView = {
 };
 
 export default async function RoomPage({ params }: RoomPageProps) {
-  await requireOnboarded();
+  const { user } = await requireOnboarded();
   const room = await getRoom(params.id);
 
   if (!room) {
     notFound();
   }
+
+  const messages = await getMessages(room.id, user.id);
 
   return (
     <main className="min-h-dvh px-5 pb-8 pt-[calc(24px+env(safe-area-inset-top))]">
@@ -60,15 +64,8 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </div>
         </section>
 
-        <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <MessageCircle className="h-5 w-5 text-moss" aria-hidden />
-            메시지
-          </div>
-          <div className="rounded-md bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/62">
-            메시지 송수신은 다음 라운드에서 붙입니다. 지금은 승인 후 Room 진입까지 확인하는 단계입니다.
-          </div>
-        </section>
+        <RoomMessagePanel roomId={room.id} initialMessages={messages} />
+        <CloseRoomButton roomId={room.id} />
       </section>
     </main>
   );
@@ -129,6 +126,38 @@ async function getRoom(roomId: string): Promise<RoomView | null> {
     status: room.status,
     card
   };
+}
+
+async function getMessages(roomId: string, userId: string) {
+  if (!hasServiceEnv() || roomId === DEMO_ROOM_ID) {
+    return getDemoMessages();
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data: messages, error } = await admin
+    .from("messages")
+    .select("id, sender_id, body, created_at")
+    .eq("room_id", roomId)
+    .order("created_at", { ascending: true });
+
+  if (error || !messages) {
+    return [];
+  }
+
+  const senderIds = [...new Set(messages.map((message) => message.sender_id))];
+  const { data: profiles } = await admin
+    .from("profiles")
+    .select("id, nickname")
+    .in("id", senderIds);
+  const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile.nickname]));
+
+  return messages.map((message) => ({
+    id: message.id,
+    sender_name: profileMap.get(message.sender_id) ?? "참여자",
+    body: message.body,
+    created_at: message.created_at,
+    is_mine: message.sender_id === userId
+  }));
 }
 
 function formatDateTime(value: string) {

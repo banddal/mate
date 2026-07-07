@@ -131,14 +131,16 @@
   - [x] 연락처 교환 경고 배너
   - 종료된 방 접근 차단
 - [ ] messages Realtime 전송/구독 구현
-- [ ] `POST /api/rooms/:id/close` 구현
+  - [x] 기본 메시지 조회/전송
+  - [ ] Realtime 구독
+- [x] `POST /api/rooms/:id/close` 구현
   - room status close
   - review 화면으로 유도
-- [ ] `/rooms/[id]/review` 구현
-  - 참석, 정시, 설명 일치, 재참여 의향 체크
-  - 신고 여부
-  - 이모지는 로컬 표시만 하고 서버 전송하지 않는다.
-- [ ] `POST /api/rooms/:id/review` 구현
+- [x] `/rooms/[id]/review` 구현
+  - [x] 참석, 정시, 설명 일치, 재참여 의향 체크
+  - [x] 신고 여부
+  - [x] 이모지는 로컬 표시만 하고 서버 전송하지 않는다.
+- [x] `POST /api/rooms/:id/review` 구현
 - [ ] `POST /api/reports` 구현
   - 신고 row 생성
   - 동결 보존 처리

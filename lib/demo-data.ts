@@ -15,6 +15,14 @@ export type DemoApplicant = {
   created_at: string;
 };
 
+export type DemoMessage = {
+  id: string;
+  sender_name: string;
+  body: string;
+  created_at: string;
+  is_mine: boolean;
+};
+
 export function getDemoFeedCards(): FeedCard[] {
   const now = Date.now();
 
@@ -96,6 +104,25 @@ export function getDemoApplicants(): DemoApplicant[] {
       status: "pending",
       phone_verified: true,
       created_at: new Date(Date.now() - 1000 * 60 * 35).toISOString()
+    }
+  ];
+}
+
+export function getDemoMessages(): DemoMessage[] {
+  return [
+    {
+      id: "demo-message-1",
+      sender_name: "야구초보",
+      body: "안녕하세요. 경기 시작 20분 전에 도착할 수 있어요.",
+      created_at: new Date(Date.now() - 1000 * 60 * 14).toISOString(),
+      is_mine: false
+    },
+    {
+      id: "demo-message-2",
+      sender_name: "Dev Mate",
+      body: "좋아요. 1루 출입구 앞에서 가볍게 만나요.",
+      created_at: new Date(Date.now() - 1000 * 60 * 9).toISOString(),
+      is_mine: true
     }
   ];
 }
