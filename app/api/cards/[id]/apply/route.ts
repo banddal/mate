@@ -3,6 +3,7 @@ import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session"
 import { applyCardSchema } from "@/lib/cards/applications";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
+import { DEMO_APPLY_CARD_ID, DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -14,16 +15,6 @@ type ApplyRouteContext = {
 };
 
 export async function POST(request: Request, { params }: ApplyRouteContext) {
-  if (!hasServiceEnv()) {
-    return fail(
-      {
-        code: "SERVER_CONFIG_MISSING",
-        message: "서버 환경변수 설정이 필요합니다."
-      },
-      500
-    );
-  }
-
   const { user, profile } = await getCurrentUserAndProfile();
 
   if (!user) {
@@ -38,6 +29,26 @@ export async function POST(request: Request, { params }: ApplyRouteContext) {
 
   if (!parsed.success) {
     return fail({ code: "INVALID_REASON", message: "신청 사유를 확인해주세요." }, 400);
+  }
+
+  if (!hasServiceEnv() && [DEMO_APPLY_CARD_ID, DEMO_CREATED_CARD_ID].includes(params.id)) {
+    return ok({
+      application: {
+        id: "demo-application",
+        status: "pending",
+        created_at: new Date().toISOString()
+      }
+    });
+  }
+
+  if (!hasServiceEnv()) {
+    return fail(
+      {
+        code: "SERVER_CONFIG_MISSING",
+        message: "서버 환경변수 설정이 필요합니다."
+      },
+      500
+    );
   }
 
   try {

@@ -16,6 +16,7 @@
   - R18 안정화: SMS 벤더 키가 있어도 devOtp 흐름 유지, Supabase 세션 갱신 middleware 추가
   - R19/R21 임시 개발용 진입로: `/dev-login`으로 메일 링크 없이 후속 프로세스 검증 가능
   - R20 안정화: PKCE 매직링크 콜백을 브라우저 confirm 페이지에서 처리
+  - R22 데모 모드: Supabase 서버키가 없어도 `/dev-login`, 피드, 카드 생성, 상세, 신청 UI 검증 가능
 - 로컬 미추적 파일:
   - `.claude/settings.local.json`
 

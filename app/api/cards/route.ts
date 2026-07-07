@@ -7,6 +7,7 @@ import { createCardSchema } from "@/lib/cards/schema";
 import { moderateCardText } from "@/lib/cards/moderation";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
+import { DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -37,16 +38,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!hasServiceEnv()) {
-    return fail(
-      {
-        code: "SERVER_CONFIG_MISSING",
-        message: "서버 환경변수 설정이 필요합니다."
-      },
-      500
-    );
-  }
-
   const { user, profile } = await getCurrentUserAndProfile();
 
   if (!user) {
@@ -77,6 +68,15 @@ export async function POST(request: Request) {
       },
       400
     );
+  }
+
+  if (!hasServiceEnv()) {
+    return ok({
+      card: {
+        id: DEMO_CREATED_CARD_ID,
+        status: "open"
+      }
+    });
   }
 
   try {

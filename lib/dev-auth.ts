@@ -7,13 +7,14 @@ import type { MateProfile } from "@/lib/auth/session";
 
 export const DEV_AUTH_COOKIE = "mate_dev_user_id";
 export const DEV_AUTH_EMAIL = "dev-mate@local.test";
+export const DEV_AUTH_FALLBACK_USER_ID = "00000000-0000-4000-8000-000000000001";
 
 export function isDevAuthBypassEnabled() {
   return process.env.DISABLE_DEV_AUTH_BYPASS !== "1";
 }
 
 export async function getDevAuthSession() {
-  if (!isDevAuthBypassEnabled() || !hasServiceEnv()) {
+  if (!isDevAuthBypassEnabled()) {
     return null;
   }
 
@@ -21,6 +22,10 @@ export async function getDevAuthSession() {
 
   if (!userId) {
     return null;
+  }
+
+  if (!hasServiceEnv()) {
+    return getFallbackDevSession(userId);
   }
 
   const admin = createServiceRoleSupabaseClient();
@@ -31,7 +36,7 @@ export async function getDevAuthSession() {
     .maybeSingle<MateProfile>();
 
   if (!profile) {
-    return null;
+    return getFallbackDevSession(userId);
   }
 
   return {
@@ -49,7 +54,7 @@ export async function ensureDevAuthProfile() {
   }
 
   if (!hasServiceEnv()) {
-    throw new Error("SERVER_CONFIG_MISSING");
+    return getFallbackDevSession(DEV_AUTH_FALLBACK_USER_ID);
   }
 
   const admin = createServiceRoleSupabaseClient();
@@ -103,4 +108,24 @@ export async function ensureDevAuthProfile() {
   }
 
   return { user, profile };
+}
+
+function getFallbackDevSession(userId: string) {
+  const profile: MateProfile = {
+    id: userId || DEV_AUTH_FALLBACK_USER_ID,
+    nickname: "Dev Mate",
+    age_range: "20s",
+    gender: "prefer_not_to_say",
+    categories: ["야구 직관", "맛집"],
+    phone_verified: true,
+    created_at: new Date().toISOString()
+  };
+
+  return {
+    user: {
+      id: profile.id,
+      email: DEV_AUTH_EMAIL
+    },
+    profile
+  };
 }

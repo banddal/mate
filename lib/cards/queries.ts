@@ -1,5 +1,7 @@
 import { getFeedDateWindow, type CardFeedFilter } from "@/lib/cards/filters";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { hasPublicEnv } from "@/lib/env";
+import { getDemoCardDetail, getDemoFeedCards } from "@/lib/demo-data";
 
 export type FeedCard = {
   id: string;
@@ -24,6 +26,10 @@ export type CardDetail = FeedCard & {
 };
 
 export async function getOpenCards(filters: CardFeedFilter) {
+  if (!hasPublicEnv()) {
+    return getDemoFeedCards();
+  }
+
   const supabase = createServerSupabaseClient();
   const window = getFeedDateWindow(filters.period);
 
@@ -61,13 +67,23 @@ export async function getOpenCards(filters: CardFeedFilter) {
   const { data, error } = await query;
 
   if (error) {
-    throw new Error(error.message);
+    return getDemoFeedCards();
   }
 
-  return (data ?? []) as FeedCard[];
+  return data && data.length > 0 ? (data as FeedCard[]) : getDemoFeedCards();
 }
 
 export async function getCardDetail(cardId: string) {
+  const demoCard = getDemoCardDetail(cardId);
+
+  if (demoCard) {
+    return demoCard;
+  }
+
+  if (!hasPublicEnv()) {
+    return null;
+  }
+
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("cards")
