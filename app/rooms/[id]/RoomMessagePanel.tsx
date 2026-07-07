@@ -47,7 +47,8 @@ export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelPr
         return;
       }
 
-      setMessages((current) => [...current, payload.data.message]);
+      const nextMessage = payload.data.message;
+      setMessages((current) => [...current, nextMessage]);
       setBody("");
     } catch {
       setError("메시지 전송 중 문제가 생겼어요.");
