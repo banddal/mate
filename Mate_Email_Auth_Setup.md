@@ -47,6 +47,17 @@ Supabase checklist:
 If `/login` still returns `email rate limit exceeded`, the custom SMTP settings are not fully active
 or the Supabase Auth email rate limit is still too low. This is not controlled by the Next.js app.
 
+If `/login` returns:
+
+```txt
+Supabase Auth HTTP 500: Error sending magic link email
+```
+
+Supabase accepted the OTP request but failed while sending through the configured SMTP provider. This
+usually means the SMTP credentials or sender settings are wrong. For Gmail, regenerate the Google App
+Password, use port `587`, use the full Gmail address as both SMTP user and sender email, and make sure
+Custom SMTP is saved/enabled in Supabase.
+
 ## Vercel Deployment Protection
 
 Email authentication cannot be fully tested while the production deployment is protected by Vercel

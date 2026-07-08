@@ -100,6 +100,19 @@ function normalizeAuthError(error: unknown) {
     };
   }
 
+  if (
+    lowerMessage.includes("error sending magic link email") ||
+    lowerMessage.includes("error sending confirmation email") ||
+    lowerMessage.includes("error sending email")
+  ) {
+    return {
+      code: "SMTP_SEND_FAILED",
+      message:
+        "Supabase가 SMTP 서버로 인증 메일을 보내지 못했어요. Gmail 앱 비밀번호, SMTP host/port, 발신자 주소, Custom SMTP 활성화 상태를 확인해주세요.",
+      status: 502
+    };
+  }
+
   if (lowerMessage.includes("not authorized") || lowerMessage.includes("unauthorized")) {
     return {
       code: "EMAIL_NOT_AUTHORIZED",
