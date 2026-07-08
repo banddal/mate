@@ -94,8 +94,10 @@ The email request now goes through Mate's server route:
 POST /api/auth/email/request
 ```
 
-This route still uses Supabase Auth, but it normalizes empty `{}` SDK errors into actionable
-messages for rate limits, provider timeouts, unauthorized emails, and SMTP-related failures.
+This route calls Supabase Auth's `/auth/v1/otp` endpoint directly and normalizes empty responses into
+actionable messages for rate limits, provider timeouts, unauthorized emails, and SMTP-related
+failures. If Supabase returns an HTTP status and response body, the app should now expose it instead
+of showing `{}`.
 
 ## Supabase Email Template Requirement
 

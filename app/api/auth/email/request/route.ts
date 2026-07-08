@@ -1,4 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { fail, ok } from "@/lib/api/responses";
 import { getPublicEnv } from "@/lib/env";
@@ -23,23 +22,48 @@ export async function POST(request: Request) {
 
   try {
     const env = getPublicEnv();
-    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
+
+    const otpUrl = new URL("/auth/v1/otp", env.NEXT_PUBLIC_SUPABASE_URL);
+    if (body.data.redirectTo) {
+      otpUrl.searchParams.set("redirect_to", body.data.redirectTo);
+    }
+
+    const response = await fetch(otpUrl, {
+      method: "POST",
+      headers: {
+        apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: body.data.email,
+        create_user: true
+      })
     });
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: body.data.email,
-      options: {
-        emailRedirectTo: body.data.redirectTo
-      }
-    });
+    const responseText = await response.text();
 
-    if (error) {
-      const normalized = normalizeAuthError(error);
+    if (!response.ok) {
+      const normalized = normalizeAuthError({
+        status: response.status,
+        statusText: response.statusText,
+        body: responseText
+      });
+
       return fail(normalized, normalized.status);
+    }
+
+    if (responseText) {
+      const payload = parseResponseBody(responseText);
+      if (isErrorPayload(payload)) {
+        const normalized = normalizeAuthError({
+          status: response.status,
+          statusText: response.statusText,
+          body: responseText
+        });
+
+        return fail(normalized, normalized.status);
+      }
     }
 
     return ok({ sent: true });
@@ -93,6 +117,20 @@ function normalizeAuthError(error: unknown) {
 }
 
 function getErrorDetails(error: unknown) {
+  if (isAuthHttpError(error)) {
+    const parsedBody = parseResponseBody(error.body);
+    const bodyMessage =
+      getBodyMessage(parsedBody) ||
+      (error.body && error.body !== "{}" ? error.body : null) ||
+      error.statusText ||
+      "Supabase Auth 응답이 비어 있습니다.";
+
+    return {
+      message: `Supabase Auth HTTP ${error.status}: ${bodyMessage}`,
+      status: error.status
+    };
+  }
+
   if (error instanceof Error) {
     const status = getStatus(error);
     const message = error.message && error.message !== "{}" ? error.message : "Supabase Auth 요청이 실패했지만 상세 메시지가 비어 있습니다.";
@@ -131,4 +169,50 @@ function getStatus(value: unknown) {
   const record = value as Record<string, unknown>;
   const status = record.status ?? record.statusCode;
   return typeof status === "number" ? status : 500;
+}
+
+function isAuthHttpError(error: unknown): error is { status: number; statusText?: string; body: string } {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as Record<string, unknown>;
+  return typeof record.status === "number" && typeof record.body === "string";
+}
+
+function parseResponseBody(body: string) {
+  if (!body) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(body) as unknown;
+  } catch {
+    return body;
+  }
+}
+
+function isErrorPayload(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+
+  const record = payload as Record<string, unknown>;
+  return Boolean(record.error || record.error_code || record.error_description || record.msg || record.message);
+}
+
+function getBodyMessage(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return typeof payload === "string" && payload ? payload : null;
+  }
+
+  const record = payload as Record<string, unknown>;
+  return (
+    getString(record.message) ||
+    getString(record.msg) ||
+    getString(record.error_description) ||
+    getString(record.error_code) ||
+    getString(record.error) ||
+    JSON.stringify(record)
+  );
 }
