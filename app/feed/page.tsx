@@ -1,5 +1,16 @@
 import Link from "next/link";
-import { CalendarDays, Clock3, MapPin, Plus, RotateCw, ShieldCheck, Ticket } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  Clock3,
+  ListChecks,
+  MapPin,
+  Plus,
+  RotateCw,
+  ShieldCheck,
+  Ticket,
+  UserRound
+} from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
@@ -80,6 +91,8 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               </FilterChip>
             ))}
           </nav>
+
+          <QuickStartPanel />
         </header>
 
         {cards.length > 0 ? (
@@ -118,6 +131,49 @@ function FilterChip({
     >
       {children}
     </Link>
+  );
+}
+
+function QuickStartPanel() {
+  const actions = [
+    {
+      href: "/cards/new",
+      label: "카드 만들기",
+      description: "상황을 열고 신청을 받기",
+      icon: <ListChecks className="h-4 w-4" aria-hidden />
+    },
+    {
+      href: "/me",
+      label: "내 활동",
+      description: "신청, Room, 후기 확인",
+      icon: <UserRound className="h-4 w-4" aria-hidden />
+    },
+    {
+      href: "/alerts",
+      label: "알림",
+      description: "관심 상황 조건 저장",
+      icon: <Bell className="h-4 w-4" aria-hidden />
+    }
+  ];
+
+  return (
+    <section className="grid gap-2 rounded-lg border border-line bg-white p-3 shadow-soft">
+      {actions.map((action) => (
+        <Link
+          key={action.href}
+          href={action.href}
+          className="grid min-h-14 grid-cols-[36px_1fr] items-center gap-3 rounded-md bg-warm px-3 py-2 transition hover:bg-paper"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-moss shadow-soft">
+            {action.icon}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-ink">{action.label}</span>
+            <span className="block truncate text-xs text-ink/52">{action.description}</span>
+          </span>
+        </Link>
+      ))}
+    </section>
   );
 }
 

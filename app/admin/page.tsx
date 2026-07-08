@@ -1,5 +1,16 @@
 import Link from "next/link";
-import { ArrowLeft, ClipboardList, History, ShieldAlert, ShieldX, UserCog } from "lucide-react";
+import {
+  Activity,
+  ArrowLeft,
+  BellRing,
+  ClipboardList,
+  History,
+  ShieldAlert,
+  ShieldX,
+  TicketCheck,
+  UserCog,
+  Users
+} from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
@@ -57,10 +68,26 @@ type AdminAction = {
   created_at: string;
 };
 
-type AdminTab = "queue" | "reports" | "cards" | "admins" | "banned-words" | "history";
+type AdminStats = {
+  profiles: number;
+  openCards: number;
+  pendingReviewCards: number;
+  closedCards: number;
+  pendingApplications: number;
+  approvedApplications: number;
+  activeRooms: number;
+  closedRooms: number;
+  openReports: number;
+  pendingNotifications: number;
+  subscriptions: number;
+  pushSubscriptions: number;
+};
+
+type AdminTab = "queue" | "stats" | "reports" | "cards" | "admins" | "banned-words" | "history";
 
 const adminTabs: Array<{ key: AdminTab; label: string }> = [
   { key: "queue", label: "대기열" },
+  { key: "stats", label: "통계" },
   { key: "reports", label: "신고" },
   { key: "cards", label: "검수" },
   { key: "admins", label: "권한" },
@@ -77,7 +104,8 @@ type AdminPageProps = {
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   await requireOnboarded();
   const activeTab = getActiveTab(searchParams?.tab);
-  const [reports, reviewCards, adminUsers, adminCandidates, bannedWords, adminActions] = await Promise.all([
+  const [stats, reports, reviewCards, adminUsers, adminCandidates, bannedWords, adminActions] = await Promise.all([
+    getAdminStats(),
     getReports(),
     getReviewCards(),
     getAdminUsers(),
@@ -109,10 +137,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Metric label="열린 신고" value={reports.length} />
-            <Metric label="검수 카드" value={reviewCards.length} />
-            <Metric label="운영자" value={adminUsers.length} />
-            <Metric label="금지어" value={bannedWords.length} />
+            <Metric label="열린 신고" value={stats.openReports} />
+            <Metric label="검수 카드" value={stats.pendingReviewCards} />
+            <Metric label="진행 Room" value={stats.activeRooms} />
+            <Metric label="관심 조건" value={stats.subscriptions} />
           </div>
         </header>
 
@@ -139,6 +167,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         ) : null}
 
+        {activeTab === "stats" ? <AdminStatsSection stats={stats} /> : null}
         {activeTab === "reports" ? <ReportsSection reports={reports} /> : null}
         {activeTab === "cards" ? <ReviewCardsSection reviewCards={reviewCards} /> : null}
         {activeTab === "admins" ? (
@@ -148,6 +177,84 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         {activeTab === "history" ? <AdminActionsSection adminActions={adminActions} /> : null}
       </section>
     </main>
+  );
+}
+
+function AdminStatsSection({ stats }: { stats: AdminStats }) {
+  const groups = [
+    {
+      title: "유저와 카드",
+      icon: <Users className="h-5 w-5 text-moss" aria-hidden />,
+      items: [
+        { label: "가입 프로필", value: stats.profiles },
+        { label: "열린 카드", value: stats.openCards },
+        { label: "검수 대기", value: stats.pendingReviewCards },
+        { label: "종료 카드", value: stats.closedCards }
+      ]
+    },
+    {
+      title: "신청과 Room",
+      icon: <TicketCheck className="h-5 w-5 text-moss" aria-hidden />,
+      items: [
+        { label: "대기 신청", value: stats.pendingApplications },
+        { label: "승인 신청", value: stats.approvedApplications },
+        { label: "진행 Room", value: stats.activeRooms },
+        { label: "종료 Room", value: stats.closedRooms }
+      ]
+    },
+    {
+      title: "알림과 운영",
+      icon: <BellRing className="h-5 w-5 text-moss" aria-hidden />,
+      items: [
+        { label: "열린 신고", value: stats.openReports },
+        { label: "발송 대기 알림", value: stats.pendingNotifications },
+        { label: "관심 조건", value: stats.subscriptions },
+        { label: "푸시 구독", value: stats.pushSubscriptions }
+      ]
+    }
+  ];
+  const signals = getAdminSignals(stats);
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+        <Activity className="h-5 w-5 text-moss" aria-hidden />
+        운영 통계
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        {groups.map((group) => (
+          <article key={group.title} className="rounded-lg border border-line bg-white p-4 shadow-soft">
+            <div className="flex items-center gap-2">
+              {group.icon}
+              <h2 className="text-sm font-bold tracking-normal text-ink">{group.title}</h2>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {group.items.map((item) => (
+                <div key={item.label} className="rounded-md bg-warm px-3 py-3">
+                  <p className="text-xs font-semibold text-ink/45">{item.label}</p>
+                  <p className="mt-1 text-xl font-bold tracking-normal text-ink">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <article className="rounded-lg border border-line bg-white p-4 shadow-soft">
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="h-5 w-5 text-moss" aria-hidden />
+          <h2 className="text-sm font-bold tracking-normal text-ink">운영 신호</h2>
+        </div>
+        <div className="mt-3 grid gap-2">
+          {signals.map((signal) => (
+            <div key={signal} className="rounded-md bg-paper px-3 py-3 text-sm font-semibold text-ink/70">
+              {signal}
+            </div>
+          ))}
+        </div>
+      </article>
+    </section>
   );
 }
 
@@ -333,6 +440,84 @@ function AdminActionsSection({ adminActions }: { adminActions: AdminAction[] }) 
   );
 }
 
+async function getAdminStats(): Promise<AdminStats> {
+  const fallback: AdminStats = {
+    profiles: 4,
+    openCards: 3,
+    pendingReviewCards: 2,
+    closedCards: 1,
+    pendingApplications: 2,
+    approvedApplications: 1,
+    activeRooms: 1,
+    closedRooms: 1,
+    openReports: 1,
+    pendingNotifications: 2,
+    subscriptions: 3,
+    pushSubscriptions: 1
+  };
+
+  if (!hasServiceEnv()) {
+    return fallback;
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const [
+    profiles,
+    openCards,
+    pendingReviewCards,
+    closedCards,
+    pendingApplications,
+    approvedApplications,
+    activeRooms,
+    closedRooms,
+    openReports,
+    pendingNotifications,
+    subscriptions,
+    pushSubscriptions
+  ] = await Promise.all([
+    countRows("profiles"),
+    countRows("cards", "status", "open"),
+    countRows("cards", "status", "pending_review"),
+    countRows("cards", "status", "closed"),
+    countRows("applications", "status", "pending"),
+    countRows("applications", "status", "approved"),
+    countRows("rooms", "status", "active"),
+    countRows("rooms", "status", "closed"),
+    countRows("reports", "status", ["open", "reviewing"]),
+    countRows("notifications", "status", "pending"),
+    countRows("subscriptions"),
+    countRows("push_subscriptions")
+  ]);
+
+  return {
+    profiles,
+    openCards,
+    pendingReviewCards,
+    closedCards,
+    pendingApplications,
+    approvedApplications,
+    activeRooms,
+    closedRooms,
+    openReports,
+    pendingNotifications,
+    subscriptions,
+    pushSubscriptions
+  };
+
+  async function countRows(table: string, column?: string, value?: string | string[]) {
+    let query = admin.from(table).select("id", { count: "exact", head: true });
+
+    if (column && Array.isArray(value)) {
+      query = query.in(column, value);
+    } else if (column && value) {
+      query = query.eq(column, value);
+    }
+
+    const { count, error } = await query;
+    return error ? 0 : count ?? 0;
+  }
+}
+
 async function getReports(): Promise<AdminReport[]> {
   if (!hasServiceEnv()) {
     return getDemoReports();
@@ -516,6 +701,28 @@ function formatActionType(actionType: string) {
   };
 
   return labels[actionType] ?? actionType;
+}
+
+function getAdminSignals(stats: AdminStats) {
+  const signals: string[] = [];
+
+  if (stats.pendingReviewCards > 0) {
+    signals.push(`검수 대기 카드 ${stats.pendingReviewCards}건 처리 필요`);
+  }
+
+  if (stats.openReports > 0) {
+    signals.push(`열린 신고 ${stats.openReports}건 확인 필요`);
+  }
+
+  if (stats.pendingNotifications > 0) {
+    signals.push(`발송 대기 알림 ${stats.pendingNotifications}건 모니터링`);
+  }
+
+  if (stats.pendingApplications > 0) {
+    signals.push(`대기 신청 ${stats.pendingApplications}건이 호스트 결정을 기다리는 중`);
+  }
+
+  return signals.length > 0 ? signals : ["현재 즉시 처리할 운영 대기 항목이 없습니다."];
 }
 
 function getActiveTab(tab: string | undefined): AdminTab {
