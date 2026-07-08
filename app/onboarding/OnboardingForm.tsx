@@ -1,9 +1,9 @@
 "use client";
 
-import { Check, Loader2, Phone, UserRound } from "lucide-react";
+import { Loader2, UserRound } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
-import { PHONE_OTP_EXPIRY_MINUTES } from "@/shared/config";
 
 const categoryOptions = [
   "야구 직관",
@@ -16,24 +16,13 @@ const categoryOptions = [
   "퇴근 후 맥주"
 ];
 
-type ApiResponse<T> = {
-  data: T | null;
-  error: { code: string; message: string } | null;
-};
-
 export function OnboardingForm() {
+  const router = useRouter();
   const [nickname, setNickname] = useState("");
   const [ageRange, setAgeRange] = useState("20s");
   const [gender, setGender] = useState("prefer_not_to_say");
   const [categories, setCategories] = useState<string[]>(["야구 직관"]);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
-  const [devOtp, setDevOtp] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isRequestingOtp, setIsRequestingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [profileSaved, setProfileSaved] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -76,74 +65,12 @@ export function OnboardingForm() {
         return;
       }
 
-      setProfileSaved(true);
-      setMessage("프로필을 저장했어요. 이제 휴대폰 인증을 진행해주세요.");
+      setMessage("프로필을 저장했어요. 메인 화면으로 이동합니다.");
+      router.replace("/feed");
     } catch {
       setError("환경변수를 확인해주세요. Supabase 연결 정보가 필요합니다.");
     } finally {
       setIsSavingProfile(false);
-    }
-  }
-
-  async function requestOtp() {
-    setError("");
-    setMessage("");
-    setDevOtp("");
-    setIsRequestingOtp(true);
-
-    try {
-      const response = await fetch("/api/auth/phone/request-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber })
-      });
-      const payload = (await response.json()) as ApiResponse<{
-        devOtp?: string;
-        expiresInMinutes: number;
-      }>;
-
-      if (!response.ok || payload.error) {
-        setError(payload.error?.message ?? "인증번호를 요청하지 못했어요.");
-        return;
-      }
-
-      if (payload.data?.devOtp) {
-        setDevOtp(payload.data.devOtp);
-        setOtp(payload.data.devOtp);
-      }
-
-      setMessage(`${PHONE_OTP_EXPIRY_MINUTES}분 안에 인증번호를 입력해주세요.`);
-    } catch {
-      setError("인증번호 요청 중 문제가 생겼어요.");
-    } finally {
-      setIsRequestingOtp(false);
-    }
-  }
-
-  async function verifyPhone() {
-    setError("");
-    setMessage("");
-    setIsVerifyingOtp(true);
-
-    try {
-      const response = await fetch("/api/auth/phone/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber, otp })
-      });
-      const payload = (await response.json()) as ApiResponse<{ phoneVerified: boolean }>;
-
-      if (!response.ok || payload.error) {
-        setError(payload.error?.message ?? "인증번호를 확인하지 못했어요.");
-        return;
-      }
-
-      setPhoneVerified(true);
-      setMessage("휴대폰 인증이 완료됐어요.");
-    } catch {
-      setError("인증번호 확인 중 문제가 생겼어요.");
-    } finally {
-      setIsVerifyingOtp(false);
     }
   }
 
@@ -156,7 +83,7 @@ export function OnboardingForm() {
             오늘의 mate를 위한 기본 정보
           </h1>
           <p className="leading-7 text-ink/70">
-            프로필은 사람을 둘러보는 용도가 아니라 약속 이행과 안전한 신청 흐름에만 씁니다.
+            이메일 인증을 마친 뒤 필요한 최소 정보만 받고 바로 카드를 둘러볼 수 있게 합니다.
           </p>
         </header>
 
@@ -237,65 +164,13 @@ export function OnboardingForm() {
             className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSavingProfile ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
-            프로필 저장
+            프로필 저장하고 시작
           </button>
         </form>
 
-        <section className="space-y-4 rounded-lg border border-line bg-white p-4 shadow-soft">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <Phone className="h-5 w-5 text-moss" aria-hidden />
-            휴대폰 인증
-          </div>
-
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-ink/80">휴대폰 번호</span>
-            <input
-              value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value)}
-              inputMode="tel"
-              className="min-h-12 w-full rounded-md border border-line bg-paper/60 px-3 outline-none focus:border-moss"
-              placeholder="01012345678"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={requestOtp}
-            disabled={!profileSaved || isRequestingOtp || phoneNumber.length < 8}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md border border-ink px-4 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isRequestingOtp ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
-            인증번호 받기
-          </button>
-
-          {devOtp ? (
-            <div className="rounded-md border border-sun/50 bg-sun/10 px-3 py-2 text-sm text-ink">
-              개발용 인증번호: <strong>{devOtp}</strong>
-            </div>
-          ) : null}
-
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-ink/80">인증번호</span>
-            <input
-              value={otp}
-              onChange={(event) => setOtp(event.target.value)}
-              inputMode="numeric"
-              maxLength={6}
-              className="min-h-12 w-full rounded-md border border-line bg-paper/60 px-3 outline-none focus:border-moss"
-              placeholder="6자리"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={verifyPhone}
-            disabled={isVerifyingOtp || otp.length !== 6 || phoneVerified}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-moss px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {phoneVerified ? <Check className="h-5 w-5" aria-hidden /> : null}
-            {isVerifyingOtp ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
-            {phoneVerified ? "인증 완료" : "인증 확인"}
-          </button>
+        <section className="rounded-lg border border-line bg-white p-4 text-sm leading-6 text-ink/68 shadow-soft">
+          휴대폰 인증은 실제 SMS 연동 전까지 가입 필수 단계에서 제외했습니다. 지금은 이메일 인증과
+          프로필 저장만으로 주요 유저 흐름을 테스트합니다.
         </section>
 
         {message ? <p className="text-sm font-medium text-moss">{message}</p> : null}

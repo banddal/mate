@@ -58,7 +58,7 @@ export function AuthConfirmClient() {
         }
 
         if (!code) {
-          setError("로그인 정보를 확인하지 못했어요. 로그인 화면에서 이메일 코드를 다시 요청해주세요.");
+          setError("로그인 정보를 확인하지 못했어요. 로그인 화면에서 새 인증 메일을 다시 요청해주세요.");
           return;
         }
 
@@ -114,14 +114,14 @@ export function AuthConfirmClient() {
                 <AlertTriangle className="h-4 w-4" aria-hidden />
                 다시 시도할 때
               </div>
-              <p>이제 링크 클릭 대신 이메일의 6자리 코드를 로그인 화면에 입력하는 방식을 사용합니다.</p>
-              <p>로그인 화면으로 돌아가 새 코드를 요청해주세요.</p>
+              <p>로그인 화면으로 돌아가 새 인증 메일을 요청해주세요.</p>
+              <p>메일에 링크가 있으면 누르고, 6자리 코드가 있으면 로그인 화면에 입력하면 됩니다.</p>
             </div>
             <a
               href="/login"
               className="flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
             >
-              이메일 코드로 로그인하기
+              이메일 인증 다시 받기
             </a>
             <a
               href="/dev-login"

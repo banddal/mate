@@ -80,7 +80,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
 
       setStatus("sent");
       setIsMessageError(false);
-      setMessage("메일을 보냈어요. 메일에 있는 6자리 코드를 아래에 입력해주세요.");
+      setMessage("인증 메일을 보냈어요. 메일의 버튼을 누르거나, 6자리 코드가 보이면 아래에 입력해주세요.");
     } catch (error) {
       setStatus("error");
       setIsMessageError(true);
@@ -150,7 +150,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
           <div className="grid gap-3">
             <div className="flex items-center gap-3 rounded-lg border border-line bg-white/72 px-4 py-3">
               <ShieldCheck className="h-5 w-5 shrink-0 text-moss" aria-hidden />
-              <span className="text-sm text-ink/75">가입 후 휴대폰 인증과 온보딩을 이어갑니다.</span>
+              <span className="text-sm text-ink/75">이메일 인증 후 바로 프로필 설정으로 이어갑니다.</span>
             </div>
           </div>
         </div>
@@ -197,14 +197,14 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
                   disabled={status === "loading" || status === "verifying"}
                   className="min-h-12 w-full rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {status === "sent" ? "로그인 코드 다시 받기" : "이메일 코드 받기"}
+                  {status === "sent" ? "인증 메일 다시 받기" : "이메일 인증 받기"}
                 </button>
               </form>
 
               {status === "sent" || status === "verifying" ? (
                 <form className="space-y-3 rounded-md border border-line bg-paper/70 p-3" onSubmit={handleOtpVerify}>
                   <label className="block text-sm font-medium text-ink" htmlFor="otp-code">
-                    6자리 로그인 코드
+                    메일에 표시된 6자리 코드
                   </label>
                   <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-white px-3">
                     <KeyRound className="h-5 w-5 shrink-0 text-moss" aria-hidden />
@@ -226,7 +226,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
                     disabled={status === "verifying" || otpCode.trim().length !== 6}
                     className="min-h-12 w-full rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-moss/90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {status === "verifying" ? "확인 중" : "코드로 로그인"}
+                    {status === "verifying" ? "확인 중" : "코드로 인증하기"}
                   </button>
                 </form>
               ) : null}
@@ -248,10 +248,10 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
             <div className="mt-3 rounded-md border border-line bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/65">
               <div className="mb-2 flex items-center gap-2 font-semibold text-ink">
                 <KeyRound className="h-4 w-4 text-moss" aria-hidden />
-                코드 로그인이 필요한 이유
+                메일 인증 방법
               </div>
-              <p>메일 링크는 앱 안의 브라우저에서 열려 실패할 수 있어요.</p>
-              <p>링크를 열지 말고 메일에 표시된 6자리 코드를 이 화면에 입력해주세요.</p>
+              <p>메일에 버튼이나 링크가 보이면 그대로 눌러도 됩니다.</p>
+              <p>메일에 6자리 숫자 코드가 함께 보이면 이 화면에 입력해도 됩니다.</p>
             </div>
           ) : null}
 
