@@ -1,13 +1,13 @@
 # Mate Workplan
 
-> 기준일: 2026-07-06
+> 기준일: 2026-07-08
 > 기준 문서: `Mate_Codex_Onboarding.md`, `Mate_MVP_PRD_v0.1.md`, `Mate_MVP_Technical_Design.md`, `Mate_Backend_Spec.md`
 
 ## 0. 현재 상태
 
 - GitHub remote: `https://github.com/banddal/mate.git`
 - 기본 브랜치: `main`
-- 현재 레포는 Next.js 앱 스캐폴딩 전 단계다.
+- Next.js App Router 앱이 스캐폴딩·구현되어 Vercel에 배포된 상태다. 백엔드 코어(카드·신청·승인·Room·후기·신고·알림·구독·관리자·Cron)와 프론트 운영층 대부분이 R61까지 구현 완료. typecheck/lint/test(34)/build 모두 통과.
 - 완료된 것:
   - PRD, 기술 설계, 백엔드 상세 설계 정리
   - Supabase migration 4개 작성: schema, RLS, banned words seed, rating functions
