@@ -10,7 +10,7 @@
 - **클라이언트**: Next.js(App Router) 기반 모바일 웹, PWA(설치 가능·홈스크린 추가)
 - **호스팅/서버**: Vercel — Next.js SSR + Route Handlers(API) + **Vercel Cron**(시간 기반 작업)
 - **백엔드**: Supabase — Auth, Postgres(+RLS), Realtime
-- **외부 연동**: 카카오 OAuth, SMS 인증(국내 통신사 대응 필요 — Twilio 계열은 한국 회선 지원이 제한적이라 알리고/NHN Toast 등 국내 SMS API 검토), Web Push(VAPID)
+- **외부 연동**: Google OAuth, SMS 인증(국내 통신사 대응 필요 — Twilio 계열은 한국 회선 지원이 제한적이라 알리고/NHN Toast 등 국내 SMS API 검토), Web Push(VAPID)
 
 원칙: **클라이언트가 Supabase에 직접 쓰지 못하는 것**을 명확히 분리한다. RLS만으로 막을 수 없는 로직(마감 일괄 해소, 소멸, 금지어 필터)은 반드시 서버(Route Handler)를 거친다.
 
@@ -29,7 +29,7 @@ Next.js App Router · Tailwind CSS(모바일 퍼스트) · PWA(manifest.json + S
 ### 라우트
 | 경로 | 화면 | 비고 |
 |---|---|---|
-| `/login` | 카카오 로그인 → 휴대폰 인증 | |
+| `/login` | Google 로그인 → 휴대폰 인증 | |
 | `/onboarding` | 닉네임·연령대·성별·관심 카테고리 | 최초 1회 |
 | `/feed` | 카드 리스트 | 필터 chip: 오늘/이번주/마감임박/카테고리, pull-to-refresh |
 | `/cards/new` | 카드 생성 (멀티스텝) | 기본정보 → 호스트가 건 것(1급 필드) → 마감시간 |
@@ -52,7 +52,7 @@ Next.js App Router · Tailwind CSS(모바일 퍼스트) · PWA(manifest.json + S
 ## 3. 백엔드 설계
 
 ### Supabase 구성
-- **Auth**: 카카오 OAuth(내장 프로바이더) + 휴대폰 인증(자체 SMS OTP, 국내 API 연동)
+- **Auth**: Google OAuth(Supabase 내장 프로바이더) + 휴대폰 인증(자체 SMS OTP, 국내 API 연동)
 - **Postgres + RLS**: 아래 §4 스키마. RLS로 "프로필은 경쟁 상황에서만 블러 노출"(P1) 같은 접근 제어를 1차 강제
 - **Realtime**: Mate Room 메시지(Broadcast 또는 Postgres Changes)
 
@@ -76,7 +76,7 @@ Next.js App Router · Tailwind CSS(모바일 퍼스트) · PWA(manifest.json + S
 
 ## 4. 데이터 모델 (핵심 테이블)
 
-- **users / profiles**: id, kakao_id, phone_verified, nickname, age_range, gender, categories[] (완료/노쇼 이력은 저장 컬럼이 아니라 reviews 집계로 계산 — 상세는 `Mate_Backend_Spec.md`)
+- **users / profiles**: id, phone_verified, nickname, age_range, gender, categories[] (OAuth identity는 Supabase auth.users가 관리하므로 profiles에 provider id 컬럼을 두지 않는다) (완료/노쇼 이력은 저장 컬럼이 아니라 reviews 집계로 계산 — 상세는 `Mate_Backend_Spec.md`)
 - **cards**: id, host_id, title, category, level(L1/L2/L3), datetime, location, capacity, host_offer(1급 필드), cost, description, deadline_at, status
 - **applications**: id, card_id, applicant_id, reason_text(100자), status(pending/approved/closed), created_at
 - **rooms**: id, card_id, status(active/closed), closed_at
@@ -89,7 +89,7 @@ Next.js App Router · Tailwind CSS(모바일 퍼스트) · PWA(manifest.json + S
 ---
 
 ## 5. 인증 흐름
-1. 카카오 OAuth → Supabase Auth 세션 발급
+1. Google OAuth → Supabase Auth 세션 발급
 2. 휴대폰 SMS OTP 검증 (국내 SMS API) → `phone_verified = true`
 3. 온보딩(닉네임/연령대/성별/카테고리) 완료 전까지 카드 생성·신청 불가
 

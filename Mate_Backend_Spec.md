@@ -147,7 +147,7 @@ create table admin_users (
   granted_at timestamptz not null default now()
 );
 
--- phone_otp_requests: 카카오 로그인과 별개인 휴대폰 본인확인 절차
+-- phone_otp_requests: OAuth 로그인과 별개인 휴대폰 본인확인 절차
 create table phone_otp_requests (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id),
@@ -322,8 +322,8 @@ open ──(admin 접수)──▶ reviewing ──(조사 완료)──▶ reso
 
 ## 8. 인증 프로바이더
 
-- **카카오 로그인**: Supabase Auth 내장 Kakao Provider. 운영 작업: 카카오 디벨로퍼스 앱 등록.
-- **휴대폰 인증**: 카카오와 분리된 자체 OTP(`phone_otp_requests` + 국내 SMS API). Supabase 내장 Phone Auth는 미사용(국내 통신사 지원 제한).
+- **Google 로그인**: Supabase Auth 내장 Google OAuth Provider. 운영 작업: Google Cloud Console OAuth 클라이언트 등록 후 Supabase Dashboard > Authentication > Providers > Google에 Client ID/Secret 입력. (R59에서 카카오/이메일 매직링크 의존을 걷어내고 Google OAuth 단일 진입으로 전환.)
+- **휴대폰 인증**: 로그인과 분리된 자체 OTP(`phone_otp_requests` + 국내 SMS API). Supabase 내장 Phone Auth는 미사용(국내 통신사 지원 제한).
 - Rate limit은 §11 코드 상수로 관리: OTP 만료 5분, 최대 시도 5회, 재전송 쿨다운 60초.
 
 ---
