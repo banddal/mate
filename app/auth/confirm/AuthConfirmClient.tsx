@@ -77,14 +77,14 @@ export function AuthConfirmClient() {
                 <AlertTriangle className="h-4 w-4" aria-hidden />
                 다시 시도할 때
               </div>
-              <p>메일 링크를 복사해서, 매직링크를 요청했던 같은 브라우저 주소창에 붙여넣어 주세요.</p>
-              <p>메일 앱 내장 브라우저, 시크릿 모드, 다른 기기에서는 이 오류가 다시 납니다.</p>
+              <p>이제 링크 클릭 대신 이메일의 6자리 코드를 로그인 화면에 입력하는 방식을 사용합니다.</p>
+              <p>로그인 화면으로 돌아가 새 코드를 요청해주세요.</p>
             </div>
             <a
               href="/login"
               className="flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
             >
-              새 매직링크 받기
+              이메일 코드로 로그인하기
             </a>
             <a
               href="/dev-login"

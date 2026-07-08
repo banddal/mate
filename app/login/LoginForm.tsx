@@ -1,7 +1,8 @@
 "use client";
 
-import { Copy, Mail, MessageCircle, ShieldCheck } from "lucide-react";
+import { KeyRound, Mail, MessageCircle, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type LoginFormProps = {
@@ -11,11 +12,14 @@ type LoginFormProps = {
 };
 
 export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFormProps) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">(
+  const [otpCode, setOtpCode] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "verifying" | "error">(
     initialError ? "error" : "idle"
   );
   const [message, setMessage] = useState(initialError ?? "");
+  const [isMessageError, setIsMessageError] = useState(Boolean(initialError));
 
   const siteUrl = getSiteUrl();
   const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/callback` : undefined;
@@ -26,6 +30,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
   async function handleKakaoLogin() {
     setStatus("loading");
     setMessage("");
+    setIsMessageError(false);
 
     try {
       if (!hasSupabasePublicEnv) {
@@ -45,6 +50,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
       }
     } catch (error) {
       setStatus("error");
+      setIsMessageError(true);
       setMessage(getLoginErrorMessage(error, "카카오 로그인을 시작하지 못했어요."));
     }
   }
@@ -53,6 +59,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
     event.preventDefault();
     setStatus("loading");
     setMessage("");
+    setIsMessageError(false);
 
     try {
       if (!hasSupabasePublicEnv) {
@@ -72,10 +79,50 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
       }
 
       setStatus("sent");
-      setMessage("메일을 보냈어요. 링크는 지금 이 브라우저에서 열어야 합니다.");
+      setIsMessageError(false);
+      setMessage("메일을 보냈어요. 메일에 있는 6자리 코드를 아래에 입력해주세요.");
     } catch (error) {
       setStatus("error");
-      setMessage(getLoginErrorMessage(error, "매직링크를 보내지 못했어요."));
+      setIsMessageError(true);
+      setMessage(getLoginErrorMessage(error, "로그인 코드를 보내지 못했어요."));
+    }
+  }
+
+  async function handleOtpVerify(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("verifying");
+    setMessage("");
+    setIsMessageError(false);
+
+    try {
+      if (!hasSupabasePublicEnv) {
+        throw new Error("Supabase 공개 환경변수가 설정되지 않았습니다.");
+      }
+
+      const normalizedEmail = email.trim();
+      const normalizedCode = otpCode.trim().replace(/\s/g, "");
+
+      if (!normalizedEmail || normalizedCode.length < 6) {
+        throw new Error("이메일과 6자리 코드를 확인해주세요.");
+      }
+
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase.auth.verifyOtp({
+        email: normalizedEmail,
+        token: normalizedCode,
+        type: "email"
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setMessage("로그인했어요. 다음 화면으로 이동합니다.");
+      router.replace("/onboarding");
+    } catch (error) {
+      setStatus("sent");
+      setIsMessageError(true);
+      setMessage(getLoginErrorMessage(error, "로그인 코드를 확인하지 못했어요."));
     }
   }
 
@@ -128,36 +175,68 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
               카카오로 시작하기
             </button>
           ) : (
-            <form className="space-y-3" onSubmit={handleEmailLogin}>
-              <label className="block text-sm font-medium text-ink" htmlFor="email">
-                이메일
-              </label>
-              <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-paper/70 px-3">
-                <Mail className="h-5 w-5 shrink-0 text-ink/50" aria-hidden />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                  placeholder="you@example.com"
-                  className="h-11 w-full bg-transparent text-base outline-none placeholder:text-ink/35"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="min-h-12 w-full rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                매직링크 받기
-              </button>
-            </form>
+            <div className="space-y-4">
+              <form className="space-y-3" onSubmit={handleEmailLogin}>
+                <label className="block text-sm font-medium text-ink" htmlFor="email">
+                  이메일
+                </label>
+                <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-paper/70 px-3">
+                  <Mail className="h-5 w-5 shrink-0 text-ink/50" aria-hidden />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    required
+                    placeholder="you@example.com"
+                    className="h-11 w-full bg-transparent text-base outline-none placeholder:text-ink/35"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={status === "loading" || status === "verifying"}
+                  className="min-h-12 w-full rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {status === "sent" ? "로그인 코드 다시 받기" : "이메일 코드 받기"}
+                </button>
+              </form>
+
+              {status === "sent" || status === "verifying" ? (
+                <form className="space-y-3 rounded-md border border-line bg-paper/70 p-3" onSubmit={handleOtpVerify}>
+                  <label className="block text-sm font-medium text-ink" htmlFor="otp-code">
+                    6자리 로그인 코드
+                  </label>
+                  <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-white px-3">
+                    <KeyRound className="h-5 w-5 shrink-0 text-moss" aria-hidden />
+                    <input
+                      id="otp-code"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={otpCode}
+                      onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                      required
+                      minLength={6}
+                      maxLength={6}
+                      placeholder="123456"
+                      className="h-11 w-full bg-transparent text-center text-xl font-bold tracking-[0.3em] outline-none placeholder:text-ink/25"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={status === "verifying" || otpCode.trim().length !== 6}
+                    className="min-h-12 w-full rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-moss/90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {status === "verifying" ? "확인 중" : "코드로 로그인"}
+                  </button>
+                </form>
+              ) : null}
+            </div>
           )}
 
           {message ? (
             <p
               className={`mt-3 text-sm ${
-                status === "error" ? "text-red-700" : "text-moss"
+                isMessageError ? "text-red-700" : "text-moss"
               }`}
               role="status"
             >
@@ -168,12 +247,11 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
           {status === "sent" ? (
             <div className="mt-3 rounded-md border border-line bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/65">
               <div className="mb-2 flex items-center gap-2 font-semibold text-ink">
-                <Copy className="h-4 w-4 text-moss" aria-hidden />
-                링크 여는 방법
+                <KeyRound className="h-4 w-4 text-moss" aria-hidden />
+                코드 로그인이 필요한 이유
               </div>
-              <p>1. 메일 앱 안에서 바로 열지 말고 링크를 복사합니다.</p>
-              <p>2. 이 화면을 띄운 같은 브라우저 주소창에 붙여넣습니다.</p>
-              <p>3. 시크릿 모드, 다른 브라우저, 다른 기기에서는 사용할 수 없습니다.</p>
+              <p>메일 링크는 앱 안의 브라우저에서 열려 실패할 수 있어요.</p>
+              <p>링크를 열지 말고 메일에 표시된 6자리 코드를 이 화면에 입력해주세요.</p>
             </div>
           ) : null}
 

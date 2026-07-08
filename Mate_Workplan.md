@@ -57,6 +57,7 @@
 - [x] `/login` 구현
   - [x] `KAKAO_CLIENT_ID`가 있으면 Kakao OAuth
   - [x] 없으면 Supabase email magic link
+  - [x] 매직링크 클릭 대신 이메일 6자리 코드 입력 로그인 지원
 - [x] `/onboarding` 구현
   - [x] 닉네임, 연령대, 성별, 관심 카테고리
   - [x] L3 선택지는 표시하지 않는다.
