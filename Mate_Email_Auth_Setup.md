@@ -47,6 +47,27 @@ Supabase checklist:
 If `/login` still returns `email rate limit exceeded`, the custom SMTP settings are not fully active
 or the Supabase Auth email rate limit is still too low. This is not controlled by the Next.js app.
 
+## Vercel Deployment Protection
+
+Email authentication cannot be fully tested while the production deployment is protected by Vercel
+login or SSO. Supabase email links must be able to open the public callback URL directly:
+
+```txt
+https://mate-161company.vercel.app/auth/confirm
+```
+
+If an anonymous request to the app redirects to a Vercel login page, turn off Deployment Protection
+for the Production deployment before testing email auth. Otherwise the email may be sent, but the
+callback can be intercepted before Mate handles the session.
+
+Quick external check:
+
+```txt
+https://mate-161company.vercel.app/api/config
+```
+
+This should return Mate JSON. If it shows a Vercel login page, Deployment Protection is still active.
+
 ## Current Code Check
 
 Mate's `/login` page calls:
@@ -66,6 +87,15 @@ Auth template/test action.
 The login form also blocks duplicate email requests in the same click cycle and adds a 60-second
 resend cooldown. This reduces accidental multiple `/auth/v1/otp` calls, but it does not replace
 custom SMTP setup.
+
+The email request now goes through Mate's server route:
+
+```txt
+POST /api/auth/email/request
+```
+
+This route still uses Supabase Auth, but it normalizes empty `{}` SDK errors into actionable
+messages for rate limits, provider timeouts, unauthorized emails, and SMTP-related failures.
 
 ## Supabase Email Template Requirement
 

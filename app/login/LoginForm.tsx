@@ -7,6 +7,11 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 const EMAIL_RESEND_COOLDOWN_MS = 60_000;
 
+type ApiResponse<T> = {
+  data: T | null;
+  error: { code: string; message: string } | null;
+};
+
 type LoginFormProps = {
   canUseKakao: boolean;
   canUseDevAuth: boolean;
@@ -101,16 +106,18 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
         throw new Error("Supabase 공개 환경변수가 설정되지 않았습니다.");
       }
 
-      const supabase = createBrowserSupabaseClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email: normalizedEmail,
-        options: {
-          emailRedirectTo: redirectTo
-        }
+      const response = await fetch("/api/auth/email/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          redirectTo
+        })
       });
+      const payload = (await response.json()) as ApiResponse<{ sent: boolean }>;
 
-      if (error) {
-        throw error;
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error?.message ?? "인증 메일 발송 요청이 실패했어요.");
       }
 
       setStatus("sent");
