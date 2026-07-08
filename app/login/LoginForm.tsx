@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, MessageCircle, ShieldCheck } from "lucide-react";
+import { Copy, Mail, MessageCircle, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
@@ -72,7 +72,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
       }
 
       setStatus("sent");
-      setMessage("메일함에서 Mate 로그인 링크를 확인해주세요. 매직링크는 요청한 브라우저에서 바로 열어야 합니다.");
+      setMessage("메일을 보냈어요. 링크는 지금 이 브라우저에서 열어야 합니다.");
     } catch (error) {
       setStatus("error");
       setMessage(getLoginErrorMessage(error, "매직링크를 보내지 못했어요."));
@@ -163,6 +163,18 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
             >
               {message}
             </p>
+          ) : null}
+
+          {status === "sent" ? (
+            <div className="mt-3 rounded-md border border-line bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/65">
+              <div className="mb-2 flex items-center gap-2 font-semibold text-ink">
+                <Copy className="h-4 w-4 text-moss" aria-hidden />
+                링크 여는 방법
+              </div>
+              <p>1. 메일 앱 안에서 바로 열지 말고 링크를 복사합니다.</p>
+              <p>2. 이 화면을 띄운 같은 브라우저 주소창에 붙여넣습니다.</p>
+              <p>3. 시크릿 모드, 다른 브라우저, 다른 기기에서는 사용할 수 없습니다.</p>
+            </div>
           ) : null}
 
           {canUseDevAuth ? (

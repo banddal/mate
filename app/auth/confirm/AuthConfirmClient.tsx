@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
@@ -72,6 +72,14 @@ export function AuthConfirmClient() {
         </p>
         {error ? (
           <div className="mt-4 grid gap-2">
+            <div className="rounded-md border border-red-100 bg-red-50 px-3 py-3 text-sm leading-6 text-red-800">
+              <div className="mb-1 flex items-center gap-2 font-semibold">
+                <AlertTriangle className="h-4 w-4" aria-hidden />
+                다시 시도할 때
+              </div>
+              <p>메일 링크를 복사해서, 매직링크를 요청했던 같은 브라우저 주소창에 붙여넣어 주세요.</p>
+              <p>메일 앱 내장 브라우저, 시크릿 모드, 다른 기기에서는 이 오류가 다시 납니다.</p>
+            </div>
             <a
               href="/login"
               className="flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
