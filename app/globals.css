@@ -10,6 +10,7 @@
 
 :root {
   color-scheme: dark;
+  --mate-app-gradient: linear-gradient(165deg, #1b2a52 0%, #5b3a6e 55%, #b23b3b 130%);
   background: #141a30;
 }
 
@@ -25,6 +26,10 @@ body {
 body {
   margin: 0;
   background: #141a30;
+  background-image: var(--mate-app-gradient);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: #f5f1ee;
   font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
@@ -39,7 +44,7 @@ h1 {
 }
 
 .auth-shell {
-  background: linear-gradient(165deg, #1b2a52 0%, #5b3a6e 55%, #b23b3b 130%);
+  background: var(--mate-app-gradient);
 }
 
 .bg-white,
