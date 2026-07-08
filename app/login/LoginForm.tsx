@@ -22,7 +22,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
   const [isMessageError, setIsMessageError] = useState(Boolean(initialError));
 
   const siteUrl = getSiteUrl();
-  const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/callback` : undefined;
+  const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/confirm` : undefined;
   const hasSupabasePublicEnv = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );

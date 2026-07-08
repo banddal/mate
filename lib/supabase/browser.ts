@@ -6,6 +6,14 @@ export function createBrowserSupabaseClient() {
 
   return createBrowserClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      auth: {
+        detectSessionInUrl: true,
+        flowType: "implicit",
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    }
   );
 }

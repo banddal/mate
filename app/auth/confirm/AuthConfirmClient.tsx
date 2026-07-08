@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
+type OtpType = "signup" | "invite" | "magiclink" | "recovery" | "email_change" | "email";
+
 export function AuthConfirmClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,15 +18,50 @@ export function AuthConfirmClient() {
 
     async function confirmAuth() {
       const code = searchParams.get("code");
+      const tokenHash = searchParams.get("token_hash");
+      const type = normalizeOtpType(searchParams.get("type"));
       const next = searchParams.get("next") || "/onboarding";
-
-      if (!code) {
-        setError("로그인 코드가 없습니다. 새 매직링크를 요청해주세요.");
-        return;
-      }
 
       try {
         const supabase = createBrowserSupabaseClient();
+
+        if (tokenHash && type) {
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type
+          });
+
+          if (cancelled) {
+            return;
+          }
+
+          if (verifyError) {
+            setError(getAuthConfirmMessage(verifyError.message));
+            return;
+          }
+
+          setMessage("로그인했어요. 다음 화면으로 이동합니다.");
+          router.replace(next);
+          return;
+        }
+
+        const existingSession = await waitForDetectedSession();
+
+        if (cancelled) {
+          return;
+        }
+
+        if (existingSession) {
+          setMessage("로그인했어요. 다음 화면으로 이동합니다.");
+          router.replace(next);
+          return;
+        }
+
+        if (!code) {
+          setError("로그인 정보를 확인하지 못했어요. 로그인 화면에서 이메일 코드를 다시 요청해주세요.");
+          return;
+        }
+
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
         if (cancelled) {
@@ -105,4 +142,39 @@ function getAuthConfirmMessage(message: string) {
   }
 
   return message;
+}
+
+function normalizeOtpType(type: string | null): OtpType | null {
+  if (
+    type === "signup" ||
+    type === "invite" ||
+    type === "magiclink" ||
+    type === "recovery" ||
+    type === "email_change" ||
+    type === "email"
+  ) {
+    return type;
+  }
+
+  return null;
+}
+
+async function waitForDetectedSession() {
+  const supabase = createBrowserSupabaseClient();
+  const { data } = await supabase.auth.getSession();
+
+  if (data.session) {
+    return data.session;
+  }
+
+  if (typeof window === "undefined" || !window.location.hash.includes("access_token")) {
+    return null;
+  }
+
+  await new Promise((resolve) => {
+    window.setTimeout(resolve, 500);
+  });
+
+  const { data: retryData } = await supabase.auth.getSession();
+  return retryData.session;
 }
