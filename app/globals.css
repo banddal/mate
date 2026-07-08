@@ -4,13 +4,13 @@
 
 @layer components {
   .field-input {
-    @apply min-h-12 w-full rounded-md border border-line bg-paper/60 px-3 outline-none focus:border-moss;
+    @apply min-h-12 w-full rounded-md border border-line bg-white/5 px-3 text-ink outline-none placeholder:text-ink/35 focus:border-moss;
   }
 }
 
 :root {
-  color-scheme: light;
-  background: #f7f4ef;
+  color-scheme: dark;
+  background: #141a30;
 }
 
 * {
@@ -24,20 +24,39 @@ body {
 
 body {
   margin: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(247, 244, 239, 0.96)),
-    #f7f4ef;
-  color: #1f2933;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  background: #141a30;
+  color: #f5f1ee;
+  font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
 
 button,
 input {
   font: inherit;
+}
+
+h1 {
+  font-family: var(--font-quicksand), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+.auth-shell {
+  background: linear-gradient(165deg, #1b2a52 0%, #5b3a6e 55%, #b23b3b 130%);
+}
+
+.bg-white,
+.bg-white\/70,
+.bg-white\/72,
+.bg-white\/95 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.bg-paper {
+  background-color: #141a30 !important;
+}
+
+.bg-ink {
+  background-color: #b23b3b !important;
+}
+
+.border-ink {
+  border-color: #b23b3b !important;
 }

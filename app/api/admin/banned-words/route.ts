@@ -1,6 +1,5 @@
 import { fail, ok } from "@/lib/api/responses";
-import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session";
-import { DEV_AUTH_FALLBACK_USER_ID } from "@/lib/dev-auth";
+import { getVerifiedAdmin } from "@/lib/auth/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { z } from "zod";
@@ -112,48 +111,4 @@ export async function DELETE(request: Request) {
       deleted: true
     }
   });
-}
-
-async function getVerifiedAdmin() {
-  const { user, profile } = await getCurrentUserAndProfile();
-
-  if (!user) {
-    return {
-      ok: false as const,
-      response: fail({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, 401)
-    };
-  }
-
-  if (!isProfileComplete(profile)) {
-    return {
-      ok: false as const,
-      response: fail({ code: "ONBOARDING_REQUIRED", message: "온보딩을 완료해주세요." }, 403)
-    };
-  }
-
-  if (!hasServiceEnv() || user.id === DEV_AUTH_FALLBACK_USER_ID) {
-    return {
-      ok: true as const,
-      userId: user.id
-    };
-  }
-
-  const admin = createServiceRoleSupabaseClient();
-  const { data: adminUser } = await admin
-    .from("admin_users")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (!adminUser) {
-    return {
-      ok: false as const,
-      response: fail({ code: "ADMIN_REQUIRED", message: "운영자 권한이 필요합니다." }, 403)
-    };
-  }
-
-  return {
-    ok: true as const,
-    userId: user.id
-  };
 }

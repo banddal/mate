@@ -12,6 +12,7 @@ import {
   UserRound
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
+import { isAdminUser } from "@/lib/auth/admin";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
 import { BottomNav } from "@/components/BottomNav";
@@ -32,9 +33,9 @@ type FeedPageProps = {
 };
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
-  const { profile } = await requireOnboarded();
+  const { user, profile } = await requireOnboarded();
   const filters = parseCardFeedFilters(searchParams);
-  const cards = await getOpenCards(filters);
+  const [cards, canOpenAdmin] = await Promise.all([getOpenCards(filters), isAdminUser(user.id)]);
 
   return (
     <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
@@ -48,13 +49,15 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               </h1>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <Link
-                href="/admin"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white text-moss shadow-soft"
-                aria-label="관리자"
-              >
-                <ShieldCheck className="h-5 w-5" aria-hidden />
-              </Link>
+              {canOpenAdmin ? (
+                <Link
+                  href="/admin"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white text-moss shadow-soft"
+                  aria-label="관리자"
+                >
+                  <ShieldCheck className="h-5 w-5" aria-hidden />
+                </Link>
+              ) : null}
               <Link
                 href="/cards/new"
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-ink text-white shadow-soft"
@@ -106,7 +109,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         )}
       </section>
 
-      <BottomNav active="feed" />
+      <BottomNav active="feed" showAdmin={canOpenAdmin} />
     </main>
   );
 }

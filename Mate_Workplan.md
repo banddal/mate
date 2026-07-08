@@ -20,6 +20,7 @@
   - R59 인증 전환: SMTP/메일 로그인 의존을 중단하고 Supabase Google OAuth 중심으로 정리
   - R60 프론트 운영층: 피드 빠른 행동 패널과 관리자 통계 탭 추가
   - R61 P5/P6 보강: 유저 알림 인박스 API/UI와 관리자 Cron 모니터 추가
+  - R62 프론트 전환 시작: 관리자 권한 공통 가드, 다크 디자인 토큰, 로그인/온보딩 1차 리디자인
 - 로컬 미추적 파일:
   - `.claude/settings.local.json`
 
@@ -196,6 +197,7 @@
 
 - [ ] `/admin/*` 단일 관리자 화면 구현
   - [x] 탭형 운영 콘솔 구조
+  - [x] 관리자 페이지 권한 가드
   - [x] 카드 검수 대기열 조회
   - [x] 신고 대기열 조회
   - [x] 신고 처리
@@ -211,6 +213,7 @@
   - [x] `/api/admin/reports/:id/resolve`
   - [x] `/api/admin/admins`
   - [x] `/api/admin/banned-words`
+  - [x] `/api/admin/*` 공통 관리자 권한 검증
 - [x] 내부 cron endpoint 구현
   - [x] `/api/internal/cron/resolve-cards` (마감 지난 카드 일괄 해소)
   - [x] `/api/internal/cron/dispatch-notifications` (pending 알림 Web Push 발송)
@@ -243,6 +246,8 @@
 ### UX 정리
 
 - [x] 하단 네비게이션 공통 컴포넌트화
+- [x] 다크 디자인 토큰 1차 적용
+- [x] 로그인/온보딩 1차 리디자인
 - [ ] 카드/빈 상태/단계 표시 공통 컴포넌트화
 - [ ] 전체 유저 플로우에서 삭제/보류 기능 표시
 

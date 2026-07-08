@@ -52,35 +52,34 @@ export function LoginForm({ canUseDevAuth, initialError }: LoginFormProps) {
   }
 
   return (
-    <main className="min-h-dvh px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(28px+env(safe-area-inset-top))]">
+    <main className="auth-shell min-h-dvh px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(28px+env(safe-area-inset-top))]">
       <section className="mx-auto flex min-h-[calc(100dvh-56px)] w-full max-w-md flex-col justify-between">
         <div className="space-y-8">
           <div className="flex items-center justify-between">
-            <div className="text-xl font-semibold tracking-normal">Mate</div>
-            <div className="rounded-full border border-line bg-white/70 px-3 py-1 text-xs font-medium text-ink/70">
+            <div className="text-xl font-semibold tracking-normal text-ink">Mate</div>
+            <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-ink/70">
               V0.1
             </div>
           </div>
 
           <div className="space-y-4 pt-8">
-            <p className="text-sm font-semibold text-moss">상황 카드로 시작</p>
-            <h1 className="text-4xl font-bold leading-tight tracking-normal text-ink">
-              오늘 같이 갈 사람을 가볍게 찾기
+            <h1 className="text-4xl font-semibold leading-tight tracking-normal text-ink/85">
+              같이 가요 오늘 <span className="font-extrabold text-white">Mate</span>
             </h1>
-            <p className="max-w-sm text-base leading-7 text-ink/68">
-              시간, 장소, 활동이 정해진 카드에 신청하고 모임이 끝나면 화면의 관계는 남기지 않습니다.
+            <p className="max-w-sm text-[13px] leading-[1.5] text-ink/70">
+              스포츠, 전시 등 다양한 주제의 Mate를 만나 보세요. 단 한번, 모임이 끝나면 기록은 사라집니다.
             </p>
           </div>
 
           <div className="grid gap-3">
-            <div className="flex items-center gap-3 rounded-lg border border-line bg-white/72 px-4 py-3">
+            <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/10 px-4 py-3 shadow-soft">
               <ShieldCheck className="h-5 w-5 shrink-0 text-moss" aria-hidden />
               <span className="text-sm text-ink/75">Google 계정으로 가입과 로그인을 간단히 처리합니다.</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 rounded-lg border border-line bg-white p-4 shadow-soft">
+        <div className="mt-10 rounded-lg border border-white/20 bg-white/10 p-4 shadow-soft">
           {!hasSupabasePublicEnv ? (
             <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm leading-6 text-red-700">
               Vercel에 Supabase 공개 환경변수가 필요합니다:
@@ -93,7 +92,7 @@ export function LoginForm({ canUseDevAuth, initialError }: LoginFormProps) {
             type="button"
             onClick={handleGoogleLogin}
             disabled={status === "loading"}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-google px-4 text-sm font-semibold text-white transition hover:bg-google/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Chrome className="h-5 w-5" aria-hidden />
             {status === "loading" ? "Google로 이동 중" : "Google 계정으로 시작하기"}

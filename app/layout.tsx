@@ -1,5 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Quicksand, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap"
+});
+
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  variable: "--font-quicksand",
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   title: "Mate",
@@ -11,7 +24,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#f7f4ef"
+  themeColor: "#141a30"
 };
 
 export default function RootLayout({
@@ -20,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={`${spaceGrotesk.variable} ${quicksand.variable}`}>
       <body>{children}</body>
     </html>
   );

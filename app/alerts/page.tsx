@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
+import { isAdminUser } from "@/lib/auth/admin";
 import { CARD_CATEGORY_OPTIONS } from "@/lib/cards/categories";
 import { BottomNav } from "@/components/BottomNav";
 import { AlertsClient } from "./AlertsClient";
@@ -8,7 +9,8 @@ import { AlertsClient } from "./AlertsClient";
 export const dynamic = "force-dynamic";
 
 export default async function AlertsPage() {
-  await requireOnboarded();
+  const { user } = await requireOnboarded();
+  const canOpenAdmin = await isAdminUser(user.id);
   const categories = CARD_CATEGORY_OPTIONS.filter((option) => option.level !== "L3").map(
     (option) => option.label
   );
@@ -32,7 +34,7 @@ export default async function AlertsPage() {
         <AlertsClient categories={categories} />
       </section>
 
-      <BottomNav active="alerts" />
+      <BottomNav active="alerts" showAdmin={canOpenAdmin} />
     </main>
   );
 }

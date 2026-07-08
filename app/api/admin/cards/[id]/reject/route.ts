@@ -1,5 +1,5 @@
 import { fail, ok } from "@/lib/api/responses";
-import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session";
+import { getVerifiedAdmin } from "@/lib/auth/admin";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { createNotification } from "@/lib/notifications/create";
@@ -18,14 +18,10 @@ type CardRejectRouteContext = {
 };
 
 export async function POST(request: Request, { params }: CardRejectRouteContext) {
-  const { user, profile } = await getCurrentUserAndProfile();
+  const auth = await getVerifiedAdmin();
 
-  if (!user) {
-    return fail({ code: "UNAUTHORIZED", message: "로그인이 필요합니다." }, 401);
-  }
-
-  if (!isProfileComplete(profile)) {
-    return fail({ code: "ONBOARDING_REQUIRED", message: "온보딩을 완료해주세요." }, 403);
+  if (!auth.ok) {
+    return auth.response;
   }
 
   const parsed = rejectSchema.safeParse(await request.json().catch(() => null));
@@ -61,7 +57,7 @@ export async function POST(request: Request, { params }: CardRejectRouteContext)
   }
 
   await admin.from("admin_actions").insert({
-    admin_id: user.id,
+    admin_id: auth.userId,
     action_type: "card_reject",
     target_id: params.id,
     notes: parsed.data.rejectionReason

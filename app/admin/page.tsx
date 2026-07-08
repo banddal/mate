@@ -12,7 +12,7 @@ import {
   UserCog,
   Users
 } from "lucide-react";
-import { requireOnboarded } from "@/lib/auth/session";
+import { requireAdmin } from "@/lib/auth/admin";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import {
@@ -107,7 +107,7 @@ type AdminPageProps = {
 };
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
-  await requireOnboarded();
+  await requireAdmin();
   const activeTab = getActiveTab(searchParams?.tab);
   const [stats, reports, reviewCards, adminUsers, adminCandidates, bannedWords, adminActions] = await Promise.all([
     getAdminStats(),
