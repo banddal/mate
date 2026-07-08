@@ -83,7 +83,7 @@ export function OnboardingForm() {
             오늘의 mate를 위한 기본 정보
           </h1>
           <p className="leading-7 text-ink/70">
-            이메일 인증을 마친 뒤 필요한 최소 정보만 받고 바로 카드를 둘러볼 수 있게 합니다.
+            Google 로그인 뒤 필요한 최소 정보만 받고 바로 카드를 둘러볼 수 있게 합니다.
           </p>
         </header>
 
@@ -169,7 +169,7 @@ export function OnboardingForm() {
         </form>
 
         <section className="rounded-lg border border-line bg-white p-4 text-sm leading-6 text-ink/68 shadow-soft">
-          휴대폰 인증은 실제 SMS 연동 전까지 가입 필수 단계에서 제외했습니다. 지금은 이메일 인증과
+          휴대폰 인증은 실제 SMS 연동 전까지 가입 필수 단계에서 제외했습니다. 지금은 Google 로그인과
           프로필 저장만으로 주요 유저 흐름을 테스트합니다.
         </section>
 

@@ -1,62 +1,29 @@
 "use client";
 
-import { KeyRound, Mail, MessageCircle, ShieldCheck } from "lucide-react";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Chrome, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
-const EMAIL_RESEND_COOLDOWN_MS = 60_000;
-
-type ApiResponse<T> = {
-  data: T | null;
-  error: { code: string; message: string } | null;
-};
-
 type LoginFormProps = {
-  canUseKakao: boolean;
   canUseDevAuth: boolean;
   initialError?: string;
 };
 
-export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFormProps) {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "verifying" | "error">(
+export function LoginForm({ canUseDevAuth, initialError }: LoginFormProps) {
+  const [status, setStatus] = useState<"idle" | "loading" | "error">(
     initialError ? "error" : "idle"
   );
   const [message, setMessage] = useState(initialError ?? "");
-  const [isMessageError, setIsMessageError] = useState(Boolean(initialError));
-  const [resendAvailableAt, setResendAvailableAt] = useState(0);
-  const [now, setNow] = useState(() => Date.now());
-  const emailRequestInFlight = useRef(false);
 
   const siteUrl = getSiteUrl();
   const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/confirm` : undefined;
   const hasSupabasePublicEnv = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
-  const resendSeconds = Math.max(0, Math.ceil((resendAvailableAt - now) / 1000));
-  const isEmailRequestDisabled = status === "loading" || status === "verifying" || resendSeconds > 0;
 
-  useEffect(() => {
-    if (resendSeconds <= 0) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [resendSeconds]);
-
-  async function handleKakaoLogin() {
+  async function handleGoogleLogin() {
     setStatus("loading");
     setMessage("");
-    setIsMessageError(false);
 
     try {
       if (!hasSupabasePublicEnv) {
@@ -65,9 +32,13 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
 
       const supabase = createBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "kakao",
+        provider: "google",
         options: {
-          redirectTo
+          redirectTo,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account"
+          }
         }
       });
 
@@ -76,99 +47,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
       }
     } catch (error) {
       setStatus("error");
-      setIsMessageError(true);
-      setMessage(getLoginErrorMessage(error, "카카오 로그인을 시작하지 못했어요."));
-    }
-  }
-
-  async function handleEmailLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (emailRequestInFlight.current) {
-      return;
-    }
-
-    if (resendSeconds > 0) {
-      setIsMessageError(false);
-      setMessage(`${resendSeconds}초 뒤에 새 인증 메일을 다시 요청할 수 있어요.`);
-      return;
-    }
-
-    const normalizedEmail = email.trim();
-
-    setStatus("loading");
-    setMessage("");
-    setIsMessageError(false);
-    emailRequestInFlight.current = true;
-
-    try {
-      if (!hasSupabasePublicEnv) {
-        throw new Error("Supabase 공개 환경변수가 설정되지 않았습니다.");
-      }
-
-      const response = await fetch("/api/auth/email/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: normalizedEmail,
-          redirectTo
-        })
-      });
-      const payload = (await response.json()) as ApiResponse<{ sent: boolean }>;
-
-      if (!response.ok || payload.error) {
-        throw new Error(payload.error?.message ?? "인증 메일 발송 요청이 실패했어요.");
-      }
-
-      setStatus("sent");
-      setIsMessageError(false);
-      setResendAvailableAt(Date.now() + EMAIL_RESEND_COOLDOWN_MS);
-      setNow(Date.now());
-      setMessage("인증 메일을 보냈어요. 메일의 버튼을 누르거나, 6자리 코드가 보이면 아래에 입력해주세요.");
-    } catch (error) {
-      setStatus("error");
-      setIsMessageError(true);
-      setMessage(getLoginErrorMessage(error, "인증 메일을 보내지 못했어요."));
-    } finally {
-      emailRequestInFlight.current = false;
-    }
-  }
-
-  async function handleOtpVerify(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setStatus("verifying");
-    setMessage("");
-    setIsMessageError(false);
-
-    try {
-      if (!hasSupabasePublicEnv) {
-        throw new Error("Supabase 공개 환경변수가 설정되지 않았습니다.");
-      }
-
-      const normalizedEmail = email.trim();
-      const normalizedCode = otpCode.trim().replace(/\s/g, "");
-
-      if (!normalizedEmail || normalizedCode.length < 6) {
-        throw new Error("이메일과 6자리 코드를 확인해주세요.");
-      }
-
-      const supabase = createBrowserSupabaseClient();
-      const { error } = await supabase.auth.verifyOtp({
-        email: normalizedEmail,
-        token: normalizedCode,
-        type: "email"
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      setMessage("로그인했어요. 다음 화면으로 이동합니다.");
-      router.replace("/onboarding");
-    } catch (error) {
-      setStatus("sent");
-      setIsMessageError(true);
-      setMessage(getLoginErrorMessage(error, "로그인 코드를 확인하지 못했어요."));
+      setMessage(getLoginErrorMessage(error, "Google 로그인을 시작하지 못했어요."));
     }
   }
 
@@ -196,7 +75,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
           <div className="grid gap-3">
             <div className="flex items-center gap-3 rounded-lg border border-line bg-white/72 px-4 py-3">
               <ShieldCheck className="h-5 w-5 shrink-0 text-moss" aria-hidden />
-              <span className="text-sm text-ink/75">이메일 인증 후 바로 프로필 설정으로 이어갑니다.</span>
+              <span className="text-sm text-ink/75">Google 계정으로 가입과 로그인을 간단히 처리합니다.</span>
             </div>
           </div>
         </div>
@@ -210,99 +89,23 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
             </div>
           ) : null}
 
-          {canUseKakao ? (
-            <button
-              type="button"
-              onClick={handleKakaoLogin}
-              disabled={status === "loading"}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-[#FEE500] px-4 text-sm font-semibold text-[#191600] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <MessageCircle className="h-5 w-5" aria-hidden />
-              카카오로 시작하기
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <form className="space-y-3" onSubmit={handleEmailLogin}>
-                <label className="block text-sm font-medium text-ink" htmlFor="email">
-                  이메일
-                </label>
-                <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-paper/70 px-3">
-                  <Mail className="h-5 w-5 shrink-0 text-ink/50" aria-hidden />
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    required
-                    placeholder="you@example.com"
-                    className="h-11 w-full bg-transparent text-base outline-none placeholder:text-ink/35"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isEmailRequestDisabled}
-                  className="min-h-12 w-full rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {resendSeconds > 0
-                    ? `${resendSeconds}초 뒤 다시 요청`
-                    : status === "sent"
-                      ? "인증 메일 다시 받기"
-                      : "이메일 인증 받기"}
-                </button>
-              </form>
-
-              {status === "sent" || status === "verifying" ? (
-                <form className="space-y-3 rounded-md border border-line bg-paper/70 p-3" onSubmit={handleOtpVerify}>
-                  <label className="block text-sm font-medium text-ink" htmlFor="otp-code">
-                    메일에 표시된 6자리 코드
-                  </label>
-                  <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-white px-3">
-                    <KeyRound className="h-5 w-5 shrink-0 text-moss" aria-hidden />
-                    <input
-                      id="otp-code"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={otpCode}
-                      onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
-                      required
-                      minLength={6}
-                      maxLength={6}
-                      placeholder="123456"
-                      className="h-11 w-full bg-transparent text-center text-xl font-bold tracking-[0.3em] outline-none placeholder:text-ink/25"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={status === "verifying" || otpCode.trim().length !== 6}
-                    className="min-h-12 w-full rounded-md bg-moss px-4 text-sm font-semibold text-white transition hover:bg-moss/90 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {status === "verifying" ? "확인 중" : "코드로 인증하기"}
-                  </button>
-                </form>
-              ) : null}
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={status === "loading"}
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Chrome className="h-5 w-5" aria-hidden />
+            {status === "loading" ? "Google로 이동 중" : "Google 계정으로 시작하기"}
+          </button>
 
           {message ? (
             <p
-              className={`mt-3 text-sm ${
-                isMessageError ? "text-red-700" : "text-moss"
-              }`}
+              className={`mt-3 text-sm ${status === "error" ? "text-red-700" : "text-moss"}`}
               role="status"
             >
               {message}
             </p>
-          ) : null}
-
-          {status === "sent" ? (
-            <div className="mt-3 rounded-md border border-line bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/65">
-              <div className="mb-2 flex items-center gap-2 font-semibold text-ink">
-                <KeyRound className="h-4 w-4 text-moss" aria-hidden />
-                메일 인증 방법
-              </div>
-              <p>메일에 버튼이나 링크가 보이면 그대로 눌러도 됩니다.</p>
-              <p>메일에 6자리 숫자 코드가 함께 보이면 이 화면에 입력해도 됩니다.</p>
-            </div>
           ) : null}
 
           {canUseDevAuth ? (

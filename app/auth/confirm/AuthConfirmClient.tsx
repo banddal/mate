@@ -10,7 +10,7 @@ type OtpType = "signup" | "invite" | "magiclink" | "recovery" | "email_change" |
 export function AuthConfirmClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [message, setMessage] = useState("로그인 링크를 확인하고 있어요.");
+  const [message, setMessage] = useState("로그인 정보를 확인하고 있어요.");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function AuthConfirmClient() {
         }
 
         if (!code) {
-          setError("로그인 정보를 확인하지 못했어요. 로그인 화면에서 새 인증 메일을 다시 요청해주세요.");
+          setError("로그인 정보를 확인하지 못했어요. 로그인 화면에서 Google 로그인을 다시 시작해주세요.");
           return;
         }
 
@@ -83,7 +83,7 @@ export function AuthConfirmClient() {
         setError(
           confirmError instanceof Error
             ? getAuthConfirmMessage(confirmError.message)
-            : "로그인 링크 처리 중 문제가 생겼어요."
+            : "로그인 처리 중 문제가 생겼어요."
         );
       }
     }
@@ -101,7 +101,7 @@ export function AuthConfirmClient() {
         <div className="flex items-center gap-3">
           {!error ? <Loader2 className="h-5 w-5 animate-spin text-moss" aria-hidden /> : null}
           <h1 className="text-lg font-semibold text-ink">
-            {error ? "로그인 링크를 다시 확인해주세요" : "로그인 처리 중"}
+            {error ? "로그인을 다시 시도해주세요" : "로그인 처리 중"}
           </h1>
         </div>
         <p className={`mt-3 text-sm leading-6 ${error ? "text-red-700" : "text-ink/70"}`}>
@@ -114,14 +114,14 @@ export function AuthConfirmClient() {
                 <AlertTriangle className="h-4 w-4" aria-hidden />
                 다시 시도할 때
               </div>
-              <p>로그인 화면으로 돌아가 새 인증 메일을 요청해주세요.</p>
-              <p>메일에 링크가 있으면 누르고, 6자리 코드가 있으면 로그인 화면에 입력하면 됩니다.</p>
+              <p>로그인 화면으로 돌아가 Google 로그인을 다시 시작해주세요.</p>
+              <p>브라우저의 뒤로 가기보다 로그인 화면에서 새로 시작하는 편이 안정적입니다.</p>
             </div>
             <a
               href="/login"
               className="flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
             >
-              이메일 인증 다시 받기
+              Google 로그인 다시 하기
             </a>
             <a
               href="/dev-login"
@@ -138,7 +138,7 @@ export function AuthConfirmClient() {
 
 function getAuthConfirmMessage(message: string) {
   if (message.toLowerCase().includes("code verifier")) {
-    return "이 링크는 요청한 브라우저와 다른 곳에서 열렸거나 저장 정보가 지워져 사용할 수 없습니다. 같은 브라우저에서 새 매직링크를 요청하고, 그 브라우저에서 바로 열어주세요.";
+    return "로그인 요청을 시작한 브라우저와 다른 곳에서 열렸거나 저장 정보가 지워져 사용할 수 없습니다. 같은 브라우저에서 Google 로그인을 다시 시작해주세요.";
   }
 
   return message;

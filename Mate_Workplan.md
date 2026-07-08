@@ -46,7 +46,7 @@
   - [x] service role admin client
 - [x] `.env.example`을 작성한다.
   - Supabase URL / anon key / service role key
-  - Kakao keys
+  - Google OAuth keys
   - SMS vendor key
   - VAPID keys
   - Cron secret
@@ -55,9 +55,8 @@
 ### P1. 인증과 온보딩
 
 - [x] `/login` 구현
-  - [x] `KAKAO_CLIENT_ID`가 있으면 Kakao OAuth
-  - [x] 없으면 Supabase email magic link
-  - [x] 매직링크 클릭 대신 이메일 6자리 코드 입력 로그인 지원
+  - [x] Supabase Google OAuth
+  - [x] SMTP 의존 이메일 매직링크/OTP 로그인 제거
 - [x] `/onboarding` 구현
   - [x] 닉네임, 연령대, 성별, 관심 카테고리
   - [x] L3 선택지는 표시하지 않는다.
@@ -244,7 +243,7 @@
 - [ ] Supabase 프로젝트 URL, anon key, service role key 확인
 - [ ] Supabase migrations가 실제 원격 DB에 적용되어 있는지 확인
 - [ ] VAPID public/private key 확인
-- [ ] Kakao key 미발급 상태인지 확인
+- [ ] Google OAuth 설정 확인
 - [ ] SMS vendor key 미발급 상태인지 확인
 - [ ] 최초 admin 계정 부여 방식 확정
 - [ ] Vercel 프로젝트 생성 여부 확인
@@ -257,7 +256,7 @@
 - [x] Tailwind/ESLint 기본 설정
 - [x] Supabase client 3종 구조
 - [x] `.env.example`
-- [x] `/login`의 Kakao/email magic link 자동 분기
+- [x] `/login`의 Google OAuth 단일 진입
 - [x] `/api/config`
 
 이 범위까지 끝나면 이후 기능 개발의 기준선이 생긴다.

@@ -10,7 +10,6 @@ type LoginPageProps = {
 export default function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <LoginForm
-      canUseKakao={Boolean(process.env.KAKAO_CLIENT_ID)}
       canUseDevAuth={isDevAuthBypassEnabled()}
       initialError={searchParams.error}
     />

@@ -10,7 +10,7 @@ export function createBrowserSupabaseClient() {
     {
       auth: {
         detectSessionInUrl: true,
-        flowType: "implicit",
+        flowType: "pkce",
         persistSession: true,
         autoRefreshToken: true
       }
