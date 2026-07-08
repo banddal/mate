@@ -8,6 +8,65 @@ Supabase magic links with PKCE can fail when the email link opens in a mail app 
 
 The app now asks users to enter a 6-digit email code directly on `/login`. It also sends email links to `/auth/confirm`, where the client can detect the returned auth session.
 
+## Custom SMTP Requirement
+
+Supabase's default Auth email sender is only for early testing. It can be limited to team member
+addresses and currently has a very low send limit, so Mate must use a custom SMTP sender before
+email login can be tested repeatedly.
+
+For a temporary Gmail-based test sender:
+
+```txt
+SMTP host: smtp.gmail.com
+SMTP port: 587
+SMTP user: your-full-gmail-address@gmail.com
+SMTP password: Google App Password, not the normal Gmail password
+Sender email: same Gmail address as SMTP user
+Sender name: Mate
+Secure connection: STARTTLS / TLS
+```
+
+Gmail checklist:
+
+1. Enable 2-Step Verification on the Google account.
+2. Create an App Password for Mate/Supabase SMTP.
+3. Paste the 16-character app password into Supabase SMTP settings.
+4. Do not use the normal Google login password.
+5. If using a Google Workspace alias, make sure the sender address is allowed as a Gmail send-as
+   address. For the first test, use the exact Gmail account address as the sender.
+
+Supabase checklist:
+
+1. Open Authentication > Settings > SMTP.
+2. Enable Custom SMTP.
+3. Save the Gmail SMTP values above.
+4. Open Authentication > Rate Limits.
+5. Raise the email/OTP send limit from the default test value to a practical test value.
+6. Send a brand-new login email from `/login`.
+
+If `/login` still returns `email rate limit exceeded`, the custom SMTP settings are not fully active
+or the Supabase Auth email rate limit is still too low. This is not controlled by the Next.js app.
+
+## Current Code Check
+
+Mate's `/login` page calls:
+
+```ts
+supabase.auth.signInWithOtp({
+  email,
+  options: { emailRedirectTo }
+})
+```
+
+The app does not call `resetPasswordForEmail()` in the login flow. If Supabase logs show
+`User recovery requested`, that request is not coming from the current Mate login form and should be
+checked against another deployed version, browser cache, an old preview deployment, or a different
+Auth template/test action.
+
+The login form also blocks duplicate email requests in the same click cycle and adds a 60-second
+resend cooldown. This reduces accidental multiple `/auth/v1/otp` calls, but it does not replace
+custom SMTP setup.
+
 ## Supabase Email Template Requirement
 
 In Supabase Dashboard:

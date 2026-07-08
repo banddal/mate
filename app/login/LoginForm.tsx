@@ -1,9 +1,11 @@
 "use client";
 
 import { KeyRound, Mail, MessageCircle, ShieldCheck } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+
+const EMAIL_RESEND_COOLDOWN_MS = 60_000;
 
 type LoginFormProps = {
   canUseKakao: boolean;
@@ -20,12 +22,31 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
   );
   const [message, setMessage] = useState(initialError ?? "");
   const [isMessageError, setIsMessageError] = useState(Boolean(initialError));
+  const [resendAvailableAt, setResendAvailableAt] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+  const emailRequestInFlight = useRef(false);
 
   const siteUrl = getSiteUrl();
   const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, "")}/auth/confirm` : undefined;
   const hasSupabasePublicEnv = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
+  const resendSeconds = Math.max(0, Math.ceil((resendAvailableAt - now) / 1000));
+  const isEmailRequestDisabled = status === "loading" || status === "verifying" || resendSeconds > 0;
+
+  useEffect(() => {
+    if (resendSeconds <= 0) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [resendSeconds]);
 
   async function handleKakaoLogin() {
     setStatus("loading");
@@ -57,9 +78,23 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
 
   async function handleEmailLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (emailRequestInFlight.current) {
+      return;
+    }
+
+    if (resendSeconds > 0) {
+      setIsMessageError(false);
+      setMessage(`${resendSeconds}초 뒤에 새 인증 메일을 다시 요청할 수 있어요.`);
+      return;
+    }
+
+    const normalizedEmail = email.trim();
+
     setStatus("loading");
     setMessage("");
     setIsMessageError(false);
+    emailRequestInFlight.current = true;
 
     try {
       if (!hasSupabasePublicEnv) {
@@ -68,7 +103,7 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
 
       const supabase = createBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: normalizedEmail,
         options: {
           emailRedirectTo: redirectTo
         }
@@ -80,11 +115,15 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
 
       setStatus("sent");
       setIsMessageError(false);
+      setResendAvailableAt(Date.now() + EMAIL_RESEND_COOLDOWN_MS);
+      setNow(Date.now());
       setMessage("인증 메일을 보냈어요. 메일의 버튼을 누르거나, 6자리 코드가 보이면 아래에 입력해주세요.");
     } catch (error) {
       setStatus("error");
       setIsMessageError(true);
-      setMessage(getLoginErrorMessage(error, "로그인 코드를 보내지 못했어요."));
+      setMessage(getLoginErrorMessage(error, "인증 메일을 보내지 못했어요."));
+    } finally {
+      emailRequestInFlight.current = false;
     }
   }
 
@@ -194,10 +233,14 @@ export function LoginForm({ canUseKakao, canUseDevAuth, initialError }: LoginFor
                 </div>
                 <button
                   type="submit"
-                  disabled={status === "loading" || status === "verifying"}
+                  disabled={isEmailRequestDisabled}
                   className="min-h-12 w-full rounded-md bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {status === "sent" ? "인증 메일 다시 받기" : "이메일 인증 받기"}
+                  {resendSeconds > 0
+                    ? `${resendSeconds}초 뒤 다시 요청`
+                    : status === "sent"
+                      ? "인증 메일 다시 받기"
+                      : "이메일 인증 받기"}
                 </button>
               </form>
 
