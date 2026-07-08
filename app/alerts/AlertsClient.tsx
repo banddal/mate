@@ -11,6 +11,15 @@ type SubscriptionRow = {
   created_at: string;
 };
 
+type NotificationRow = {
+  id: string;
+  type: string;
+  payload: Record<string, unknown>;
+  status: "pending" | "sent" | "failed";
+  attempts: number;
+  created_at: string;
+};
+
 type ApiResponse<T> = {
   data: T | null;
   error: { code: string; message: string } | null;
@@ -28,6 +37,7 @@ const suggestedTemplates = [
 
 export function AlertsClient({ categories }: AlertsClientProps) {
   const [subscriptions, setSubscriptions] = useState<SubscriptionRow[]>([]);
+  const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [location, setLocation] = useState("");
   const [timePattern, setTimePattern] = useState("이번 주말");
   const [category, setCategory] = useState(categories[0] ?? "");
@@ -50,6 +60,7 @@ export function AlertsClient({ categories }: AlertsClientProps) {
 
   useEffect(() => {
     loadSubscriptions();
+    loadNotifications();
     preparePushState();
   }, []);
 
@@ -67,6 +78,20 @@ export function AlertsClient({ categories }: AlertsClientProps) {
     }
 
     setSubscriptions(payload.data.subscriptions);
+  }
+
+  async function loadNotifications() {
+    const response = await fetch("/api/notifications");
+    const payload = (await response.json().catch(() => null)) as ApiResponse<{
+      notifications: NotificationRow[];
+    }> | null;
+
+    if (!response.ok || payload?.error || !payload?.data) {
+      setErrorMessage(payload?.error?.message ?? "알림을 불러오지 못했어요.");
+      return;
+    }
+
+    setNotifications(payload.data.notifications);
   }
 
   async function preparePushState() {
@@ -233,16 +258,32 @@ export function AlertsClient({ categories }: AlertsClientProps) {
           <div>
             <h2 className="text-base font-bold tracking-normal text-ink">내 활동 알림</h2>
             <p className="mt-1 text-sm leading-6 text-ink/60">
-              실제 알림은 신청/승인/후기처럼 내가 처리해야 하는 일 중심으로 모입니다.
+              신청, 승인, 후기처럼 내가 처리해야 하는 일이 이곳에 쌓입니다.
             </p>
           </div>
-          <span className="rounded-full bg-moss/10 px-2 py-1 text-xs font-semibold text-moss">우선</span>
+          <span className="rounded-full bg-moss/10 px-2 py-1 text-xs font-semibold text-moss">
+            {notifications.length}건
+          </span>
         </div>
-        <div className="grid gap-2">
-          <ActivityNotice icon={<Clock3 className="h-4 w-4" aria-hidden />} title="신청 상태" body="대기, 승인, 마감 상태를 내 활동에서 확인합니다." />
-          <ActivityNotice icon={<MessageCircle className="h-4 w-4" aria-hidden />} title="Mate Room" body="승인 후 열린 Room과 조율 메시지를 놓치지 않게 합니다." />
-          <ActivityNotice icon={<CheckCircle2 className="h-4 w-4" aria-hidden />} title="후기 요청" body="만남 종료 후 필요한 사실 확인만 남깁니다." />
-        </div>
+        {notifications.length > 0 ? (
+          <div className="grid gap-2">
+            {notifications.map((notification) => (
+              <ActivityNotice
+                key={notification.id}
+                icon={getNotificationIcon(notification.type)}
+                title={getNotificationTitle(notification)}
+                body={getNotificationBody(notification)}
+                meta={`${formatDateTime(notification.created_at)} · ${getNotificationStatusLabel(notification.status)}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-2">
+            <ActivityNotice icon={<Clock3 className="h-4 w-4" aria-hidden />} title="신청 상태" body="대기, 승인, 마감 상태가 생기면 여기에 표시됩니다." />
+            <ActivityNotice icon={<MessageCircle className="h-4 w-4" aria-hidden />} title="Mate Room" body="승인 후 열린 Room과 조율 메시지를 놓치지 않게 합니다." />
+            <ActivityNotice icon={<CheckCircle2 className="h-4 w-4" aria-hidden />} title="후기 요청" body="만남 종료 후 필요한 사실 확인만 남깁니다." />
+          </div>
+        )}
       </section>
 
       <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
@@ -416,16 +457,126 @@ export function AlertsClient({ categories }: AlertsClientProps) {
   );
 }
 
-function ActivityNotice({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+function ActivityNotice({
+  icon,
+  title,
+  body,
+  meta
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+  meta?: string;
+}) {
   return (
     <div className="flex items-start gap-3 rounded-md bg-paper/70 px-3 py-3">
       <span className="mt-0.5 text-moss">{icon}</span>
       <div>
         <p className="text-sm font-semibold text-ink">{title}</p>
         <p className="mt-0.5 text-sm leading-6 text-ink/60">{body}</p>
+        {meta ? <p className="mt-1 text-xs font-semibold text-ink/38">{meta}</p> : null}
       </div>
     </div>
   );
+}
+
+function getNotificationIcon(type: string) {
+  if (type === "application_resolved") {
+    return <CheckCircle2 className="h-4 w-4" aria-hidden />;
+  }
+
+  if (type === "subscription_match") {
+    return <Bell className="h-4 w-4" aria-hidden />;
+  }
+
+  if (type === "card_deadline_imminent") {
+    return <Clock3 className="h-4 w-4" aria-hidden />;
+  }
+
+  if (type === "report_status_change") {
+    return <MessageCircle className="h-4 w-4" aria-hidden />;
+  }
+
+  return <Bell className="h-4 w-4" aria-hidden />;
+}
+
+function getNotificationTitle(notification: NotificationRow) {
+  const cardTitle = getPayloadText(notification.payload, "cardTitle");
+
+  if (notification.type === "application_resolved") {
+    return "신청 결과";
+  }
+
+  if (notification.type === "subscription_match") {
+    return "관심 상황 매칭";
+  }
+
+  if (notification.type === "card_deadline_imminent") {
+    return "마감 임박";
+  }
+
+  if (notification.type === "report_status_change") {
+    return "신고 처리";
+  }
+
+  if (notification.type === "card_review_resolved") {
+    return "카드 검수 결과";
+  }
+
+  return cardTitle ? "활동 알림" : "새 알림";
+}
+
+function getNotificationBody(notification: NotificationRow) {
+  const cardTitle = getPayloadText(notification.payload, "cardTitle");
+  const outcome = getPayloadText(notification.payload, "outcome");
+
+  if (notification.type === "application_resolved") {
+    return outcome === "approved"
+      ? `${cardTitle ?? "신청한 카드"} 참여가 확정됐어요.`
+      : `${cardTitle ?? "신청한 카드"} 모집이 마감됐어요.`;
+  }
+
+  if (notification.type === "subscription_match") {
+    return `${cardTitle ?? "새 카드"}가 저장한 관심 조건과 맞아요.`;
+  }
+
+  if (notification.type === "card_deadline_imminent") {
+    return `${cardTitle ?? "내 카드"} 마감이 가까워지고 있어요.`;
+  }
+
+  if (notification.type === "report_status_change") {
+    return "신고 상태가 업데이트됐어요.";
+  }
+
+  if (notification.type === "card_review_resolved") {
+    return `${cardTitle ?? "내 카드"} 검수 결과가 나왔어요.`;
+  }
+
+  return cardTitle ?? "확인할 활동이 생겼어요.";
+}
+
+function getPayloadText(payload: Record<string, unknown>, key: string) {
+  const value = payload[key];
+  return typeof value === "string" ? value : null;
+}
+
+function getNotificationStatusLabel(status: NotificationRow["status"]) {
+  const labels = {
+    pending: "발송 대기",
+    sent: "발송됨",
+    failed: "발송 실패"
+  };
+
+  return labels[status];
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
 }
 
 function urlBase64ToUint8Array(base64String: string) {

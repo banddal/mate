@@ -7,6 +7,7 @@ import {
   History,
   ShieldAlert,
   ShieldX,
+  TimerReset,
   TicketCheck,
   UserCog,
   Users
@@ -79,8 +80,12 @@ type AdminStats = {
   closedRooms: number;
   openReports: number;
   pendingNotifications: number;
+  retryingNotifications: number;
+  sentNotifications: number;
+  failedNotifications: number;
   subscriptions: number;
   pushSubscriptions: number;
+  staleClosedRooms: number;
 };
 
 type AdminTab = "queue" | "stats" | "reports" | "cards" | "admins" | "banned-words" | "history";
@@ -253,6 +258,23 @@ function AdminStatsSection({ stats }: { stats: AdminStats }) {
             </div>
           ))}
         </div>
+      </article>
+
+      <article className="rounded-lg border border-line bg-white p-4 shadow-soft">
+        <div className="flex items-center gap-2">
+          <TimerReset className="h-5 w-5 text-moss" aria-hidden />
+          <h2 className="text-sm font-bold tracking-normal text-ink">Cron 모니터</h2>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-5">
+          <CronMetric label="발송 대기" value={stats.pendingNotifications} tone="default" />
+          <CronMetric label="재시도 대기" value={stats.retryingNotifications} tone="default" />
+          <CronMetric label="발송 완료" value={stats.sentNotifications} tone="default" />
+          <CronMetric label="발송 실패" value={stats.failedNotifications} tone={stats.failedNotifications > 0 ? "alert" : "default"} />
+          <CronMetric label="정리 대상 Room" value={stats.staleClosedRooms} tone="default" />
+        </div>
+        <p className="mt-3 text-xs leading-5 text-ink/50">
+          resolve-cards, dispatch-notifications, cleanup-rooms 배치가 정상 동작하는지 확인하는 최소 지표입니다.
+        </p>
       </article>
     </section>
   );
@@ -440,6 +462,27 @@ function AdminActionsSection({ adminActions }: { adminActions: AdminAction[] }) 
   );
 }
 
+function CronMetric({
+  label,
+  value,
+  tone
+}: {
+  label: string;
+  value: number;
+  tone: "default" | "alert";
+}) {
+  return (
+    <div className={tone === "alert" ? "rounded-md bg-red-50 px-3 py-3" : "rounded-md bg-warm px-3 py-3"}>
+      <p className={tone === "alert" ? "text-xs font-semibold text-red-700/70" : "text-xs font-semibold text-ink/45"}>
+        {label}
+      </p>
+      <p className={tone === "alert" ? "mt-1 text-xl font-bold tracking-normal text-red-700" : "mt-1 text-xl font-bold tracking-normal text-ink"}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
 async function getAdminStats(): Promise<AdminStats> {
   const fallback: AdminStats = {
     profiles: 4,
@@ -452,8 +495,12 @@ async function getAdminStats(): Promise<AdminStats> {
     closedRooms: 1,
     openReports: 1,
     pendingNotifications: 2,
+    retryingNotifications: 1,
+    sentNotifications: 4,
+    failedNotifications: 0,
     subscriptions: 3,
-    pushSubscriptions: 1
+    pushSubscriptions: 1,
+    staleClosedRooms: 0
   };
 
   if (!hasServiceEnv()) {
@@ -472,8 +519,12 @@ async function getAdminStats(): Promise<AdminStats> {
     closedRooms,
     openReports,
     pendingNotifications,
+    retryingNotifications,
+    sentNotifications,
+    failedNotifications,
     subscriptions,
-    pushSubscriptions
+    pushSubscriptions,
+    staleClosedRooms
   ] = await Promise.all([
     countRows("profiles"),
     countRows("cards", "status", "open"),
@@ -485,8 +536,12 @@ async function getAdminStats(): Promise<AdminStats> {
     countRows("rooms", "status", "closed"),
     countRows("reports", "status", ["open", "reviewing"]),
     countRows("notifications", "status", "pending"),
+    countRetryingNotifications(),
+    countRows("notifications", "status", "sent"),
+    countRows("notifications", "status", "failed"),
     countRows("subscriptions"),
-    countRows("push_subscriptions")
+    countRows("push_subscriptions"),
+    countStaleClosedRooms()
   ]);
 
   return {
@@ -500,8 +555,12 @@ async function getAdminStats(): Promise<AdminStats> {
     closedRooms,
     openReports,
     pendingNotifications,
+    retryingNotifications,
+    sentNotifications,
+    failedNotifications,
     subscriptions,
-    pushSubscriptions
+    pushSubscriptions,
+    staleClosedRooms
   };
 
   async function countRows(table: string, column?: string, value?: string | string[]) {
@@ -514,6 +573,27 @@ async function getAdminStats(): Promise<AdminStats> {
     }
 
     const { count, error } = await query;
+    return error ? 0 : count ?? 0;
+  }
+
+  async function countRetryingNotifications() {
+    const { count, error } = await admin
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending")
+      .gt("attempts", 0);
+
+    return error ? 0 : count ?? 0;
+  }
+
+  async function countStaleClosedRooms() {
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const { count, error } = await admin
+      .from("rooms")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "closed")
+      .lte("closed_at", cutoff);
+
     return error ? 0 : count ?? 0;
   }
 }
@@ -716,6 +796,14 @@ function getAdminSignals(stats: AdminStats) {
 
   if (stats.pendingNotifications > 0) {
     signals.push(`발송 대기 알림 ${stats.pendingNotifications}건 모니터링`);
+  }
+
+  if (stats.failedNotifications > 0) {
+    signals.push(`발송 실패 알림 ${stats.failedNotifications}건 확인 필요`);
+  }
+
+  if (stats.staleClosedRooms > 0) {
+    signals.push(`보존 기간이 지난 Room ${stats.staleClosedRooms}건 정리 대기`);
   }
 
   if (stats.pendingApplications > 0) {

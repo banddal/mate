@@ -19,6 +19,7 @@
   - R22 데모 모드: Supabase 서버키가 없어도 `/dev-login`, 피드, 카드 생성, 상세, 신청 UI 검증 가능
   - R59 인증 전환: SMTP/메일 로그인 의존을 중단하고 Supabase Google OAuth 중심으로 정리
   - R60 프론트 운영층: 피드 빠른 행동 패널과 관리자 통계 탭 추가
+  - R61 P5/P6 보강: 유저 알림 인박스 API/UI와 관리자 Cron 모니터 추가
 - 로컬 미추적 파일:
   - `.claude/settings.local.json`
 
@@ -187,6 +188,9 @@
   - [x] `subscription_match` (카드 생성 / admin approve, 상대방 식별정보 미포함)
   - [x] `card_deadline_imminent` (resolve-cards cron, pending 신청 있는 카드 호스트)
   - [x] `report_status_change` (admin report resolve)
+- [x] 유저 알림 인박스
+  - [x] `GET /api/notifications`
+  - [x] `/alerts`에서 최근 알림 목록 표시
 
 ### P6. 관리자와 Cron
 
@@ -199,6 +203,7 @@
   - 유저 정지
   - [x] admin 부여/회수
   - [x] 관리자 작업 이력 조회
+  - [x] 통계/Cron 모니터
 - [ ] admin API 구현
   - `/api/admin/cards/review-queue`
   - [x] `/api/admin/cards/:id/approve`
