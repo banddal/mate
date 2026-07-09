@@ -92,7 +92,7 @@ export function LoginForm({ canUseDevAuth, initialError }: LoginFormProps) {
             type="button"
             onClick={handleGoogleLogin}
             disabled={status === "loading"}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-google px-4 text-sm font-semibold text-white transition hover:bg-google/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Chrome className="h-5 w-5" aria-hidden />
             {status === "loading" ? "Google로 이동 중" : "Google 계정으로 시작하기"}

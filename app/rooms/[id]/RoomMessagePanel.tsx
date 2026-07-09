@@ -100,7 +100,7 @@ export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelPr
         <button
           type="submit"
           disabled={isSending || body.trim().length === 0}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Send className="h-4 w-4" aria-hidden />}
           메시지 보내기

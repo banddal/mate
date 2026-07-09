@@ -154,7 +154,7 @@ export function NewCardForm() {
                   key={template.label}
                   type="button"
                   onClick={() => applyTemplate(template)}
-                  className="min-h-11 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:border-moss"
+                  className="min-h-11 rounded-md mate-cta px-3 text-sm font-semibold text-white hover:border-moss"
                 >
                   {template.label}
                 </button>
@@ -292,7 +292,7 @@ export function NewCardForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
             카드 열기

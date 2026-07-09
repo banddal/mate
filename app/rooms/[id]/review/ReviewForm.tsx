@@ -72,7 +72,7 @@ export function ReviewForm({ roomId }: ReviewFormProps) {
           </div>
           <Link
             href="/me"
-            className="mt-4 flex min-h-11 w-full items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
+            className="mt-4 flex min-h-11 w-full items-center justify-center rounded-md mate-cta px-4 text-sm font-semibold text-white"
           >
             내 활동으로 돌아가기
           </Link>
@@ -90,7 +90,7 @@ export function ReviewForm({ roomId }: ReviewFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <CheckCircle2 className="h-5 w-5" aria-hidden />}
             후기 제출

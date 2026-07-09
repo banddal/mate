@@ -90,7 +90,7 @@ export function ApplyCardSheet({ cardId }: ApplyCardSheetProps) {
         {submitted ? (
           <Link
             href="/me"
-            className="flex min-h-12 w-full items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
+            className="flex min-h-12 w-full items-center justify-center rounded-md mate-cta px-4 text-sm font-semibold text-white"
           >
             내 활동에서 보기
           </Link>
@@ -98,7 +98,7 @@ export function ApplyCardSheet({ cardId }: ApplyCardSheetProps) {
           <button
             type="submit"
             disabled={isSubmitting || reasonText.trim().length < 4}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <Send className="h-5 w-5" aria-hidden />}
             신청 보내기

@@ -90,14 +90,14 @@ export default async function MePage() {
         <section className="grid grid-cols-2 gap-2">
           <Link
             href="/cards/new"
-            className="flex min-h-12 items-center justify-center gap-2 rounded-md bg-ink px-3 text-sm font-semibold text-white"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-md mate-cta px-3 text-sm font-semibold text-white"
           >
             <Plus className="h-4 w-4" aria-hidden />
             카드 만들기
           </Link>
           <Link
             href="/alerts"
-            className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-md mate-cta px-3 text-sm font-semibold text-white"
           >
             <Bell className="h-4 w-4" aria-hidden />
             알림 보기
@@ -307,7 +307,7 @@ function EmptyState({
       <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-paper text-moss">{icon}</div>
       <p className="text-sm font-semibold text-ink">{title}</p>
       <p className="mt-1 text-sm leading-6 text-ink/60">{body}</p>
-      <Link href={href} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md bg-ink px-3 text-sm font-semibold text-white">
+      <Link href={href} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md mate-cta px-3 text-sm font-semibold text-white">
         {action}
       </Link>
     </div>

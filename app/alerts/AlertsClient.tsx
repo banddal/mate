@@ -318,7 +318,7 @@ export function AlertsClient({ categories }: AlertsClientProps) {
             type="button"
             onClick={pushEnabled ? disablePush : enablePush}
             disabled={isPushBusy}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPushBusy ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -381,7 +381,7 @@ export function AlertsClient({ categories }: AlertsClientProps) {
         <button
           type="submit"
           disabled={isSaving || !canCreate}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Plus className="h-4 w-4" aria-hidden />}
           상황 알림 저장
@@ -446,7 +446,7 @@ export function AlertsClient({ categories }: AlertsClientProps) {
                   setCategory(firstTemplate.category);
                 }
               }}
-              className="mt-4 flex min-h-10 w-full items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink"
+              className="mt-4 flex min-h-10 w-full items-center justify-center rounded-md mate-cta px-3 text-sm font-semibold text-white"
             >
               추천 상황 채우기
             </button>

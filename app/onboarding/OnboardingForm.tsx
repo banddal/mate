@@ -235,7 +235,7 @@ export function OnboardingForm() {
           <button
             type="submit"
             disabled={isSavingProfile || (categories.length === 0 && !customCategory.trim())}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-google px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSavingProfile ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
             프로필 저장하고 시작

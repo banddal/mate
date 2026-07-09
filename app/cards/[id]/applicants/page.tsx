@@ -68,7 +68,7 @@ export default async function ApplicantsPage({ params }: ApplicantsPageProps) {
         {roomId ? (
           <Link
             href={`/rooms/${roomId}`}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-md bg-moss px-4 text-sm font-semibold text-white"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white"
           >
             <DoorOpen className="h-4 w-4" aria-hidden />
             열린 Mate Room 보기
