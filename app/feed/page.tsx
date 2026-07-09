@@ -153,7 +153,6 @@ function TopicChip({
 function FeedCardItem({ card }: { card: FeedCard }) {
   const deadlineState = getDeadlineState(card.deadline_at);
   const urgency = getDeadlineVisualState(card.deadline_at);
-  const title = clampCardTitle(card.title);
 
   return (
     <details
@@ -171,17 +170,17 @@ function FeedCardItem({ card }: { card: FeedCard }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="feed-card-chip rounded-full px-2.5 py-0.5 text-xs font-semibold">
+              <span className="feed-card-topic-label text-xs font-semibold">
                 {card.category}
               </span>
               <span
-                className={`feed-deadline-chip rounded-full px-2.5 py-0.5 text-xs font-bold ${deadlineState.className}`}
+                className={`feed-deadline-chip text-xs font-bold ${deadlineState.className}`}
               >
                 {deadlineState.label}
               </span>
             </div>
             <h2 className="feed-card-title text-lg font-bold tracking-normal" title={card.title}>
-              {title}
+              {card.title}
             </h2>
           </div>
           <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
@@ -269,12 +268,6 @@ function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
-function clampCardTitle(title: string) {
-  const maxLength = 18;
-
-  return title.length > maxLength ? `${title.slice(0, maxLength).trimEnd()}...` : title;
-}
-
 function getDeadlineVisualState(value: string) {
   const remainingMs = new Date(value).getTime() - Date.now();
   const remainingMinutes = Math.ceil(remainingMs / (1000 * 60));
@@ -317,20 +310,18 @@ function getDeadlineState(value: string) {
     return { label: "closed", className: "feed-deadline-urgent" };
   }
 
-  if (remainingMinutes <= 10) {
-    return { label: "10M", className: "feed-deadline-urgent" };
-  }
-
-  if (remainingMinutes <= 60) {
-    return { label: "D-1hour", className: "feed-deadline-hour" };
+  if (remainingMinutes < 60) {
+    return { label: `${remainingMinutes}m left`, className: "feed-deadline-urgent" };
   }
 
   if (remainingHours <= 24) {
-    return { label: "today", className: "feed-deadline-today" };
+    return { label: `${Math.ceil(remainingHours)}h left`, className: "feed-deadline-hour" };
   }
 
-  if (remainingHours <= 24 * 7) {
-    return { label: "D-7d", className: "feed-deadline-week" };
+  const remainingDays = Math.ceil(remainingHours / 24);
+
+  if (remainingDays <= 7) {
+    return { label: `${remainingDays}d left`, className: "feed-deadline-week" };
   }
 
   return { label: "open", className: "feed-deadline-open" };

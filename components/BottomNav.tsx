@@ -23,7 +23,7 @@ export function BottomNav({ active }: BottomNavProps) {
             <Link
               key={item.id}
               className={`mx-1 flex min-h-10 items-center justify-center rounded-lg px-2 py-1 transition ${
-                isActive ? "text-moss" : "text-ink/76 hover:text-ink"
+                isActive ? "text-moss" : "text-[#6f6278] hover:text-[#493f52]"
               }`}
               href={item.href}
               aria-label={item.label}

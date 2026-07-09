@@ -81,23 +81,24 @@ h1 {
   word-break: keep-all;
 }
 
-.feed-card-chip {
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background-color: rgba(20, 26, 48, 0.58) !important;
-  color: rgba(255, 255, 255, 0.9);
+.feed-card-topic-label {
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.feed-card-topic-label::before {
+  content: "# ";
 }
 
 .feed-deadline-chip {
-  border: 1px solid rgba(246, 151, 76, 0.38);
-  background-color: rgba(255, 244, 232, 0.9);
+  letter-spacing: 0;
 }
 
 .feed-deadline-urgent {
-  color: rgb(194, 68, 38);
+  color: rgb(238, 145, 83);
 }
 
 .feed-deadline-hour {
-  color: rgb(207, 91, 36);
+  color: rgb(231, 154, 91);
 }
 
 .feed-deadline-today {
