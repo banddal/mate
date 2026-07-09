@@ -47,6 +47,37 @@ h1 {
   background: var(--mate-app-gradient);
 }
 
+.feed-card-summary::-webkit-details-marker {
+  display: none;
+}
+
+.feed-card-panel {
+  animation: feed-card-reveal 460ms ease-out;
+}
+
+@keyframes feed-card-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.16);
+  }
+
+  38% {
+    opacity: 1;
+    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.06);
+  }
+
+  68% {
+    box-shadow: inset 0 0 0 999px rgba(178, 59, 59, 0.12);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0);
+  }
+}
+
 .bg-white,
 .bg-white\/70,
 .bg-white\/72,

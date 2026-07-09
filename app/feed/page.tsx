@@ -1,21 +1,18 @@
 import Link from "next/link";
 import {
-  Bell,
   CalendarDays,
+  ChevronDown,
   Clock3,
-  ListChecks,
   MapPin,
-  Plus,
   RotateCw,
   ShieldCheck,
-  Ticket,
-  UserRound
+  Sparkles,
+  Ticket
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { isAdminUser } from "@/lib/auth/admin";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
-import { BottomNav } from "@/components/BottomNav";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +35,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const [cards, canOpenAdmin] = await Promise.all([getOpenCards(filters), isAdminUser(user.id)]);
 
   return (
-    <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
+    <main className="min-h-dvh pb-[calc(28px+env(safe-area-inset-bottom))]">
       <section className="mx-auto w-full max-w-md px-5 pt-[calc(24px+env(safe-area-inset-top))]">
         <header className="space-y-5 pb-5">
           <div className="flex items-center justify-between gap-3">
@@ -58,13 +55,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                   <ShieldCheck className="h-5 w-5" aria-hidden />
                 </Link>
               ) : null}
-              <Link
-                href="/cards/new"
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-ink text-white shadow-soft"
-                aria-label="카드 만들기"
-              >
-                <Plus className="h-5 w-5" aria-hidden />
-              </Link>
             </div>
           </div>
 
@@ -94,8 +84,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               </FilterChip>
             ))}
           </nav>
-
-          <QuickStartPanel />
         </header>
 
         {cards.length > 0 ? (
@@ -108,8 +96,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           <EmptyFeed />
         )}
       </section>
-
-      <BottomNav active="feed" showAdmin={canOpenAdmin} />
     </main>
   );
 }
@@ -137,96 +123,63 @@ function FilterChip({
   );
 }
 
-function QuickStartPanel() {
-  const actions = [
-    {
-      href: "/cards/new",
-      label: "카드 만들기",
-      description: "상황을 열고 신청을 받기",
-      icon: <ListChecks className="h-4 w-4" aria-hidden />
-    },
-    {
-      href: "/me",
-      label: "내 활동",
-      description: "신청, Room, 후기 확인",
-      icon: <UserRound className="h-4 w-4" aria-hidden />
-    },
-    {
-      href: "/alerts",
-      label: "알림",
-      description: "관심 상황 조건 저장",
-      icon: <Bell className="h-4 w-4" aria-hidden />
-    }
-  ];
-
-  return (
-    <section className="grid gap-2 rounded-lg border border-line bg-white p-3 shadow-soft">
-      {actions.map((action) => (
-        <Link
-          key={action.href}
-          href={action.href}
-          className="grid min-h-14 grid-cols-[36px_1fr] items-center gap-3 rounded-md bg-warm px-3 py-2 transition hover:bg-paper"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-moss shadow-soft">
-            {action.icon}
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-ink">{action.label}</span>
-            <span className="block truncate text-xs text-ink/52">{action.description}</span>
-          </span>
-        </Link>
-      ))}
-    </section>
-  );
-}
-
 function FeedCardItem({ card }: { card: FeedCard }) {
   const deadlineState = getDeadlineState(card.deadline_at);
 
   return (
-    <Link
-      href={`/cards/${card.id}`}
-      className="block rounded-lg border border-line bg-white p-4 shadow-soft transition hover:border-moss"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-moss/12 px-2.5 py-1 text-xs font-semibold text-moss">
-              {card.category}
-            </span>
-            <span className="rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink/60">
-              {card.level}
-            </span>
+    <details className="group rounded-lg border border-line bg-white shadow-soft transition hover:border-moss">
+      <summary className="feed-card-summary grid cursor-pointer list-none gap-4 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-moss/12 px-2.5 py-1 text-xs font-semibold text-moss">
+                {card.category}
+              </span>
+              <span
+                className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                  deadlineState.urgent ? "bg-sun/25 text-ink" : "bg-paper text-ink/55"
+                }`}
+              >
+                {deadlineState.label}
+              </span>
+            </div>
+            <h2 className="text-[1.35rem] font-bold leading-snug tracking-normal text-ink">{card.title}</h2>
           </div>
-          <h2 className="text-lg font-bold leading-snug tracking-normal text-ink">{card.title}</h2>
+          <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-paper/70 text-moss transition group-open:rotate-180">
+            <ChevronDown className="h-4 w-4" aria-hidden />
+          </span>
         </div>
-        <span
-          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-            deadlineState.urgent ? "bg-sun/25 text-ink" : "bg-paper text-ink/55"
-          }`}
+
+        <div className="flex items-start gap-2 rounded-md bg-paper/70 px-3 py-3 text-sm font-semibold leading-6 text-ink/78">
+          <Sparkles className="mt-1 h-4 w-4 shrink-0 text-moss" aria-hidden />
+          <span>{card.host_offer}</span>
+        </div>
+      </summary>
+
+      <div className="feed-card-panel mx-4 mb-4 space-y-4 rounded-lg border border-line bg-paper/55 p-4">
+        <div className="grid gap-2 text-sm text-ink/72">
+          <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
+            {formatDateTime(card.event_datetime)}
+          </CardMeta>
+          <CardMeta icon={<MapPin className="h-4 w-4" aria-hidden />}>{card.location}</CardMeta>
+          <CardMeta icon={<Ticket className="h-4 w-4" aria-hidden />}>
+            {card.capacity}명까지 · {card.cost_info ?? "비용 안내 없음"}
+          </CardMeta>
+          <CardMeta icon={<Clock3 className="h-4 w-4" aria-hidden />}>
+            마감 {formatDateTime(card.deadline_at)}
+          </CardMeta>
+        </div>
+
+        <p className="rounded-md bg-white/5 px-3 py-3 text-sm leading-6 text-ink/70">{card.description}</p>
+
+        <Link
+          href={`/cards/${card.id}`}
+          className="flex min-h-11 w-full items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
         >
-          {deadlineState.label}
-        </span>
+          신청 화면으로 이동
+        </Link>
       </div>
-
-      <div className="mt-4 grid gap-2 text-sm text-ink/70">
-        <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
-          {formatDateTime(card.event_datetime)}
-        </CardMeta>
-        <CardMeta icon={<MapPin className="h-4 w-4" aria-hidden />}>{card.location}</CardMeta>
-        <CardMeta icon={<Ticket className="h-4 w-4" aria-hidden />}>{card.host_offer}</CardMeta>
-        <CardMeta icon={<Clock3 className="h-4 w-4" aria-hidden />}>
-          마감 {formatDateTime(card.deadline_at)}
-        </CardMeta>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between gap-3 rounded-md bg-paper/70 px-3 py-2">
-        <span className="min-w-0 truncate text-xs font-medium text-ink/55">
-          {card.capacity}명까지 · {card.cost_info ?? "비용 안내 없음"}
-        </span>
-        <span className="shrink-0 text-xs font-semibold text-moss">상세 보기</span>
-      </div>
-    </Link>
+    </details>
   );
 }
 
@@ -247,14 +200,8 @@ function EmptyFeed() {
       </div>
       <h2 className="mt-4 text-xl font-bold tracking-normal text-ink">열린 카드가 아직 없어요</h2>
       <p className="mt-2 leading-7 text-ink/68">
-        필터를 바꾸거나 첫 상황 카드를 만들어보세요. 카드는 사람보다 활동이 먼저 보입니다.
+        필터를 바꾸면 지금 열려 있는 다른 Mate 상황을 볼 수 있어요.
       </p>
-      <Link
-        href="/cards/new"
-        className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
-      >
-        카드 만들기
-      </Link>
     </section>
   );
 }

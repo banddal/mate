@@ -26,8 +26,10 @@ export type CardDetail = FeedCard & {
 };
 
 export async function getOpenCards(filters: CardFeedFilter) {
+  const demoCards = getFilteredDemoFeedCards(filters);
+
   if (!hasPublicEnv()) {
-    return getDemoFeedCards();
+    return demoCards;
   }
 
   const supabase = createServerSupabaseClient();
@@ -67,10 +69,18 @@ export async function getOpenCards(filters: CardFeedFilter) {
   const { data, error } = await query;
 
   if (error) {
-    return getDemoFeedCards();
+    return demoCards;
   }
 
-  return data && data.length > 0 ? (data as FeedCard[]) : getDemoFeedCards();
+  if (!data || data.length === 0) {
+    return demoCards;
+  }
+
+  const realCards = data as FeedCard[];
+  const realCardIds = new Set(realCards.map((card) => card.id));
+  const fillerCards = demoCards.filter((card) => !realCardIds.has(card.id));
+
+  return [...realCards, ...fillerCards].slice(0, 12);
 }
 
 export async function getCardDetail(cardId: string) {
@@ -98,4 +108,35 @@ export async function getCardDetail(cardId: string) {
   }
 
   return data ?? null;
+}
+
+function getFilteredDemoFeedCards(filters: CardFeedFilter) {
+  const window = getFeedDateWindow(filters.period);
+
+  return getDemoFeedCards().filter((card) => {
+    const eventTime = new Date(card.event_datetime).getTime();
+    const deadlineTime = new Date(card.deadline_at).getTime();
+
+    if (filters.category && card.category !== filters.category) {
+      return false;
+    }
+
+    if ("from" in window && window.from && eventTime < window.from.getTime()) {
+      return false;
+    }
+
+    if ("to" in window && window.to && eventTime > window.to.getTime()) {
+      return false;
+    }
+
+    if ("deadlineFrom" in window && window.deadlineFrom && deadlineTime < window.deadlineFrom.getTime()) {
+      return false;
+    }
+
+    if ("deadlineTo" in window && window.deadlineTo && deadlineTime > window.deadlineTo.getTime()) {
+      return false;
+    }
+
+    return true;
+  });
 }
