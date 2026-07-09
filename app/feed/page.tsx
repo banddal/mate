@@ -5,12 +5,10 @@ import {
   Clock3,
   MapPin,
   RotateCw,
-  ShieldCheck,
   Sparkles,
   Ticket
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
-import { isAdminUser } from "@/lib/auth/admin";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
 import { BottomNav } from "@/components/BottomNav";
@@ -33,33 +31,17 @@ type FeedPageProps = {
 };
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
-  const { user, profile } = await requireOnboarded();
+  const { profile } = await requireOnboarded();
   const filters = parseCardFeedFilters(searchParams);
-  const [cards, canOpenAdmin] = await Promise.all([getOpenCards(filters), isAdminUser(user.id)]);
+  const cards = await getOpenCards(filters);
 
   return (
     <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
       <section className="mx-auto w-full max-w-md px-5 pt-[calc(24px+env(safe-area-inset-top))]">
         <header className="space-y-5 pb-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-moss">Mate Feed</p>
-              <h1 className="text-3xl font-bold tracking-normal text-ink">
-                {profile?.nickname}님, 오늘의 상황
-              </h1>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              {canOpenAdmin ? (
-                <Link
-                  href="/admin"
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white text-moss shadow-soft"
-                  aria-label="관리자"
-                >
-                  <ShieldCheck className="h-5 w-5" aria-hidden />
-                </Link>
-              ) : null}
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold leading-tight tracking-normal text-white">
+            {profile?.nickname ?? "Mate"}님을 기다리는 오늘 Mates
+          </h1>
 
           <nav className="grid grid-cols-5 gap-2" aria-label="마감 시간 필터">
             {periodTabs.map((tab) => (
@@ -116,7 +98,7 @@ function TimeFilterButton({
   return (
     <Link
       href={href}
-      className={`flex min-h-11 items-center justify-center rounded-md border px-1 text-xs font-semibold transition sm:text-sm ${
+      className={`flex min-h-9 items-center justify-center rounded-md border px-1 text-xs font-semibold transition ${
         active
           ? "border-white/70 bg-white/25 text-ink shadow-soft"
           : "border-white/20 bg-white/10 text-ink/68 hover:border-white/40 hover:bg-white/20"
@@ -183,7 +165,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
               {card.title}
             </h2>
           </div>
-          <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
+          <span className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
             <ChevronDown className="h-4 w-4" aria-hidden />
           </span>
         </div>
@@ -274,11 +256,11 @@ function getDeadlineVisualState(value: string) {
   const remainingHours = remainingMinutes / 60;
 
   if (remainingMinutes <= 2) {
-    return getFeedCardTone("0.62", "0.98", "0.84", "0.7");
+    return getFeedCardTone("0.72", "0.98", "0.86", "0.72");
   }
 
   if (remainingMinutes <= 10) {
-    return getFeedCardTone("0.52", "0.94", "0.8", "0.66");
+    return getFeedCardTone("0.58", "0.94", "0.8", "0.66");
   }
 
   if (remainingHours <= 1) {
@@ -286,10 +268,10 @@ function getDeadlineVisualState(value: string) {
   }
 
   if (remainingHours <= 24) {
-    return getFeedCardTone("0.28", "0.82", "0.66", "0.5");
+    return getFeedCardTone("0.24", "0.82", "0.66", "0.5");
   }
 
-  return getFeedCardTone("0.14", "0.72", "0.56", "0.42");
+  return getFeedCardTone("0.08", "0.72", "0.56", "0.42");
 }
 
 function getFeedCardTone(alpha: string, titleAlpha: string, textAlpha: string, mutedAlpha: string) {

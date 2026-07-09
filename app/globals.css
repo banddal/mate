@@ -90,15 +90,20 @@ h1 {
 }
 
 .feed-deadline-chip {
+  border-radius: 4px;
+  padding: 1px 6px;
+  background-color: rgba(72, 12, 28, 0.16);
+  box-shadow: 0 3px 10px rgba(22, 8, 16, 0.16);
+  font-weight: 800;
   letter-spacing: 0;
 }
 
 .feed-deadline-urgent {
-  color: rgb(238, 145, 83);
+  color: rgb(235, 87, 87);
 }
 
 .feed-deadline-hour {
-  color: rgb(231, 154, 91);
+  color: rgb(226, 96, 75);
 }
 
 .feed-deadline-today {
@@ -106,7 +111,7 @@ h1 {
 }
 
 .feed-deadline-week {
-  color: rgb(154, 103, 42);
+  color: rgb(196, 82, 71);
 }
 
 .feed-deadline-open {
