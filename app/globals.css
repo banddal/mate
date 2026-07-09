@@ -19,8 +19,11 @@ select option {
 
 :root {
   color-scheme: dark;
-  --mate-app-gradient: linear-gradient(165deg, #1b2a52 0%, #5b3a6e 55%, #b23b3b 130%);
-  background: #141a30;
+  --mate-app-gradient:
+    radial-gradient(circle at 16% 8%, rgba(255, 255, 245, 0.95) 0%, rgba(255, 244, 196, 0.72) 28%, rgba(255, 244, 196, 0) 54%),
+    radial-gradient(circle at 88% 18%, rgba(255, 209, 174, 0.58) 0%, rgba(255, 209, 174, 0) 42%),
+    linear-gradient(155deg, #fff8dd 0%, #ffe79d 42%, #f7ccd6 82%, #dac8ff 125%);
+  background: #fff3c7;
 }
 
 * {
@@ -34,7 +37,7 @@ body {
 
 body {
   margin: 0;
-  background: #141a30;
+  background: #fff3c7;
   background-image: var(--mate-app-gradient);
   background-attachment: fixed;
   background-repeat: no-repeat;
