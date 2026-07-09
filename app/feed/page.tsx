@@ -171,7 +171,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
           </span>
         </div>
 
-        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-white/70 px-3 py-2 text-[15px] font-bold leading-6">
+        <div className="feed-card-offer flex items-start gap-2 rounded-md px-3 py-2 text-[15px] font-bold leading-6">
           <Sparkles className="feed-card-meta-icon mt-1 h-4 w-4 shrink-0" aria-hidden />
           <span>{card.host_offer}</span>
         </div>
@@ -257,22 +257,22 @@ function getDeadlineVisualState(value: string) {
   const remainingHours = remainingMinutes / 60;
 
   if (remainingMinutes <= 2) {
-    return getFeedCardTone("0.94", "0.96", "0.84", "0.68");
+    return getFeedCardTone("0.99", "0.98", "0.88", "0.72");
   }
 
   if (remainingMinutes <= 10) {
-    return getFeedCardTone("0.86", "0.92", "0.78", "0.62");
+    return getFeedCardTone("0.94", "0.94", "0.82", "0.66");
   }
 
   if (remainingHours <= 1) {
-    return getFeedCardTone("0.76", "0.88", "0.72", "0.58");
+    return getFeedCardTone("0.88", "0.9", "0.76", "0.62");
   }
 
   if (remainingHours <= 24) {
-    return getFeedCardTone("0.64", "0.82", "0.66", "0.52");
+    return getFeedCardTone("0.82", "0.84", "0.68", "0.54");
   }
 
-  return getFeedCardTone("0.52", "0.74", "0.58", "0.44");
+  return getFeedCardTone("0.76", "0.78", "0.6", "0.46");
 }
 
 function getFeedCardTone(alpha: string, titleAlpha: string, textAlpha: string, mutedAlpha: string) {

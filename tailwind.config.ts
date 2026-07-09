@@ -13,10 +13,10 @@ const config: Config = {
         paper: "#fff7df",
         warm: "rgba(255,255,255,0.62)",
         line: "rgba(121,83,44,0.16)",
-        moss: "#d97848",
+        moss: "#7fa33a",
         plum: "#8b5b32",
-        sun: "#e28a3f",
-        action: "#d97848",
+        sun: "#d7bb3f",
+        action: "#7fa33a",
         google: "#00009c",
         surface: "rgba(255,255,255,0.68)"
       },
