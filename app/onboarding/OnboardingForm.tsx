@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import { getCategoriesByGroup } from "@/lib/cards/categories";
 import { hasCashPaymentPattern } from "@/lib/cards/cash-pattern";
+import { captureEvent } from "@/lib/analytics";
 
 const groupedCategories = getCategoriesByGroup();
 const CUSTOM_CATEGORY_MAX_LENGTH = 12;
@@ -103,6 +104,7 @@ export function OnboardingForm() {
         return;
       }
 
+      captureEvent("onboarding_complete", { categoryCount: categories.length });
       setMessage("프로필을 저장했어요. 메인 화면으로 이동합니다.");
       router.replace("/feed");
     } catch {
@@ -241,11 +243,6 @@ export function OnboardingForm() {
             프로필 저장하고 시작
           </button>
         </form>
-
-        <section className="rounded-lg border border-line bg-white/80 p-4 text-sm leading-6 text-ink/68 shadow-soft">
-          휴대폰 인증은 실제 SMS 연동 전까지 가입 필수 단계에서 제외했습니다. 지금은 Google 로그인과
-          프로필 저장만으로 주요 유저 흐름을 테스트합니다.
-        </section>
 
         {message ? <p className="text-sm font-medium text-moss">{message}</p> : null}
         {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}

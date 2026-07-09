@@ -71,3 +71,10 @@ The following flows are intentionally not used in the current test version:
 - Phone OTP login
 
 They can be revisited after the core user-side product flow is stable.
+
+## Phone Verification (Dormant)
+
+MVP does not require phone verification. Policy and reactivation plan: see `Mate_MVP_Scope.md` §2.
+
+- `request-otp` / `verify-otp` APIs remain in the codebase but are not linked from any UI.
+- All users sign up with `phone_verified = false`; this record is the basis for future mandatory verification.

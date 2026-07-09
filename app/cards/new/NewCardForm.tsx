@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { ArrowLeft, CalendarClock, CheckCircle2, Loader2, MapPin, Ticket } from "lucide-react";
 import Link from "next/link";
 import { CARD_CATEGORY_OPTIONS } from "@/lib/cards/categories";
+import { captureEvent } from "@/lib/analytics";
 
 type ApiResponse<T> = {
   data: T | null;
@@ -108,6 +109,7 @@ export function NewCardForm() {
         return;
       }
 
+      captureEvent("card_created", { cardId: payload.data.card.id });
       router.push(`/cards/${payload.data.card.id}`);
     } catch {
       setError("카드 생성 중 문제가 생겼어요.");

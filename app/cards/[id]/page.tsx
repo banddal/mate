@@ -6,6 +6,7 @@ import { getCardDetail } from "@/lib/cards/queries";
 import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { ApplyCardSheet } from "./ApplyCardSheet";
+import { TrackEvent } from "@/components/TrackEvent";
 
 type CardDetailPageProps = {
   params: {
@@ -104,6 +105,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
         </div>
       </section>
 
+      <TrackEvent event="card_view" properties={{ cardId: card.id }} />
       {canApply ? <ApplyCardSheet cardId={card.id} /> : null}
     </main>
   );

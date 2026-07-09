@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Loader2, Send } from "lucide-react";
+import { captureEvent } from "@/lib/analytics";
 
 type RoomMessage = {
   id: string;
@@ -22,6 +23,12 @@ type ApiResponse<T> = {
 };
 
 export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelProps) {
+  useEffect(() => {
+    captureEvent("room_entered", { roomId });
+    // 마운트 시 1회만 캡처한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [messages, setMessages] = useState(initialMessages);
   const [body, setBody] = useState("");
   const [isSending, setIsSending] = useState(false);

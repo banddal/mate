@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Check, Loader2 } from "lucide-react";
+import { captureEvent } from "@/lib/analytics";
 
 type ApproveApplicationButtonProps = {
   cardId: string;
@@ -53,6 +54,7 @@ export function ApproveApplicationButton({
         return;
       }
 
+      captureEvent("applicant_approved", { cardId, applicationId });
       router.push(`/rooms/${payload.data.room.id}`);
       router.refresh();
     } catch {

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { captureEvent } from "@/lib/analytics";
 
 type ReviewFormProps = {
   roomId: string;
@@ -49,6 +50,7 @@ export function ReviewForm({ roomId }: ReviewFormProps) {
         return;
       }
 
+      captureEvent("review_submitted", { roomId });
       setSubmitted(true);
     } catch {
       setError("후기 제출 중 문제가 생겼어요.");

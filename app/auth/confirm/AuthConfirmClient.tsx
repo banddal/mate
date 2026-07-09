@@ -4,6 +4,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { captureEvent } from "@/lib/analytics";
 
 type OtpType = "signup" | "invite" | "magiclink" | "recovery" | "email_change" | "email";
 
@@ -40,6 +41,7 @@ export function AuthConfirmClient() {
             return;
           }
 
+          captureEvent("login_success");
           setMessage("로그인했어요. 다음 화면으로 이동합니다.");
           router.replace(next);
           return;
@@ -52,6 +54,7 @@ export function AuthConfirmClient() {
         }
 
         if (existingSession) {
+          captureEvent("login_success");
           setMessage("로그인했어요. 다음 화면으로 이동합니다.");
           router.replace(next);
           return;
@@ -73,7 +76,8 @@ export function AuthConfirmClient() {
           return;
         }
 
-        setMessage("로그인했어요. 다음 화면으로 이동합니다.");
+        captureEvent("login_success");
+          setMessage("로그인했어요. 다음 화면으로 이동합니다.");
         router.replace(next);
       } catch (confirmError) {
         if (cancelled) {

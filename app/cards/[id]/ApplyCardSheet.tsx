@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { Loader2, Send } from "lucide-react";
 import { APPLICATION_REASON_MAX_LENGTH } from "@/shared/config";
+import { captureEvent } from "@/lib/analytics";
 
 type ApplyCardSheetProps = {
   cardId: string;
@@ -45,6 +46,7 @@ export function ApplyCardSheet({ cardId }: ApplyCardSheetProps) {
         return;
       }
 
+      captureEvent("card_apply_submitted", { cardId });
       setMessage("신청이 접수됐어요. 마감 후 확정된 신청자에게만 안내가 가요.");
       setReasonText("");
       setSubmitted(true);
