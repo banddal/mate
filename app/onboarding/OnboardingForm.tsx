@@ -125,7 +125,7 @@ export function OnboardingForm() {
           </p>
         </header>
 
-        <form className="space-y-4 rounded-lg border border-white/30 bg-[#141423]/55 p-4 shadow-soft" onSubmit={saveProfile}>
+        <form className="space-y-4 rounded-lg border border-line bg-white/95 p-4 shadow-soft" onSubmit={saveProfile}>
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <UserRound className="h-5 w-5 text-moss" aria-hidden />
             프로필
@@ -138,7 +138,7 @@ export function OnboardingForm() {
               onChange={(event) => setNickname(event.target.value)}
               required
               maxLength={16}
-              className="min-h-12 w-full rounded-md border border-line bg-white/5 px-3 text-ink outline-none placeholder:text-ink/35 focus:border-moss"
+              className="min-h-12 w-full rounded-md border border-line bg-white px-3 text-ink outline-none placeholder:text-ink/35 focus:border-moss"
               placeholder="예: 잠실러"
             />
           </label>
@@ -149,7 +149,7 @@ export function OnboardingForm() {
               <select
                 value={ageRange}
                 onChange={(event) => setAgeRange(event.target.value)}
-                className="min-h-12 w-full rounded-md border border-line bg-white/5 px-3 text-ink outline-none focus:border-moss"
+                className="min-h-12 w-full rounded-md border border-line bg-white px-3 text-ink outline-none focus:border-moss"
               >
                 <option value="20s">20대</option>
                 <option value="30s">30대</option>
@@ -163,7 +163,7 @@ export function OnboardingForm() {
               <select
                 value={gender}
                 onChange={(event) => setGender(event.target.value)}
-                className="min-h-12 w-full rounded-md border border-line bg-white/5 px-3 text-ink outline-none focus:border-moss"
+                className="min-h-12 w-full rounded-md border border-line bg-white px-3 text-ink outline-none focus:border-moss"
               >
                 <option value="female">여성</option>
                 <option value="male">남성</option>
@@ -188,8 +188,8 @@ export function OnboardingForm() {
                         onClick={() => toggleCategory(option.label)}
                         className={`min-h-11 rounded-md border px-2 text-sm font-medium transition ${
                           checked
-                            ? "border-moss bg-moss text-white"
-                            : "border-line bg-white/5 text-ink/75"
+                            ? "border-moss bg-moss text-white shadow-soft"
+                            : "border-line bg-white text-ink/75 hover:border-moss/40 hover:bg-[#f8fff0]"
                         }`}
                       >
                         {option.label}
@@ -207,8 +207,8 @@ export function OnboardingForm() {
               }}
               className={`min-h-11 w-full rounded-md border border-dashed px-3 text-sm font-medium transition ${
                 isCustomInputOpen
-                  ? "border-moss text-moss"
-                  : "border-line text-ink/60"
+                  ? "border-moss bg-[#f8fff0] text-moss"
+                  : "border-line bg-white text-ink/60"
               }`}
             >
               + 직접 입력
@@ -222,7 +222,7 @@ export function OnboardingForm() {
                     setCustomCategoryError("");
                   }}
                   maxLength={CUSTOM_CATEGORY_MAX_LENGTH}
-                  className="min-h-11 w-full rounded-md border border-line bg-white/5 px-3 text-sm text-ink outline-none placeholder:text-ink/35 focus:border-moss"
+                  className="min-h-11 w-full rounded-md border border-line bg-white px-3 text-sm text-ink outline-none placeholder:text-ink/35 focus:border-moss"
                   placeholder={`관심사를 입력해주세요 (최대 ${CUSTOM_CATEGORY_MAX_LENGTH}자)`}
                 />
                 {customCategoryError ? (
@@ -242,7 +242,7 @@ export function OnboardingForm() {
           </button>
         </form>
 
-        <section className="rounded-lg border border-white/20 bg-white/10 p-4 text-sm leading-6 text-ink/68 shadow-soft">
+        <section className="rounded-lg border border-line bg-white/80 p-4 text-sm leading-6 text-ink/68 shadow-soft">
           휴대폰 인증은 실제 SMS 연동 전까지 가입 필수 단계에서 제외했습니다. 지금은 Google 로그인과
           프로필 저장만으로 주요 유저 흐름을 테스트합니다.
         </section>
