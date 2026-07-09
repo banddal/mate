@@ -9,19 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#f5f1ee",
-        paper: "#141a30",
-        warm: "rgba(255,255,255,0.06)",
-        line: "rgba(255,255,255,0.14)",
-        moss: "#8a72b8",
-        plum: "#5b3a6e",
-        sun: "#b23b3b",
-        action: "#b23b3b",
+        ink: "#3b2b20",
+        paper: "#fff7df",
+        warm: "rgba(255,255,255,0.62)",
+        line: "rgba(121,83,44,0.16)",
+        moss: "#d97848",
+        plum: "#8b5b32",
+        sun: "#e28a3f",
+        action: "#d97848",
         google: "#00009c",
-        surface: "rgba(255,255,255,0.06)"
+        surface: "rgba(255,255,255,0.68)"
       },
       boxShadow: {
-        soft: "0 16px 40px rgba(0, 0, 0, 0.35)"
+        soft: "0 16px 36px rgba(127, 83, 38, 0.14)"
       },
       fontFamily: {
         sans: ["var(--font-space-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],

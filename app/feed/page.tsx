@@ -40,7 +40,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
       <section className="mx-auto w-full max-w-md px-5 pt-[calc(18px+env(safe-area-inset-top))]">
         <header className="space-y-3 pb-4">
-          <h1 className="whitespace-nowrap text-center text-[19px] font-bold leading-7 tracking-normal text-white">
+          <h1 className="whitespace-nowrap text-center text-[19px] font-bold leading-7 tracking-normal text-ink">
             {profile?.nickname ?? "Mate"}님을 기다리는 오늘 <span className="feed-title-accent">Mates</span>
           </h1>
 
@@ -101,8 +101,8 @@ function TimeFilterButton({
       href={href}
       className={`flex min-h-9 items-center justify-center rounded-md border px-1 text-xs font-semibold transition ${
         active
-          ? "border-white/70 bg-white/25 text-ink shadow-soft"
-          : "border-white/20 bg-white/10 text-ink/68 hover:border-white/40 hover:bg-white/20"
+          ? "border-moss/40 bg-white/80 text-ink shadow-soft"
+          : "border-line bg-white/45 text-ink/64 hover:border-moss/30 hover:bg-white/70"
       }`}
     >
       {children}
@@ -124,7 +124,7 @@ function TopicChip({
       href={href}
       className={`flex min-h-9 shrink-0 items-center px-1 text-sm font-semibold transition ${
         active
-          ? "text-white"
+          ? "text-moss"
           : "text-ink/58 hover:text-ink"
       }`}
     >
@@ -139,7 +139,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
 
   return (
     <details
-      className="feed-card-shell group rounded-lg border border-white/20 shadow-soft transition hover:border-moss"
+      className="feed-card-shell group rounded-lg border border-line shadow-soft transition hover:border-moss/45"
       style={
         {
           "--feed-card-alpha": urgency.alpha,
@@ -166,18 +166,18 @@ function FeedCardItem({ card }: { card: FeedCard }) {
               {card.title}
             </h2>
           </div>
-          <span className="-mr-0.5 -mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
+          <span className="-mr-0.5 -mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line bg-white/70 text-moss transition group-open:rotate-180">
             <ChevronDown className="h-3.5 w-3.5" aria-hidden />
           </span>
         </div>
 
-        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-paper/65 px-3 py-2 text-[15px] font-bold leading-6">
+        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-white/70 px-3 py-2 text-[15px] font-bold leading-6">
           <Sparkles className="feed-card-meta-icon mt-1 h-4 w-4 shrink-0" aria-hidden />
           <span>{card.host_offer}</span>
         </div>
       </summary>
 
-      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-paper/55 p-3">
+      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-white/58 p-3">
         <div className="feed-card-meta grid gap-2 text-xs">
           <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
             {formatDateTime(card.event_datetime)}
@@ -257,30 +257,30 @@ function getDeadlineVisualState(value: string) {
   const remainingHours = remainingMinutes / 60;
 
   if (remainingMinutes <= 2) {
-    return getFeedCardTone("0.72", "0.98", "0.86", "0.72");
+    return getFeedCardTone("0.94", "0.96", "0.84", "0.68");
   }
 
   if (remainingMinutes <= 10) {
-    return getFeedCardTone("0.58", "0.94", "0.8", "0.66");
+    return getFeedCardTone("0.86", "0.92", "0.78", "0.62");
   }
 
   if (remainingHours <= 1) {
-    return getFeedCardTone("0.42", "0.9", "0.74", "0.6");
+    return getFeedCardTone("0.76", "0.88", "0.72", "0.58");
   }
 
   if (remainingHours <= 24) {
-    return getFeedCardTone("0.24", "0.82", "0.66", "0.5");
+    return getFeedCardTone("0.64", "0.82", "0.66", "0.52");
   }
 
-  return getFeedCardTone("0.08", "0.72", "0.56", "0.42");
+  return getFeedCardTone("0.52", "0.74", "0.58", "0.44");
 }
 
 function getFeedCardTone(alpha: string, titleAlpha: string, textAlpha: string, mutedAlpha: string) {
   return {
     alpha,
-    titleColor: `rgba(255, 255, 255, ${titleAlpha})`,
-    textColor: `rgba(245, 241, 238, ${textAlpha})`,
-    mutedColor: `rgba(245, 241, 238, ${mutedAlpha})`
+    titleColor: `rgba(59, 43, 32, ${titleAlpha})`,
+    textColor: `rgba(59, 43, 32, ${textAlpha})`,
+    mutedColor: `rgba(59, 43, 32, ${mutedAlpha})`
   };
 }
 

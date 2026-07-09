@@ -13,7 +13,7 @@ const items = [
 
 export function BottomNav({ active }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/85 px-5 pb-[calc(6px+env(safe-area-inset-bottom))] pt-1 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/92 px-5 pb-[calc(6px+env(safe-area-inset-bottom))] pt-1 backdrop-blur">
       <div className="mx-auto grid max-w-md grid-cols-3 text-center text-xs font-semibold text-ink/55">
         {items.map((item) => {
           const Icon = item.icon;
@@ -23,7 +23,7 @@ export function BottomNav({ active }: BottomNavProps) {
             <Link
               key={item.id}
               className={`mx-1 flex min-h-10 items-center justify-center rounded-lg px-2 py-1 transition ${
-                isActive ? "text-moss" : "text-[#6f6278] hover:text-[#493f52]"
+                isActive ? "text-moss" : "text-[#8b725d] hover:text-[#4e3929]"
               }`}
               href={item.href}
               aria-label={item.label}
