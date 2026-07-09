@@ -190,13 +190,13 @@ function FeedCardItem({ card }: { card: FeedCard }) {
           </CardMeta>
         </div>
 
-        <p className="feed-card-meta rounded-md bg-white/5 px-3 py-3 text-sm leading-6">{card.description}</p>
+        <p className="feed-card-description rounded-md px-3 py-3 text-sm leading-6">{card.description}</p>
 
         <Link
           href={`/cards/${card.id}`}
-          className="flex min-h-11 w-full items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
+          className="feed-apply-button flex min-h-11 w-full items-center justify-center rounded-md px-4 text-sm font-bold tracking-normal text-white"
         >
-          신청 화면으로 이동
+          메이트 신청하기
         </Link>
       </div>
     </details>
@@ -205,8 +205,8 @@ function FeedCardItem({ card }: { card: FeedCard }) {
 
 function CardMeta({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-moss">{icon}</span>
+    <div className="feed-card-meta-item flex items-center gap-2 rounded-md px-3 py-2">
+      <span className="feed-card-meta-icon">{icon}</span>
       <span className="min-w-0 truncate">{children}</span>
     </div>
   );

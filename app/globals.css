@@ -76,6 +76,10 @@ h1 {
   background-color: rgba(255, 255, 255, var(--feed-card-alpha, 0.14)) !important;
 }
 
+.feed-card-shell:is(:hover, :active) {
+  animation: feed-card-touch-wobble 420ms ease-in-out;
+}
+
 @supports (animation-timeline: view()) {
   .feed-card-shell {
     animation: feed-card-scroll-wobble linear both;
@@ -139,6 +143,24 @@ h1 {
   color: var(--feed-card-muted-color, rgba(245, 241, 238, 0.62));
 }
 
+.feed-card-meta-item,
+.feed-card-description {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.13);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px rgba(12, 8, 20, 0.14);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.feed-card-meta-icon {
+  color: rgba(255, 210, 175, 0.92);
+}
+
+.feed-apply-button {
+  background: linear-gradient(135deg, rgba(246, 119, 72, 0.96), rgba(226, 132, 70, 0.86) 48%, rgba(188, 77, 73, 0.96));
+  box-shadow: 0 10px 22px rgba(82, 24, 18, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  font-family: var(--font-quicksand), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
 .feed-card-panel {
   animation: feed-card-reveal 460ms ease-out;
 }
@@ -173,6 +195,24 @@ h1 {
 
   44% {
     transform: translateX(1px) rotate(0.14deg);
+  }
+
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes feed-card-touch-wobble {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  30% {
+    transform: translateX(-1.5px) rotate(-0.16deg);
+  }
+
+  62% {
+    transform: translateX(1.2px) rotate(0.14deg);
   }
 
   100% {
