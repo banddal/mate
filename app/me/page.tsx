@@ -14,7 +14,6 @@ import {
   UserRound
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
-import { isAdminUser } from "@/lib/auth/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { getDemoActivityCards, getDemoActivityRooms } from "@/lib/demo-data";
@@ -49,10 +48,9 @@ type NextAction = {
 
 export default async function MePage() {
   const { user, profile } = await requireOnboarded();
-  const [cards, rooms, canOpenAdmin] = await Promise.all([
+  const [cards, rooms] = await Promise.all([
     getActivityCards(user.id),
-    getActivityRooms(user.id),
-    isAdminUser(user.id)
+    getActivityRooms(user.id)
   ]);
 
   const hostedCards = cards.filter((card) => card.role === "host");
@@ -226,7 +224,7 @@ export default async function MePage() {
         </section>
       </section>
 
-      <BottomNav active="me" showAdmin={canOpenAdmin} />
+      <BottomNav active="me" />
     </main>
   );
 }

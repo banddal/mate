@@ -13,6 +13,7 @@ import { requireOnboarded } from "@/lib/auth/session";
 import { isAdminUser } from "@/lib/auth/admin";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
+import { BottomNav } from "@/components/BottomNav";
 import { TopicScroller } from "./TopicScroller";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +38,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const [cards, canOpenAdmin] = await Promise.all([getOpenCards(filters), isAdminUser(user.id)]);
 
   return (
-    <main className="min-h-dvh pb-[calc(28px+env(safe-area-inset-bottom))]">
+    <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
       <section className="mx-auto w-full max-w-md px-5 pt-[calc(24px+env(safe-area-inset-top))]">
         <header className="space-y-5 pb-5">
           <div className="flex items-center justify-between gap-3">
@@ -98,6 +99,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           <EmptyFeed />
         )}
       </section>
+      <BottomNav active="feed" />
     </main>
   );
 }
