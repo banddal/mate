@@ -176,7 +176,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
         </div>
       </summary>
 
-      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-white p-3">
+      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-paper p-3">
         <div className="feed-card-meta grid gap-2 text-xs">
           <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
             {formatDateTime(card.event_datetime)}
