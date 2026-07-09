@@ -37,8 +37,8 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   return (
     <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
-      <section className="mx-auto w-full max-w-md px-5 pt-[calc(24px+env(safe-area-inset-top))]">
-        <header className="space-y-5 pb-5">
+      <section className="mx-auto w-full max-w-md px-5 pt-[calc(18px+env(safe-area-inset-top))]">
+        <header className="space-y-3 pb-4">
           <h1 className="whitespace-nowrap text-[18px] font-bold leading-7 tracking-normal text-white">
             {profile?.nickname ?? "Mate"}님을 기다리는 오늘 <span className="feed-title-accent">Mates</span>
           </h1>
@@ -170,14 +170,14 @@ function FeedCardItem({ card }: { card: FeedCard }) {
           </span>
         </div>
 
-        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-paper/65 px-3 py-2 text-sm font-semibold leading-5">
-          <Sparkles className="mt-1 h-4 w-4 shrink-0 text-moss" aria-hidden />
+        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-paper/65 px-3 py-2 text-[15px] font-bold leading-6">
+          <Sparkles className="feed-card-meta-icon mt-1 h-4 w-4 shrink-0" aria-hidden />
           <span>{card.host_offer}</span>
         </div>
       </summary>
 
       <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-paper/55 p-3">
-        <div className="feed-card-meta grid gap-2 text-sm">
+        <div className="feed-card-meta grid gap-2 text-xs">
           <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
             {formatDateTime(card.event_datetime)}
           </CardMeta>
@@ -190,7 +190,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
           </CardMeta>
         </div>
 
-        <p className="feed-card-description rounded-md px-3 py-3 text-sm leading-6">{card.description}</p>
+        <p className="feed-card-description rounded-md px-3 py-3 text-xs leading-5">{card.description}</p>
 
         <Link
           href={`/cards/${card.id}`}

@@ -149,7 +149,8 @@ h1 {
 }
 
 .feed-apply-button {
-  background: linear-gradient(135deg, rgba(176, 84, 154, 0.96), rgba(139, 89, 176, 0.92) 52%, rgba(107, 78, 152, 0.96));
+  background:
+    radial-gradient(circle at 30% 25%, rgba(204, 126, 196, 0.98) 0%, rgba(160, 91, 181, 0.92) 42%, rgba(108, 76, 152, 0.98) 100%);
   box-shadow: 0 10px 22px rgba(58, 28, 78, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   font-family: var(--font-quicksand), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
