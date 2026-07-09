@@ -24,8 +24,8 @@ const config: Config = {
         soft: "0 16px 36px rgba(127, 83, 38, 0.14)"
       },
       fontFamily: {
-        sans: ["var(--font-space-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["var(--font-quicksand)", "var(--font-space-grotesk)", "ui-sans-serif", "system-ui", "sans-serif"]
+        sans: ["ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        display: ["ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"]
       }
     }
   },
