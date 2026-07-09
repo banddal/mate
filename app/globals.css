@@ -76,16 +76,9 @@ h1 {
   background-color: rgba(255, 255, 255, var(--feed-card-alpha, 0.14)) !important;
 }
 
-.feed-card-shell:is(:hover, :active) {
+.feed-card-shell:has(> .feed-card-summary:active),
+.feed-card-summary:active {
   animation: feed-card-touch-wobble 420ms ease-in-out;
-}
-
-@supports (animation-timeline: view()) {
-  .feed-card-shell {
-    animation: feed-card-scroll-wobble linear both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 38%;
-  }
 }
 
 .feed-card-title {
@@ -156,9 +149,13 @@ h1 {
 }
 
 .feed-apply-button {
-  background: linear-gradient(135deg, rgba(204, 78, 130, 0.96), rgba(151, 88, 172, 0.9) 50%, rgba(117, 75, 151, 0.96));
-  box-shadow: 0 10px 22px rgba(70, 24, 74, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: linear-gradient(135deg, rgba(176, 84, 154, 0.96), rgba(139, 89, 176, 0.92) 52%, rgba(107, 78, 152, 0.96));
+  box-shadow: 0 10px 22px rgba(58, 28, 78, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   font-family: var(--font-quicksand), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+}
+
+.feed-apply-button:active {
+  animation: feed-card-touch-wobble 360ms ease-in-out;
 }
 
 .feed-card-panel {
@@ -185,20 +182,6 @@ h1 {
     opacity: 1;
     transform: translateY(0);
     box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0);
-  }
-}
-
-@keyframes feed-card-scroll-wobble {
-  0% {
-    transform: translateX(-0.7px) rotate(-0.08deg);
-  }
-
-  44% {
-    transform: translateX(0.55px) rotate(0.07deg);
-  }
-
-  100% {
-    transform: translateX(0) rotate(0deg);
   }
 }
 
