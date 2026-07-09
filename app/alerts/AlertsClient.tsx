@@ -30,7 +30,7 @@ type AlertsClientProps = {
 };
 
 const suggestedTemplates = [
-  { location: "잠실", timePattern: "이번 주말", category: "야구 직관" },
+  { location: "잠실", timePattern: "이번 주말", category: "스포츠 직관" },
   { location: "성수", timePattern: "평일 저녁", category: "전시" },
   { location: "홍대", timePattern: "금요일 밤", category: "공연" }
 ];

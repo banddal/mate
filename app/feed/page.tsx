@@ -13,6 +13,7 @@ import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
 import { BottomNav } from "@/components/BottomNav";
 import { TopicScroller } from "./TopicScroller";
+import { CARD_CATEGORY_LABELS } from "@/lib/cards/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ const periodTabs = [
   { label: "이번주 내", value: "week" }
 ] as const;
 
-const categoryTabs = ["야구 직관", "공연", "전시", "페스티벌", "맛집", "카페", "러닝"];
+const categoryTabs = CARD_CATEGORY_LABELS;
 
 type FeedPageProps = {
   searchParams: Record<string, string | string[] | undefined>;

@@ -8,8 +8,14 @@ import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { getCurrentUserAndProfile, isProfileComplete, requireOnboarded } from "@/lib/auth/session";
 
 export async function isAdminUser(userId: string) {
-  if (!hasServiceEnv() || userId === DEV_AUTH_FALLBACK_USER_ID) {
-    return true;
+  const isProduction = process.env.VERCEL_ENV === "production";
+
+  if (!hasServiceEnv()) {
+    return !isProduction;
+  }
+
+  if (userId === DEV_AUTH_FALLBACK_USER_ID) {
+    return !isProduction;
   }
 
   const admin = createServiceRoleSupabaseClient();

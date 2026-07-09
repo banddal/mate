@@ -4,24 +4,21 @@ import { Loader2, UserRound } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { getCategoriesByGroup } from "@/lib/cards/categories";
+import { hasCashPaymentPattern } from "@/lib/cards/cash-pattern";
 
-const categoryOptions = [
-  "야구 직관",
-  "공연",
-  "전시",
-  "페스티벌",
-  "맛집",
-  "카페",
-  "러닝",
-  "퇴근 후 맥주"
-];
+const groupedCategories = getCategoriesByGroup();
+const CUSTOM_CATEGORY_MAX_LENGTH = 12;
 
 export function OnboardingForm() {
   const router = useRouter();
   const [nickname, setNickname] = useState("");
   const [ageRange, setAgeRange] = useState("20s");
   const [gender, setGender] = useState("prefer_not_to_say");
-  const [categories, setCategories] = useState<string[]>(["야구 직관"]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isCustomInputOpen, setIsCustomInputOpen] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
+  const [customCategoryError, setCustomCategoryError] = useState("");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -34,10 +31,51 @@ export function OnboardingForm() {
     );
   }
 
+  function validateCustomCategory(value: string) {
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      return "관심사를 입력해주세요.";
+    }
+
+    if (trimmed.length > CUSTOM_CATEGORY_MAX_LENGTH) {
+      return `최대 ${CUSTOM_CATEGORY_MAX_LENGTH}자까지 입력할 수 있어요.`;
+    }
+
+    if (hasCashPaymentPattern(trimmed)) {
+      return "사용할 수 없는 표현이 포함되어 있어요.";
+    }
+
+    return "";
+  }
+
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setMessage("");
+
+    let finalCategories = categories;
+
+    if (isCustomInputOpen && customCategory.trim()) {
+      const validationError = validateCustomCategory(customCategory);
+
+      if (validationError) {
+        setCustomCategoryError(validationError);
+        return;
+      }
+
+      const trimmed = customCategory.trim();
+
+      if (!finalCategories.includes(trimmed)) {
+        finalCategories = [...finalCategories, trimmed];
+      }
+    }
+
+    if (finalCategories.length === 0) {
+      setError("관심 카테고리를 1개 이상 선택해주세요.");
+      return;
+    }
+
     setIsSavingProfile(true);
 
     try {
@@ -57,7 +95,7 @@ export function OnboardingForm() {
         nickname,
         age_range: ageRange,
         gender,
-        categories
+        categories: finalCategories
       });
 
       if (upsertError) {
@@ -134,33 +172,69 @@ export function OnboardingForm() {
             </label>
           </div>
 
-          <fieldset className="space-y-2">
+          <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-ink/80">관심 카테고리</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {categoryOptions.map((category) => {
-                const checked = categories.includes(category);
+            {groupedCategories.map(({ group, options }) => (
+              <div key={group} className="space-y-1.5">
+                <p className="text-xs font-medium text-ink/50">{group}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {options.map((option) => {
+                    const checked = categories.includes(option.label);
 
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className={`min-h-11 rounded-md border px-3 text-sm font-medium transition ${
-                      checked
-                        ? "border-moss bg-moss text-white"
-                        : "border-line bg-white/5 text-ink/75"
-                    }`}
-                  >
-                    {category}
-                  </button>
-                );
-              })}
-            </div>
+                    return (
+                      <button
+                        key={option.label}
+                        type="button"
+                        onClick={() => toggleCategory(option.label)}
+                        className={`min-h-11 rounded-md border px-2 text-sm font-medium transition ${
+                          checked
+                            ? "border-moss bg-moss text-white"
+                            : "border-line bg-white/5 text-ink/75"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setIsCustomInputOpen((open) => !open);
+                setCustomCategoryError("");
+              }}
+              className={`min-h-11 w-full rounded-md border border-dashed px-3 text-sm font-medium transition ${
+                isCustomInputOpen
+                  ? "border-moss text-moss"
+                  : "border-line text-ink/60"
+              }`}
+            >
+              + 직접 입력
+            </button>
+            {isCustomInputOpen ? (
+              <div className="space-y-1.5">
+                <input
+                  value={customCategory}
+                  onChange={(event) => {
+                    setCustomCategory(event.target.value);
+                    setCustomCategoryError("");
+                  }}
+                  maxLength={CUSTOM_CATEGORY_MAX_LENGTH}
+                  className="min-h-11 w-full rounded-md border border-line bg-white/5 px-3 text-sm text-ink outline-none placeholder:text-ink/35 focus:border-moss"
+                  placeholder={`관심사를 입력해주세요 (최대 ${CUSTOM_CATEGORY_MAX_LENGTH}자)`}
+                />
+                {customCategoryError ? (
+                  <p className="text-xs font-medium text-red-400">{customCategoryError}</p>
+                ) : null}
+              </div>
+            ) : null}
           </fieldset>
 
           <button
             type="submit"
-            disabled={isSavingProfile || categories.length === 0}
+            disabled={isSavingProfile || (categories.length === 0 && !customCategory.trim())}
             className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-google px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSavingProfile ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}

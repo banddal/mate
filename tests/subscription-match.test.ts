@@ -64,14 +64,14 @@ function makeFakeAdmin(subscriptions: Sub[]) {
 const card = {
   id: "card-1",
   host_id: "host-1",
-  category: "야구 직관",
+  category: "스포츠 직관",
   location: "잠실야구장"
 };
 
 describe("notifySubscriptionMatches", () => {
   it("category 일치 + location 부분 일치 구독자에게 알림을 만든다", async () => {
     const { admin, notified } = makeFakeAdmin([
-      { id: "s1", user_id: "user-2", location: "잠실", category: "야구 직관" }
+      { id: "s1", user_id: "user-2", location: "잠실", category: "스포츠 직관" }
     ]);
 
     const created = await notifySubscriptionMatches(admin, card);
@@ -83,7 +83,7 @@ describe("notifySubscriptionMatches", () => {
 
   it("호스트 본인에게는 보내지 않는다", async () => {
     const { admin, notified } = makeFakeAdmin([
-      { id: "s1", user_id: "host-1", location: "잠실", category: "야구 직관" }
+      { id: "s1", user_id: "host-1", location: "잠실", category: "스포츠 직관" }
     ]);
 
     const created = await notifySubscriptionMatches(admin, card);
@@ -94,7 +94,7 @@ describe("notifySubscriptionMatches", () => {
 
   it("location이 전혀 겹치지 않으면 보내지 않는다", async () => {
     const { admin, notified } = makeFakeAdmin([
-      { id: "s1", user_id: "user-2", location: "부산사직", category: "야구 직관" }
+      { id: "s1", user_id: "user-2", location: "부산사직", category: "스포츠 직관" }
     ]);
 
     const created = await notifySubscriptionMatches(admin, card);
@@ -105,8 +105,8 @@ describe("notifySubscriptionMatches", () => {
 
   it("한 유저가 여러 구독으로 매칭돼도 카드당 1회만 보낸다", async () => {
     const { admin, notified } = makeFakeAdmin([
-      { id: "s1", user_id: "user-2", location: "잠실", category: "야구 직관" },
-      { id: "s2", user_id: "user-2", location: "잠실야구장", category: "야구 직관" }
+      { id: "s1", user_id: "user-2", location: "잠실", category: "스포츠 직관" },
+      { id: "s2", user_id: "user-2", location: "잠실야구장", category: "스포츠 직관" }
     ]);
 
     const created = await notifySubscriptionMatches(admin, card);
@@ -117,7 +117,7 @@ describe("notifySubscriptionMatches", () => {
 
   it("payload에 상대방(호스트) 식별 정보를 넣지 않는다 (§9)", async () => {
     const { admin, notified } = makeFakeAdmin([
-      { id: "s1", user_id: "user-2", location: "잠실", category: "야구 직관" }
+      { id: "s1", user_id: "user-2", location: "잠실", category: "스포츠 직관" }
     ]);
 
     await notifySubscriptionMatches(admin, card);

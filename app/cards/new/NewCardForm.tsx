@@ -20,9 +20,9 @@ type CreatedCard = {
 
 const quickTemplates = [
   {
-    label: "야구 직관",
+    label: "스포츠 직관",
     title: "이번 주말 잠실 야구 직관 mate",
-    category: "야구 직관",
+    category: "스포츠 직관",
     location: "잠실야구장 1루 출입구",
     capacity: 2,
     hostOffer: "예매해 둔 2연석 중 1자리",

@@ -90,7 +90,7 @@ export function getDemoFeedCards(): FeedCard[] {
       id: DEMO_APPLY_CARD_ID,
       host_id: "00000000-0000-4000-8000-000000000099",
       title: "토요일 잠실 야구 직관 같이 갈 mate",
-      category: "야구 직관",
+      category: "스포츠 직관",
       level: "L1",
       event_datetime: new Date(now + 1000 * 60 * 60 * 28).toISOString(),
       location: "잠실야구장 1루 쪽",

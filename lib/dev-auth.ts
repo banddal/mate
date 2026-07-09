@@ -95,7 +95,7 @@ export async function ensureDevAuthProfile() {
         nickname: "Dev Mate",
         age_range: "20s",
         gender: "prefer_not_to_say",
-        categories: ["야구 직관", "맛집"],
+        categories: ["스포츠 직관", "맛집"],
         phone_verified: true
       },
       { onConflict: "id" }
@@ -116,7 +116,7 @@ function getFallbackDevSession(userId: string) {
     nickname: "Dev Mate",
     age_range: "20s",
     gender: "prefer_not_to_say",
-    categories: ["야구 직관", "맛집"],
+    categories: ["스포츠 직관", "맛집"],
     phone_verified: true,
     created_at: new Date().toISOString()
   };
