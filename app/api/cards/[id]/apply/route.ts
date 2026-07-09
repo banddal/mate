@@ -3,7 +3,7 @@ import { getCurrentUserAndProfile, isProfileComplete } from "@/lib/auth/session"
 import { applyCardSchema } from "@/lib/cards/applications";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
-import { DEMO_APPLY_CARD_ID, DEMO_CREATED_CARD_ID } from "@/lib/demo-data";
+import { isDemoCardId } from "@/lib/demo-data";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: ApplyRouteContext) {
     return fail({ code: "INVALID_REASON", message: "신청 사유를 확인해주세요." }, 400);
   }
 
-  if ([DEMO_APPLY_CARD_ID, DEMO_CREATED_CARD_ID].includes(params.id)) {
+  if (isDemoCardId(params.id)) {
     return ok({
       application: {
         id: "demo-application",

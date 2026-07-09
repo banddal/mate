@@ -101,7 +101,7 @@ export function ApplyCardSheet({ cardId }: ApplyCardSheetProps) {
             className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <Send className="h-5 w-5" aria-hidden />}
-            신청 보내기
+            Mate 신청하기
           </button>
         )}
       </form>

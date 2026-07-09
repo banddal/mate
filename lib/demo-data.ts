@@ -5,6 +5,10 @@ export const DEMO_APPLY_CARD_ID = "demo-apply-card";
 export const DEMO_CREATED_CARD_ID = "demo-created-card";
 export const DEMO_ROOM_ID = "demo-room";
 
+export function isDemoCardId(cardId: string) {
+  return cardId === DEMO_CREATED_CARD_ID || getDemoFeedCards().some((card) => card.id === cardId);
+}
+
 export type DemoApplicant = {
   id: string;
   applicant_id: string;
@@ -106,7 +110,7 @@ export function getDemoFeedCards(): FeedCard[] {
       id: "demo-cafe-card",
       host_id: "00000000-0000-4000-8000-000000000098",
       title: "성수 전시 보고 근처 카페까지",
-      category: "전시",
+      category: "공연·전시",
       level: "L1",
       event_datetime: new Date(now + 1000 * 60 * 60 * 52).toISOString(),
       location: "성수동 전시 공간 앞",
@@ -122,7 +126,7 @@ export function getDemoFeedCards(): FeedCard[] {
       id: "demo-concert-card",
       host_id: "00000000-0000-4000-8000-000000000097",
       title: "금요일 저녁 홍대 소극장 공연 mate",
-      category: "공연",
+      category: "공연·전시",
       level: "L1",
       event_datetime: new Date(now + 1000 * 60 * 60 * 34).toISOString(),
       location: "홍대입구역 8번 출구",
@@ -202,7 +206,7 @@ export function getDemoFeedCards(): FeedCard[] {
       id: "demo-museum-card",
       host_id: "00000000-0000-4000-8000-000000000092",
       title: "국립현대미술관 오후 전시 mate",
-      category: "전시",
+      category: "공연·전시",
       level: "L1",
       event_datetime: new Date(now + 1000 * 60 * 60 * 46).toISOString(),
       location: "안국역 1번 출구",
