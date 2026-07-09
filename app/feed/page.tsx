@@ -39,8 +39,8 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
       <section className="mx-auto w-full max-w-md px-5 pt-[calc(24px+env(safe-area-inset-top))]">
         <header className="space-y-5 pb-5">
-          <h1 className="text-3xl font-bold leading-tight tracking-normal text-white">
-            {profile?.nickname ?? "Mate"}님을 기다리는 오늘 Mates
+          <h1 className="whitespace-nowrap text-[18px] font-bold leading-7 tracking-normal text-white">
+            {profile?.nickname ?? "Mate"}님을 기다리는 오늘 <span className="feed-title-accent">Mates</span>
           </h1>
 
           <nav className="grid grid-cols-5 gap-2" aria-label="마감 시간 필터">

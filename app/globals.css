@@ -67,8 +67,21 @@ h1 {
   display: none;
 }
 
+.feed-title-accent {
+  color: #fff8f3;
+  text-shadow: 0 2px 10px rgba(246, 122, 76, 0.42), 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
 .feed-card-shell {
   background-color: rgba(255, 255, 255, var(--feed-card-alpha, 0.14)) !important;
+}
+
+@supports (animation-timeline: view()) {
+  .feed-card-shell {
+    animation: feed-card-scroll-wobble linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 38%;
+  }
 }
 
 .feed-card-title {
@@ -92,26 +105,26 @@ h1 {
 .feed-deadline-chip {
   border-radius: 4px;
   padding: 1px 6px;
-  background-color: rgba(72, 12, 28, 0.16);
-  box-shadow: 0 3px 10px rgba(22, 8, 16, 0.16);
+  background-color: rgba(96, 30, 24, 0.18);
+  box-shadow: 0 3px 10px rgba(36, 10, 8, 0.18);
   font-weight: 800;
   letter-spacing: 0;
 }
 
 .feed-deadline-urgent {
-  color: rgb(235, 87, 87);
+  color: rgb(246, 119, 72);
 }
 
 .feed-deadline-hour {
-  color: rgb(226, 96, 75);
+  color: rgb(239, 127, 74);
 }
 
 .feed-deadline-today {
-  color: rgb(198, 111, 35);
+  color: rgb(226, 132, 70);
 }
 
 .feed-deadline-week {
-  color: rgb(196, 82, 71);
+  color: rgb(216, 116, 67);
 }
 
 .feed-deadline-open {
@@ -150,6 +163,20 @@ h1 {
     opacity: 1;
     transform: translateY(0);
     box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes feed-card-scroll-wobble {
+  0% {
+    transform: translateX(-1.5px) rotate(-0.18deg);
+  }
+
+  44% {
+    transform: translateX(1px) rotate(0.14deg);
+  }
+
+  100% {
+    transform: translateX(0) rotate(0deg);
   }
 }
 
