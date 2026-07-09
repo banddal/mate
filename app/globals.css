@@ -111,30 +111,33 @@ h1 {
 .feed-deadline-chip {
   border-radius: 4px;
   padding: 1px 6px;
-  background-color: rgba(96, 30, 24, 0.18);
-  box-shadow: 0 3px 10px rgba(36, 10, 8, 0.18);
   font-weight: 800;
   letter-spacing: 0;
 }
 
 .feed-deadline-urgent {
-  color: rgb(246, 119, 72);
+  background-color: rgba(246, 119, 72, 0.3);
+  color: #ffd8c4;
 }
 
 .feed-deadline-hour {
-  color: rgb(239, 127, 74);
+  background-color: rgba(239, 127, 74, 0.26);
+  color: #ffd0ad;
 }
 
 .feed-deadline-today {
-  color: rgb(226, 132, 70);
+  background-color: rgba(226, 132, 70, 0.22);
+  color: #ffc9a0;
 }
 
 .feed-deadline-week {
-  color: rgb(216, 116, 67);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(245, 241, 238, 0.78);
 }
 
 .feed-deadline-open {
-  color: rgba(48, 55, 66, 0.68);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(245, 241, 238, 0.6);
 }
 
 .feed-card-offer {

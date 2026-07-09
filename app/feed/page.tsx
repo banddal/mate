@@ -166,8 +166,8 @@ function FeedCardItem({ card }: { card: FeedCard }) {
               {card.title}
             </h2>
           </div>
-          <span className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
-            <ChevronDown className="h-4 w-4" aria-hidden />
+          <span className="-mr-0.5 -mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
+            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
           </span>
         </div>
 
