@@ -81,11 +81,9 @@ h1 {
 
 .feed-title-accent {
   color: #ffffff;
-  -webkit-text-stroke: 0.45px rgba(120, 83, 36, 0.62);
   text-shadow:
-    0 2px 10px rgba(123, 80, 32, 0.28),
-    0 1px 0 rgba(111, 75, 31, 0.6),
-    0 0 1px rgba(111, 75, 31, 0.7);
+    0 2px 8px rgba(88, 57, 24, 0.34),
+    0 1px 2px rgba(88, 57, 24, 0.38);
 }
 
 .feed-card-shell {
@@ -149,9 +147,9 @@ h1 {
 }
 
 .feed-card-offer {
-  border: 1px solid rgba(87, 142, 94, 0.2);
-  background: linear-gradient(135deg, rgba(236, 251, 225, 0.96) 0%, rgba(213, 239, 204, 0.92) 52%, rgba(255, 249, 218, 0.94) 100%) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 8px 18px rgba(91, 134, 72, 0.13);
+  border: 1px solid rgba(118, 103, 82, 0.1);
+  background: linear-gradient(135deg, rgba(249, 249, 244, 0.98) 0%, rgba(238, 238, 232, 0.94) 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 16px rgba(104, 86, 60, 0.08);
   color: var(--feed-card-text-color, rgba(59, 43, 32, 0.76));
 }
 
@@ -173,9 +171,9 @@ h1 {
 
 .mate-cta {
   background:
-    linear-gradient(135deg, #eef68c 0%, #d7e95d 42%, #aeca45 100%);
-  box-shadow: 0 10px 22px rgba(121, 151, 43, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  color: #344017;
+    linear-gradient(135deg, #dbe889 0%, #b9cf55 48%, #829a32 100%);
+  box-shadow: 0 10px 22px rgba(95, 119, 41, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  color: #2f3a16;
 }
 
 .bottom-nav {
