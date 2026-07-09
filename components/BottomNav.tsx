@@ -13,7 +13,7 @@ const items = [
 
 export function BottomNav({ active }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/90 px-5 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/95 px-5 pb-[calc(6px+env(safe-area-inset-bottom))] pt-1 backdrop-blur">
       <div className="mx-auto grid max-w-md grid-cols-3 text-center text-xs font-semibold text-ink/55">
         {items.map((item) => {
           const Icon = item.icon;
@@ -22,13 +22,13 @@ export function BottomNav({ active }: BottomNavProps) {
           return (
             <Link
               key={item.id}
-              className={`mx-1 flex min-h-12 items-center justify-center rounded-lg px-2 py-2 transition ${
-                isActive ? "text-moss" : "text-ink/52 hover:text-ink"
+              className={`mx-1 flex min-h-10 items-center justify-center rounded-lg px-2 py-1 transition ${
+                isActive ? "text-moss" : "text-ink/76 hover:text-ink"
               }`}
               href={item.href}
               aria-label={item.label}
             >
-              <Icon className="h-5 w-5" aria-hidden />
+              <Icon className="h-[18px] w-[18px]" aria-hidden />
             </Link>
           );
         })}
