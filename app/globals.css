@@ -152,12 +152,12 @@ h1 {
 }
 
 .feed-card-meta-icon {
-  color: rgba(255, 210, 175, 0.92);
+  color: rgba(214, 130, 186, 0.94);
 }
 
 .feed-apply-button {
-  background: linear-gradient(135deg, rgba(246, 119, 72, 0.96), rgba(226, 132, 70, 0.86) 48%, rgba(188, 77, 73, 0.96));
-  box-shadow: 0 10px 22px rgba(82, 24, 18, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: linear-gradient(135deg, rgba(204, 78, 130, 0.96), rgba(151, 88, 172, 0.9) 50%, rgba(117, 75, 151, 0.96));
+  box-shadow: 0 10px 22px rgba(70, 24, 74, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   font-family: var(--font-quicksand), var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -190,11 +190,11 @@ h1 {
 
 @keyframes feed-card-scroll-wobble {
   0% {
-    transform: translateX(-1.5px) rotate(-0.18deg);
+    transform: translateX(-0.7px) rotate(-0.08deg);
   }
 
   44% {
-    transform: translateX(1px) rotate(0.14deg);
+    transform: translateX(0.55px) rotate(0.07deg);
   }
 
   100% {
@@ -208,11 +208,11 @@ h1 {
   }
 
   30% {
-    transform: translateX(-1.5px) rotate(-0.16deg);
+    transform: translateX(-0.75px) rotate(-0.08deg);
   }
 
   62% {
-    transform: translateX(1.2px) rotate(0.14deg);
+    transform: translateX(0.65px) rotate(0.07deg);
   }
 
   100% {
