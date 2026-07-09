@@ -13,7 +13,7 @@ const items = [
 
 export function BottomNav({ active }: BottomNavProps) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/95 px-5 pb-[calc(6px+env(safe-area-inset-bottom))] pt-1 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-white/85 px-5 pb-[calc(6px+env(safe-area-inset-bottom))] pt-1 backdrop-blur">
       <div className="mx-auto grid max-w-md grid-cols-3 text-center text-xs font-semibold text-ink/55">
         {items.map((item) => {
           const Icon = item.icon;

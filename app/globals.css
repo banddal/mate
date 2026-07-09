@@ -68,7 +68,7 @@ h1 {
 }
 
 .feed-card-shell {
-  background-color: rgba(255, 255, 255, var(--feed-card-alpha, 0.18)) !important;
+  background-color: rgba(255, 255, 255, var(--feed-card-alpha, 0.14)) !important;
 }
 
 .feed-card-title {
@@ -85,6 +85,31 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.24);
   background-color: rgba(20, 26, 48, 0.58) !important;
   color: rgba(255, 255, 255, 0.9);
+}
+
+.feed-deadline-chip {
+  border: 1px solid rgba(246, 151, 76, 0.38);
+  background-color: rgba(255, 244, 232, 0.9);
+}
+
+.feed-deadline-urgent {
+  color: rgb(194, 68, 38);
+}
+
+.feed-deadline-hour {
+  color: rgb(207, 91, 36);
+}
+
+.feed-deadline-today {
+  color: rgb(198, 111, 35);
+}
+
+.feed-deadline-week {
+  color: rgb(154, 103, 42);
+}
+
+.feed-deadline-open {
+  color: rgba(48, 55, 66, 0.68);
 }
 
 .feed-card-offer {

@@ -90,7 +90,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         </header>
 
         {cards.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {cards.map((card) => (
               <FeedCardItem key={card.id} card={card} />
             ))}
@@ -157,7 +157,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
 
   return (
     <details
-      className="feed-card-shell group rounded-lg border border-white/25 shadow-soft transition hover:border-moss"
+      className="feed-card-shell group rounded-lg border border-white/20 shadow-soft transition hover:border-moss"
       style={
         {
           "--feed-card-alpha": urgency.alpha,
@@ -167,37 +167,35 @@ function FeedCardItem({ card }: { card: FeedCard }) {
         } as React.CSSProperties
       }
     >
-      <summary className="feed-card-summary grid cursor-pointer list-none gap-4 p-4">
+      <summary className="feed-card-summary grid cursor-pointer list-none gap-3 p-3">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-3">
+          <div className="min-w-0 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="feed-card-chip rounded-full bg-moss/12 px-2.5 py-1 text-xs font-semibold">
+              <span className="feed-card-chip rounded-full px-2.5 py-0.5 text-xs font-semibold">
                 {card.category}
               </span>
               <span
-                className={`feed-card-chip rounded-full px-2.5 py-1 text-xs font-semibold ${
-                  deadlineState.urgent ? "bg-sun/25" : "bg-paper"
-                }`}
+                className={`feed-deadline-chip rounded-full px-2.5 py-0.5 text-xs font-bold ${deadlineState.className}`}
               >
                 {deadlineState.label}
               </span>
             </div>
-            <h2 className="feed-card-title text-xl font-bold tracking-normal" title={card.title}>
+            <h2 className="feed-card-title text-lg font-bold tracking-normal" title={card.title}>
               {title}
             </h2>
           </div>
-          <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-paper/70 text-moss transition group-open:rotate-180">
+          <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-paper/65 text-moss transition group-open:rotate-180">
             <ChevronDown className="h-4 w-4" aria-hidden />
           </span>
         </div>
 
-        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-paper/70 px-3 py-3 text-sm font-semibold leading-6">
+        <div className="feed-card-offer flex items-start gap-2 rounded-md bg-paper/65 px-3 py-2 text-sm font-semibold leading-5">
           <Sparkles className="mt-1 h-4 w-4 shrink-0 text-moss" aria-hidden />
           <span>{card.host_offer}</span>
         </div>
       </summary>
 
-      <div className="feed-card-panel mx-4 mb-4 space-y-4 rounded-lg border border-line bg-paper/55 p-4">
+      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-paper/55 p-3">
         <div className="feed-card-meta grid gap-2 text-sm">
           <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
             {formatDateTime(card.event_datetime)}
@@ -283,22 +281,22 @@ function getDeadlineVisualState(value: string) {
   const remainingHours = remainingMinutes / 60;
 
   if (remainingMinutes <= 2) {
-    return getFeedCardTone("0.72", "1", "0.86", "0.72");
+    return getFeedCardTone("0.62", "0.98", "0.84", "0.7");
   }
 
   if (remainingMinutes <= 10) {
-    return getFeedCardTone("0.64", "0.96", "0.82", "0.68");
+    return getFeedCardTone("0.52", "0.94", "0.8", "0.66");
   }
 
   if (remainingHours <= 1) {
-    return getFeedCardTone("0.52", "0.92", "0.76", "0.62");
+    return getFeedCardTone("0.42", "0.9", "0.74", "0.6");
   }
 
   if (remainingHours <= 24) {
-    return getFeedCardTone("0.34", "0.84", "0.68", "0.52");
+    return getFeedCardTone("0.28", "0.82", "0.66", "0.5");
   }
 
-  return getFeedCardTone("0.18", "0.72", "0.58", "0.44");
+  return getFeedCardTone("0.14", "0.72", "0.56", "0.42");
 }
 
 function getFeedCardTone(alpha: string, titleAlpha: string, textAlpha: string, mutedAlpha: string) {
@@ -312,19 +310,28 @@ function getFeedCardTone(alpha: string, titleAlpha: string, textAlpha: string, m
 
 function getDeadlineState(value: string) {
   const remainingMs = new Date(value).getTime() - Date.now();
-  const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
+  const remainingMinutes = Math.ceil(remainingMs / (1000 * 60));
+  const remainingHours = remainingMinutes / 60;
 
-  if (remainingHours <= 0) {
-    return { label: "마감", urgent: true };
+  if (remainingMinutes <= 0) {
+    return { label: "closed", className: "feed-deadline-urgent" };
   }
 
-  if (remainingHours <= 6) {
-    return { label: `${remainingHours}시간 남음`, urgent: true };
+  if (remainingMinutes <= 10) {
+    return { label: "10M", className: "feed-deadline-urgent" };
+  }
+
+  if (remainingMinutes <= 60) {
+    return { label: "D-1hour", className: "feed-deadline-hour" };
   }
 
   if (remainingHours <= 24) {
-    return { label: "오늘 마감", urgent: true };
+    return { label: "today", className: "feed-deadline-today" };
   }
 
-  return { label: "모집 중", urgent: false };
+  if (remainingHours <= 24 * 7) {
+    return { label: "D-7d", className: "feed-deadline-week" };
+  }
+
+  return { label: "open", className: "feed-deadline-open" };
 }
