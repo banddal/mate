@@ -52,8 +52,15 @@ h1 {
 }
 
 .feed-topic-strip {
+  cursor: grab;
   scrollbar-width: none;
+  touch-action: pan-x;
+  user-select: none;
   -webkit-overflow-scrolling: touch;
+}
+
+.feed-topic-strip:active {
+  cursor: grabbing;
 }
 
 .feed-topic-strip::-webkit-scrollbar {
@@ -75,7 +82,9 @@ h1 {
 }
 
 .feed-card-chip {
-  color: var(--feed-card-muted-color, rgba(245, 241, 238, 0.62));
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background-color: rgba(20, 26, 48, 0.58) !important;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .feed-card-offer {

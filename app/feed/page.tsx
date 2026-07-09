@@ -13,6 +13,7 @@ import { requireOnboarded } from "@/lib/auth/session";
 import { isAdminUser } from "@/lib/auth/admin";
 import { parseCardFeedFilters } from "@/lib/cards/filters";
 import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
+import { TopicScroller } from "./TopicScroller";
 
 export const dynamic = "force-dynamic";
 
@@ -71,7 +72,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             ))}
           </nav>
 
-          <nav className="feed-topic-strip flex gap-2 overflow-x-auto pb-1" aria-label="주제 필터">
+          <TopicScroller>
             <TopicChip href={buildFeedHref({ period: filters.period })} active={!filters.category}>
               전체 주제
             </TopicChip>
@@ -84,7 +85,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                 {category}
               </TopicChip>
             ))}
-          </nav>
+          </TopicScroller>
         </header>
 
         {cards.length > 0 ? (
