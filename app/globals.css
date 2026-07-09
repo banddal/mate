@@ -51,6 +51,18 @@ h1 {
   display: none;
 }
 
+.feed-card-shell {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.feed-card-title {
+  display: -webkit-box;
+  max-height: 3.05em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .feed-card-panel {
   animation: feed-card-reveal 460ms ease-out;
 }

@@ -125,9 +125,10 @@ function FilterChip({
 
 function FeedCardItem({ card }: { card: FeedCard }) {
   const deadlineState = getDeadlineState(card.deadline_at);
+  const title = clampCardTitle(card.title);
 
   return (
-    <details className="group rounded-lg border border-line bg-white shadow-soft transition hover:border-moss">
+    <details className="feed-card-shell group rounded-lg border border-white/25 shadow-soft transition hover:border-moss">
       <summary className="feed-card-summary grid cursor-pointer list-none gap-4 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-3">
@@ -143,7 +144,9 @@ function FeedCardItem({ card }: { card: FeedCard }) {
                 {deadlineState.label}
               </span>
             </div>
-            <h2 className="text-[1.35rem] font-bold leading-snug tracking-normal text-ink">{card.title}</h2>
+            <h2 className="feed-card-title text-[1.35rem] font-bold leading-snug tracking-normal text-ink" title={card.title}>
+              {title}
+            </h2>
           </div>
           <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-paper/70 text-moss transition group-open:rotate-180">
             <ChevronDown className="h-4 w-4" aria-hidden />
@@ -228,6 +231,12 @@ function formatDateTime(value: string) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(new Date(value));
+}
+
+function clampCardTitle(title: string) {
+  const maxLength = 38;
+
+  return title.length > maxLength ? `${title.slice(0, maxLength).trimEnd()}...` : title;
 }
 
 function getDeadlineState(value: string) {
