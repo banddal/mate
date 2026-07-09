@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const cardFeedFilterSchema = z.object({
-  period: z.enum(["all", "ten", "hour", "today"]).default("all"),
+  period: z.enum(["all", "ten", "hour", "today", "week"]).default("all"),
   category: z.string().trim().max(40).optional()
 });
 
@@ -51,6 +51,12 @@ export function getFeedDateWindow(period: CardFeedFilter["period"]): FeedDateWin
   if (period === "today") {
     const end = new Date(now);
     end.setHours(23, 59, 59, 999);
+    return { deadlineFrom: now, deadlineTo: end };
+  }
+
+  if (period === "week") {
+    const end = new Date(now);
+    end.setDate(end.getDate() + 7);
     return { deadlineFrom: now, deadlineTo: end };
   }
 

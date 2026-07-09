@@ -65,14 +65,25 @@ h1 {
 }
 
 .feed-card-title {
-  display: -webkit-box;
-  max-height: 2.7em;
+  display: block;
   overflow: hidden;
+  color: var(--feed-card-title-color, #f5f1ee);
   line-height: 1.2;
-  line-clamp: 2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   word-break: keep-all;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+}
+
+.feed-card-chip {
+  color: var(--feed-card-muted-color, rgba(245, 241, 238, 0.62));
+}
+
+.feed-card-offer {
+  color: var(--feed-card-text-color, rgba(245, 241, 238, 0.76));
+}
+
+.feed-card-meta {
+  color: var(--feed-card-muted-color, rgba(245, 241, 238, 0.62));
 }
 
 .feed-card-panel {
