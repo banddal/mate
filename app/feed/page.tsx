@@ -142,7 +142,6 @@ function FeedCardItem({ card }: { card: FeedCard }) {
       className="feed-card-shell group rounded-lg border border-line shadow-soft transition hover:border-moss/45"
       style={
         {
-          "--feed-card-alpha": urgency.alpha,
           "--feed-card-title-color": urgency.titleColor,
           "--feed-card-text-color": urgency.textColor,
           "--feed-card-muted-color": urgency.mutedColor
@@ -177,7 +176,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
         </div>
       </summary>
 
-      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-white/58 p-3">
+      <div className="feed-card-panel mx-3 mb-3 space-y-3 rounded-lg border border-line bg-white p-3">
         <div className="feed-card-meta grid gap-2 text-xs">
           <CardMeta icon={<CalendarDays className="h-4 w-4" aria-hidden />}>
             {formatDateTime(card.event_datetime)}
@@ -251,33 +250,12 @@ function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
-function getDeadlineVisualState(value: string) {
-  const remainingMs = new Date(value).getTime() - Date.now();
-  const remainingMinutes = Math.ceil(remainingMs / (1000 * 60));
-  const remainingHours = remainingMinutes / 60;
-
-  if (remainingMinutes <= 2) {
-    return getFeedCardTone("0.99", "0.98", "0.88", "0.72");
-  }
-
-  if (remainingMinutes <= 10) {
-    return getFeedCardTone("0.94", "0.94", "0.82", "0.66");
-  }
-
-  if (remainingHours <= 1) {
-    return getFeedCardTone("0.88", "0.9", "0.76", "0.62");
-  }
-
-  if (remainingHours <= 24) {
-    return getFeedCardTone("0.82", "0.84", "0.68", "0.54");
-  }
-
-  return getFeedCardTone("0.76", "0.78", "0.6", "0.46");
+function getDeadlineVisualState(_value: string) {
+  return getFeedCardTone("0.98", "0.76", "0.58");
 }
 
-function getFeedCardTone(alpha: string, titleAlpha: string, textAlpha: string, mutedAlpha: string) {
+function getFeedCardTone(titleAlpha: string, textAlpha: string, mutedAlpha: string) {
   return {
-    alpha,
     titleColor: `rgba(59, 43, 32, ${titleAlpha})`,
     textColor: `rgba(59, 43, 32, ${textAlpha})`,
     mutedColor: `rgba(59, 43, 32, ${mutedAlpha})`

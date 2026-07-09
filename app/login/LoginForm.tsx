@@ -64,7 +64,7 @@ export function LoginForm({ canUseDevAuth, initialError }: LoginFormProps) {
 
           <div className="space-y-4 pt-8">
             <h1 className="text-4xl font-semibold leading-tight tracking-normal text-ink/85">
-              같이 가요 오늘 <span className="font-extrabold text-white">Mate</span>
+              같이 가요 오늘 <span className="font-extrabold text-moss">Mate</span>
             </h1>
             <p className="max-w-sm text-[13px] leading-[1.5] text-ink/70">
               스포츠, 전시 등 다양한 주제의 Mate를 만나 보세요. 단 한번, 모임이 끝나면 기록은 사라집니다.
