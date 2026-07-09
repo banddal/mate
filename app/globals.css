@@ -52,13 +52,16 @@ h1 {
 }
 
 .feed-card-shell {
-  background-color: rgba(255, 255, 255, 0.14) !important;
+  background-color: rgba(255, 255, 255, var(--feed-card-alpha, 0.18)) !important;
 }
 
 .feed-card-title {
   display: -webkit-box;
-  max-height: 3.05em;
+  max-height: 2.7em;
   overflow: hidden;
+  line-height: 1.2;
+  line-clamp: 2;
+  word-break: keep-all;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }

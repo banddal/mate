@@ -125,10 +125,14 @@ function FilterChip({
 
 function FeedCardItem({ card }: { card: FeedCard }) {
   const deadlineState = getDeadlineState(card.deadline_at);
+  const urgency = getDeadlineVisualState(card.deadline_at);
   const title = clampCardTitle(card.title);
 
   return (
-    <details className="feed-card-shell group rounded-lg border border-white/25 shadow-soft transition hover:border-moss">
+    <details
+      className="feed-card-shell group rounded-lg border border-white/25 shadow-soft transition hover:border-moss"
+      style={{ "--feed-card-alpha": urgency.alpha } as React.CSSProperties}
+    >
       <summary className="feed-card-summary grid cursor-pointer list-none gap-4 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-3">
@@ -142,6 +146,9 @@ function FeedCardItem({ card }: { card: FeedCard }) {
                 }`}
               >
                 {deadlineState.label}
+              </span>
+              <span className="rounded-full bg-paper/70 px-2.5 py-1 text-xs font-semibold text-ink/55">
+                {urgency.label}
               </span>
             </div>
             <h2 className="feed-card-title text-[1.35rem] font-bold leading-snug tracking-normal text-ink" title={card.title}>
@@ -234,9 +241,33 @@ function formatDateTime(value: string) {
 }
 
 function clampCardTitle(title: string) {
-  const maxLength = 38;
+  const maxLength = 24;
 
   return title.length > maxLength ? `${title.slice(0, maxLength).trimEnd()}...` : title;
+}
+
+function getDeadlineVisualState(value: string) {
+  const remainingMs = new Date(value).getTime() - Date.now();
+  const remainingMinutes = Math.ceil(remainingMs / (1000 * 60));
+  const remainingHours = remainingMinutes / 60;
+
+  if (remainingMinutes <= 2) {
+    return { label: "소멸 직전", alpha: "0.07" };
+  }
+
+  if (remainingHours <= 1) {
+    return { label: "매우 임박", alpha: "0.10" };
+  }
+
+  if (remainingHours <= 6) {
+    return { label: "임박", alpha: "0.14" };
+  }
+
+  if (remainingHours <= 24) {
+    return { label: "오늘 안에", alpha: "0.18" };
+  }
+
+  return { label: "여유 있음", alpha: "0.28" };
 }
 
 function getDeadlineState(value: string) {
