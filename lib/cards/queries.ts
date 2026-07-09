@@ -41,7 +41,7 @@ export async function getOpenCards(filters: CardFeedFilter) {
       "id, title, category, level, event_datetime, location, capacity, host_offer, cost_info, description, deadline_at, status, created_at"
     )
     .eq("status", "open")
-    .order(filters.period === "deadline" ? "deadline_at" : "event_datetime", {
+    .order(filters.period === "all" ? "event_datetime" : "deadline_at", {
       ascending: true
     })
     .limit(50);
@@ -50,19 +50,19 @@ export async function getOpenCards(filters: CardFeedFilter) {
     query = query.eq("category", filters.category);
   }
 
-  if ("from" in window && window.from) {
+  if (window.from) {
     query = query.gte("event_datetime", window.from.toISOString());
   }
 
-  if ("to" in window && window.to) {
+  if (window.to) {
     query = query.lte("event_datetime", window.to.toISOString());
   }
 
-  if ("deadlineFrom" in window && window.deadlineFrom) {
+  if (window.deadlineFrom) {
     query = query.gte("deadline_at", window.deadlineFrom.toISOString());
   }
 
-  if ("deadlineTo" in window && window.deadlineTo) {
+  if (window.deadlineTo) {
     query = query.lte("deadline_at", window.deadlineTo.toISOString());
   }
 
@@ -121,19 +121,19 @@ function getFilteredDemoFeedCards(filters: CardFeedFilter) {
       return false;
     }
 
-    if ("from" in window && window.from && eventTime < window.from.getTime()) {
+    if (window.from && eventTime < window.from.getTime()) {
       return false;
     }
 
-    if ("to" in window && window.to && eventTime > window.to.getTime()) {
+    if (window.to && eventTime > window.to.getTime()) {
       return false;
     }
 
-    if ("deadlineFrom" in window && window.deadlineFrom && deadlineTime < window.deadlineFrom.getTime()) {
+    if (window.deadlineFrom && deadlineTime < window.deadlineFrom.getTime()) {
       return false;
     }
 
-    if ("deadlineTo" in window && window.deadlineTo && deadlineTime > window.deadlineTo.getTime()) {
+    if (window.deadlineTo && deadlineTime > window.deadlineTo.getTime()) {
       return false;
     }
 

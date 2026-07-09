@@ -18,9 +18,9 @@ export const dynamic = "force-dynamic";
 
 const periodTabs = [
   { label: "전체", value: "all" },
-  { label: "오늘", value: "today" },
-  { label: "이번주", value: "week" },
-  { label: "마감임박", value: "deadline" }
+  { label: "10분 내", value: "ten" },
+  { label: "한시간 내", value: "hour" },
+  { label: "오늘 내", value: "today" }
 ] as const;
 
 const categoryTabs = ["야구 직관", "공연", "전시", "페스티벌", "맛집", "카페", "러닝"];
@@ -58,30 +58,30 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             </div>
           </div>
 
-          <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="기간 필터">
+          <nav className="grid grid-cols-4 gap-2" aria-label="마감 시간 필터">
             {periodTabs.map((tab) => (
-              <FilterChip
+              <TimeFilterButton
                 key={tab.value}
                 href={buildFeedHref({ period: tab.value, category: filters.category })}
                 active={filters.period === tab.value}
               >
                 {tab.label}
-              </FilterChip>
+              </TimeFilterButton>
             ))}
           </nav>
 
-          <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="카테고리 필터">
-            <FilterChip href={buildFeedHref({ period: filters.period })} active={!filters.category}>
-              전체 카테고리
-            </FilterChip>
+          <nav className="feed-topic-strip flex gap-2 overflow-x-auto pb-1" aria-label="주제 필터">
+            <TopicChip href={buildFeedHref({ period: filters.period })} active={!filters.category}>
+              전체 주제
+            </TopicChip>
             {categoryTabs.map((category) => (
-              <FilterChip
+              <TopicChip
                 key={category}
                 href={buildFeedHref({ period: filters.period, category })}
                 active={filters.category === category}
               >
                 {category}
-              </FilterChip>
+              </TopicChip>
             ))}
           </nav>
         </header>
@@ -100,7 +100,30 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   );
 }
 
-function FilterChip({
+function TimeFilterButton({
+  href,
+  active,
+  children
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`flex min-h-11 items-center justify-center rounded-md border px-2 text-sm font-semibold transition ${
+        active
+          ? "border-white/70 bg-white/25 text-ink shadow-soft"
+          : "border-white/20 bg-white/10 text-ink/68 hover:border-white/40 hover:bg-white/20"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function TopicChip({
   href,
   active,
   children
@@ -114,8 +137,8 @@ function FilterChip({
       href={href}
       className={`flex min-h-10 shrink-0 items-center rounded-full border px-4 text-sm font-semibold transition ${
         active
-          ? "border-ink bg-ink text-white"
-          : "border-line bg-white text-ink/72 hover:border-moss"
+          ? "border-white/60 bg-white/25 text-ink shadow-soft"
+          : "border-white/20 bg-white/10 text-ink/70 hover:border-white/40 hover:bg-white/20"
       }`}
     >
       {children}
@@ -146,9 +169,6 @@ function FeedCardItem({ card }: { card: FeedCard }) {
                 }`}
               >
                 {deadlineState.label}
-              </span>
-              <span className="rounded-full bg-paper/70 px-2.5 py-1 text-xs font-semibold text-ink/55">
-                {urgency.label}
               </span>
             </div>
             <h2 className="feed-card-title text-[1.35rem] font-bold leading-snug tracking-normal text-ink" title={card.title}>
@@ -252,22 +272,22 @@ function getDeadlineVisualState(value: string) {
   const remainingHours = remainingMinutes / 60;
 
   if (remainingMinutes <= 2) {
-    return { label: "소멸 직전", alpha: "0.07" };
+    return { alpha: "0.04" };
+  }
+
+  if (remainingMinutes <= 10) {
+    return { alpha: "0.09" };
   }
 
   if (remainingHours <= 1) {
-    return { label: "매우 임박", alpha: "0.10" };
-  }
-
-  if (remainingHours <= 6) {
-    return { label: "임박", alpha: "0.14" };
+    return { alpha: "0.18" };
   }
 
   if (remainingHours <= 24) {
-    return { label: "오늘 안에", alpha: "0.18" };
+    return { alpha: "0.34" };
   }
 
-  return { label: "여유 있음", alpha: "0.28" };
+  return { alpha: "0.56" };
 }
 
 function getDeadlineState(value: string) {
