@@ -40,7 +40,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     <main className="min-h-dvh pb-[calc(88px+env(safe-area-inset-bottom))]">
       <section className="mx-auto w-full max-w-md px-5 pt-[calc(18px+env(safe-area-inset-top))]">
         <header className="space-y-3 pb-4">
-          <h1 className="whitespace-nowrap text-[18px] font-bold leading-7 tracking-normal text-white">
+          <h1 className="whitespace-nowrap text-center text-[19px] font-bold leading-7 tracking-normal text-white">
             {profile?.nickname ?? "Mate"}님을 기다리는 오늘 <span className="feed-title-accent">Mates</span>
           </h1>
 
