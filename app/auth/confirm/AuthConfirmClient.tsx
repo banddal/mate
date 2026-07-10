@@ -8,7 +8,11 @@ import { captureEvent } from "@/lib/analytics";
 
 type OtpType = "signup" | "invite" | "magiclink" | "recovery" | "email_change" | "email";
 
-export function AuthConfirmClient() {
+type AuthConfirmClientProps = {
+  canUseDevAuth: boolean;
+};
+
+export function AuthConfirmClient({ canUseDevAuth }: AuthConfirmClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [message, setMessage] = useState("로그인 정보를 확인하고 있어요.");
@@ -127,12 +131,14 @@ export function AuthConfirmClient() {
             >
               Google 로그인 다시 하기
             </a>
-            <a
-              href="/dev-login"
-              className="flex min-h-11 items-center justify-center rounded-md border border-line bg-paper px-4 text-sm font-semibold text-ink"
-            >
-              개발용 계정으로 계속 검증하기
-            </a>
+            {canUseDevAuth ? (
+              <a
+                href="/dev-login"
+                className="flex min-h-11 items-center justify-center rounded-md border border-line bg-paper px-4 text-sm font-semibold text-ink"
+              >
+                개발용 계정으로 계속 검증하기
+              </a>
+            ) : null}
           </div>
         ) : null}
       </section>

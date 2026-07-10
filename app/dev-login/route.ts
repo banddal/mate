@@ -1,10 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DEV_AUTH_COOKIE, DEV_AUTH_FALLBACK_USER_ID } from "@/lib/dev-auth";
+import { DEV_AUTH_COOKIE, DEV_AUTH_FALLBACK_USER_ID, isDevAuthBypassEnabled } from "@/lib/dev-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
+  if (!isDevAuthBypassEnabled()) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   const next = request.nextUrl.searchParams.get("next") ?? "/feed";
   const response = NextResponse.redirect(new URL(next, request.url));
 
