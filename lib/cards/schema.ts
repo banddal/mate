@@ -28,9 +28,9 @@ export const createCardSchema = z
     hostOffer: z
       .string()
       .trim()
-      .min(2, "상황에 묶인 것을 2자 이상 입력해주세요.")
-      .max(120, "상황에 묶인 것은 120자 이내로 입력해주세요."),
-    costInfo: z.string().trim().max(80, "비용 안내는 80자 이내로 입력해주세요.").optional(),
+      .min(2, "Mate의 약속을 2자 이상 입력해주세요.")
+      .max(120, "Mate의 약속은 120자 이내로 입력해주세요."),
+    costInfo: z.string().trim().max(80, "비용 제안은 80자 이내로 입력해주세요.").optional(),
     description: z
       .string()
       .trim()

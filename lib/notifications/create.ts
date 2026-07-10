@@ -7,7 +7,9 @@ export type NotificationType =
   | "application_resolved"
   | "subscription_match"
   | "report_status_change"
-  | "card_review_resolved";
+  | "card_review_resolved"
+  | "room_created"
+  | "room_message";
 
 export type CreateNotificationInput = {
   userId: string;

@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { Loader2, Send } from "lucide-react";
 import { captureEvent } from "@/lib/analytics";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type RoomMessage = {
   id: string;
@@ -23,16 +24,49 @@ type ApiResponse<T> = {
 };
 
 export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelProps) {
-  useEffect(() => {
-    captureEvent("room_entered", { roomId });
-    // 마운트 시 1회만 캡처한다.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const [messages, setMessages] = useState(initialMessages);
   const [body, setBody] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+
+  const refreshMessages = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/rooms/${roomId}/messages`, { cache: "no-store" });
+      const payload = (await response.json()) as ApiResponse<{ messages: RoomMessage[] }>;
+
+      if (response.ok && payload.data) {
+        setMessages(payload.data.messages);
+      }
+    } catch {
+      // 실시간 보조 갱신 실패는 조용히 무시한다.
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    captureEvent("room_entered", { roomId });
+  }, [roomId]);
+
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    const channel = supabase
+      .channel(`room-messages-${roomId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `room_id=eq.${roomId}` },
+        () => {
+          void refreshMessages();
+        }
+      )
+      .subscribe();
+    const interval = window.setInterval(() => {
+      void refreshMessages();
+    }, 5000);
+
+    return () => {
+      window.clearInterval(interval);
+      void supabase.removeChannel(channel);
+    };
+  }, [refreshMessages, roomId]);
 
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,8 +89,9 @@ export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelPr
       }
 
       const nextMessage = payload.data.message;
-      setMessages((current) => [...current, nextMessage]);
+      setMessages((current) => mergeMessages(current, [nextMessage]));
       setBody("");
+      void refreshMessages();
     } catch {
       setError("메시지 전송 중 문제가 생겼어요.");
     } finally {
@@ -67,7 +102,7 @@ export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelPr
   return (
     <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
       <div>
-        <h2 className="text-base font-bold tracking-normal text-ink">만남 조율</h2>
+        <h2 className="text-base font-bold tracking-normal text-ink">Mate 메시지</h2>
         <p className="mt-1 text-sm leading-6 text-ink/60">
           도착 시간, 입구, 자리 확인처럼 만남에 필요한 내용만 남겨주세요.
         </p>
@@ -114,5 +149,17 @@ export function RoomMessagePanel({ roomId, initialMessages }: RoomMessagePanelPr
         </button>
       </form>
     </section>
+  );
+}
+
+function mergeMessages(current: RoomMessage[], incoming: RoomMessage[]) {
+  const map = new Map(current.map((message) => [message.id, message]));
+
+  for (const message of incoming) {
+    map.set(message.id, message);
+  }
+
+  return Array.from(map.values()).sort(
+    (first, second) => new Date(first.created_at).getTime() - new Date(second.created_at).getTime()
   );
 }

@@ -61,11 +61,12 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
   const admin = createServiceRoleSupabaseClient();
   const { data: card, error: cardError } = await admin
     .from("cards")
-    .select("id, host_id, status, capacity")
+    .select("id, host_id, title, status, capacity")
     .eq("id", params.id)
     .maybeSingle<{
       id: string;
       host_id: string;
+      title: string;
       status: string;
       capacity: number;
     }>();
@@ -179,8 +180,20 @@ export async function POST(request: Request, { params }: ApproveRouteContext) {
       cardId: card.id,
       payload: {
         cardId: card.id,
+        cardTitle: card.title,
         roomId: room.id,
         outcome: "approved"
+      }
+    });
+
+    await createNotification(admin, {
+      userId: application.applicant_id,
+      type: "room_created",
+      cardId: card.id,
+      payload: {
+        cardId: card.id,
+        cardTitle: card.title,
+        roomId: room.id
       }
     });
   } catch {

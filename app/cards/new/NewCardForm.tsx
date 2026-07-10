@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { ArrowLeft, CalendarClock, CheckCircle2, Loader2, MapPin, Ticket } from "lucide-react";
-import Link from "next/link";
+import { CalendarClock, CheckCircle2, Loader2, MapPin, Ticket } from "lucide-react";
 import { CARD_CATEGORY_OPTIONS } from "@/lib/cards/categories";
 import { captureEvent } from "@/lib/analytics";
+import { BottomNav } from "@/components/BottomNav";
+import { DateTimeApplyField } from "./DateTimeApplyField";
+import { BackLink } from "@/components/BackLink";
 
 type ApiResponse<T> = {
   data: T | null;
@@ -129,15 +131,12 @@ export function NewCardForm() {
   }
 
   return (
-    <main className="min-h-dvh px-5 pb-[calc(28px+env(safe-area-inset-bottom))] pt-[calc(24px+env(safe-area-inset-top))]">
+    <main className="min-h-dvh px-5 pb-[calc(96px+env(safe-area-inset-bottom))] pt-[calc(24px+env(safe-area-inset-top))]">
       <section className="mx-auto w-full max-w-md space-y-5">
         <header className="space-y-4">
-          <Link href="/feed" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-ink/70">
-            <ArrowLeft className="h-4 w-4" aria-hidden />
-            피드로 돌아가기
-          </Link>
+          <BackLink label="피드로 돌아가기" fallbackHref="/feed" />
           <div>
-            <p className="text-sm font-semibold text-moss">카드 만들기</p>
+            <p className="text-sm font-semibold text-moss">Mate 만들기</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight tracking-normal text-ink">
               같이 할 상황만 빠르게 열기
             </h1>
@@ -196,17 +195,11 @@ export function NewCardForm() {
               </select>
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="일시">
-                <input
-                  value={eventDatetime}
-                  onChange={(event) => setEventDatetime(event.target.value)}
-                  required
-                  type="datetime-local"
-                  className="field-input"
-                />
-              </Field>
-              <Field label="모집인원">
+            <Field label="일시">
+              <DateTimeApplyField value={eventDatetime} onApply={setEventDatetime} required />
+            </Field>
+
+            <Field label="모집인원">
                 <input
                   value={capacity}
                   onChange={(event) => setCapacity(Number(event.target.value))}
@@ -217,7 +210,6 @@ export function NewCardForm() {
                   className="field-input"
                 />
               </Field>
-            </div>
 
             <Field label="장소">
               <div className="flex min-h-12 items-center gap-2 rounded-md border border-line bg-paper/60 px-3 focus-within:border-moss">
@@ -235,9 +227,9 @@ export function NewCardForm() {
           </section>
 
           <section className="space-y-4 rounded-lg border border-line bg-white p-4 shadow-soft">
-            <StepLabel icon={<Ticket className="h-5 w-5" aria-hidden />} label="호스트가 건 것" />
+            <StepLabel icon={<Ticket className="h-5 w-5" aria-hidden />} label="호스트의 Mate 상세" />
 
-            <Field label="상황에 묶인 것">
+            <Field label="Mate의 약속">
               <input
                 value={hostOffer}
                 onChange={(event) => setHostOffer(event.target.value)}
@@ -248,7 +240,7 @@ export function NewCardForm() {
               />
             </Field>
 
-            <Field label="비용 안내">
+            <Field label="비용 제안">
               <input
                 value={costInfo}
                 onChange={(event) => setCostInfo(event.target.value)}
@@ -258,7 +250,7 @@ export function NewCardForm() {
               />
             </Field>
 
-            <Field label="설명">
+            <Field label="Mate 내용">
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
@@ -275,13 +267,7 @@ export function NewCardForm() {
             <StepLabel icon={<CheckCircle2 className="h-5 w-5" aria-hidden />} label="공개 전 확인" />
 
             <Field label="신청 마감시간">
-              <input
-                value={deadlineAt}
-                onChange={(event) => setDeadlineAt(event.target.value)}
-                required
-                type="datetime-local"
-                className="field-input"
-              />
+              <DateTimeApplyField value={deadlineAt} onApply={setDeadlineAt} required />
             </Field>
             <div className="rounded-md bg-paper/70 px-3 py-3 text-sm leading-6 text-ink/60">
               카드가 바로 공개되지 않으면 운영 검수 후 피드에 올라갑니다. 금지어 이유를 화면에 직접 노출하지는 않습니다.
@@ -297,10 +283,11 @@ export function NewCardForm() {
             className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md mate-cta px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
-            카드 열기
+            Mate 열기
           </button>
         </form>
       </section>
+      <BottomNav active="feed" />
     </main>
   );
 }

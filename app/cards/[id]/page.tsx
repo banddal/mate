@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, Hourglass, MapPin, Ticket, UsersRound } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock3, Hourglass, MapPin, Ticket, UsersRound } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { getCardDetail } from "@/lib/cards/queries";
 import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { ApplyCardSheet } from "./ApplyCardSheet";
 import { TrackEvent } from "@/components/TrackEvent";
+import { BottomNav } from "@/components/BottomNav";
+import { BackLink } from "@/components/BackLink";
 
 type CardDetailPageProps = {
   params: {
@@ -27,12 +29,9 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
   const canApply = card.status === "open" && !isHost && !myApplication;
 
   return (
-    <main className={`min-h-dvh px-5 pt-[calc(24px+env(safe-area-inset-top))] ${canApply ? "pb-72" : "pb-8"}`}>
+    <main className={`min-h-dvh px-5 pt-[calc(24px+env(safe-area-inset-top))] ${canApply ? "pb-72" : "pb-[calc(96px+env(safe-area-inset-bottom))]"}`}>
       <section className="mx-auto w-full max-w-md space-y-5">
-        <Link href="/feed" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-ink/70">
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          피드로 돌아가기
-        </Link>
+        <BackLink label="피드로 돌아가기" fallbackHref="/feed" />
 
         <div className="space-y-5 rounded-lg border border-line bg-white p-5 shadow-soft">
           <div className="space-y-3">
@@ -75,7 +74,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
           <section className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-semibold text-ink">
               <Ticket className="h-5 w-5 text-moss" aria-hidden />
-              호스트가 건 것
+              호스트의 Mate 상세
             </div>
             <p className="rounded-lg border border-line bg-white px-4 py-3 text-sm leading-6 text-ink/75">
               {card.host_offer}
@@ -107,6 +106,7 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
 
       <TrackEvent event="card_view" properties={{ cardId: card.id }} />
       {canApply ? <ApplyCardSheet cardId={card.id} /> : null}
+      <BottomNav active="feed" />
     </main>
   );
 }

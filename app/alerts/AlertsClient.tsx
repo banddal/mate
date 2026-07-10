@@ -493,7 +493,7 @@ function getNotificationIcon(type: string) {
     return <Clock3 className="h-4 w-4" aria-hidden />;
   }
 
-  if (type === "report_status_change") {
+  if (type === "report_status_change" || type === "room_created" || type === "room_message") {
     return <MessageCircle className="h-4 w-4" aria-hidden />;
   }
 
@@ -523,6 +523,14 @@ function getNotificationTitle(notification: NotificationRow) {
     return "카드 검수 결과";
   }
 
+  if (notification.type === "room_created") {
+    return "Mate Room 열림";
+  }
+
+  if (notification.type === "room_message") {
+    return "새 Mate 메시지";
+  }
+
   return cardTitle ? "활동 알림" : "새 알림";
 }
 
@@ -550,6 +558,16 @@ function getNotificationBody(notification: NotificationRow) {
 
   if (notification.type === "card_review_resolved") {
     return `${cardTitle ?? "내 카드"} 검수 결과가 나왔어요.`;
+  }
+
+  if (notification.type === "room_created") {
+    return `${cardTitle ?? "승인된 Mate"} Room이 열렸어요.`;
+  }
+
+  if (notification.type === "room_message") {
+    const senderName = getPayloadText(notification.payload, "senderName");
+    const preview = getPayloadText(notification.payload, "preview");
+    return `${senderName ?? "상대"}님: ${preview ?? "새 메시지가 도착했어요."}`;
   }
 
   return cardTitle ?? "확인할 활동이 생겼어요.";

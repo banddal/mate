@@ -106,7 +106,7 @@ export default async function MePage() {
             className="flex min-h-12 items-center justify-center gap-2 rounded-md mate-cta px-3 text-sm font-semibold text-white"
           >
             <Plus className="h-4 w-4" aria-hidden />
-            카드 만들기
+            Mate 만들기
           </Link>
           <Link
             href="/alerts"
@@ -203,7 +203,7 @@ export default async function MePage() {
               title="아직 만든 카드가 없어요"
               body="같이 하고 싶은 활동이 생기면 카드로 열고 신청자를 받을 수 있습니다."
               href="/cards/new"
-              action="카드 만들기"
+              action="Mate 만들기"
             />
           )}
         </section>

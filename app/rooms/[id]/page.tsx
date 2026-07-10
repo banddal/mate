@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, CalendarDays, ClipboardCheck, LockKeyhole, MapPin, MessageCircle, ShieldAlert } from "lucide-react";
+import { CalendarDays, ClipboardCheck, LockKeyhole, MapPin, MessageCircle, ShieldAlert } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
@@ -9,6 +9,8 @@ import { getRoomAccess } from "@/lib/rooms/access";
 import { RoomMessagePanel } from "./RoomMessagePanel";
 import { CloseRoomButton } from "./CloseRoomButton";
 import { ReportRoomForm } from "./ReportRoomForm";
+import { BottomNav } from "@/components/BottomNav";
+import { BackLink } from "@/components/BackLink";
 
 type RoomPageProps = {
   params: {
@@ -43,12 +45,9 @@ export default async function RoomPage({ params }: RoomPageProps) {
   const messages = await getMessages(room.id, user.id);
 
   return (
-    <main className="min-h-dvh px-5 pb-8 pt-[calc(24px+env(safe-area-inset-top))]">
+    <main className="min-h-dvh px-5 pb-[calc(96px+env(safe-area-inset-bottom))] pt-[calc(24px+env(safe-area-inset-top))]">
       <section className="mx-auto w-full max-w-md space-y-5">
-        <Link href="/me" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-ink/70">
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          내 활동으로 돌아가기
-        </Link>
+        <BackLink label="내 활동으로 돌아가기" fallbackHref="/me" />
 
         <header className="space-y-4">
           <div className="space-y-2">
@@ -98,6 +97,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         <CloseRoomButton roomId={room.id} />
         <ReportRoomForm roomId={room.id} />
       </section>
+      <BottomNav active="me" />
     </main>
   );
 }

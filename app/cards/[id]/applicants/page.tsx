@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, DoorOpen, ShieldCheck, UsersRound } from "lucide-react";
+import { BadgeCheck, DoorOpen, ShieldCheck, UsersRound } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { getCardDetail } from "@/lib/cards/queries";
 import { DEMO_CREATED_CARD_ID, DEMO_ROOM_ID, getDemoApplicants } from "@/lib/demo-data";
 import { ApproveApplicationButton } from "./ApproveApplicationButton";
+import { BottomNav } from "@/components/BottomNav";
+import { BackLink } from "@/components/BackLink";
 
 type ApplicantsPageProps = {
   params: {
@@ -44,12 +46,9 @@ export default async function ApplicantsPage({ params }: ApplicantsPageProps) {
   const canApproveMore = card.status === "open" && remainingSlots > 0;
 
   return (
-    <main className="min-h-dvh px-5 pb-8 pt-[calc(24px+env(safe-area-inset-top))]">
+    <main className="min-h-dvh px-5 pb-[calc(96px+env(safe-area-inset-bottom))] pt-[calc(24px+env(safe-area-inset-top))]">
       <section className="mx-auto w-full max-w-md space-y-5">
-        <Link href={`/cards/${params.id}`} className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-ink/70">
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          카드로 돌아가기
-        </Link>
+        <BackLink label="카드로 돌아가기" fallbackHref={`/cards/${params.id}`} />
 
         <header className="space-y-2">
           <p className="text-sm font-semibold text-moss">신청자 검토</p>
@@ -133,6 +132,7 @@ export default async function ApplicantsPage({ params }: ApplicantsPageProps) {
           )}
         </div>
       </section>
+      <BottomNav active="me" />
     </main>
   );
 }

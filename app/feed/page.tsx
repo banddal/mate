@@ -71,7 +71,14 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             ))}
           </TopicScroller>
         </header>
-
+        <div className="mb-3 flex justify-end">
+          <Link
+            href="/cards/new"
+            className="inline-flex min-h-8 items-center justify-center rounded-md border border-line bg-white/75 px-3 text-xs font-bold text-ink/70 shadow-soft transition hover:border-moss/35 hover:text-moss"
+          >
+            Mate 만들기
+          </Link>
+        </div>
         {cards.length > 0 ? (
           <div className="space-y-2.5">
             {cards.map((card) => (
@@ -183,7 +190,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
           </CardMeta>
           <CardMeta icon={<MapPin className="h-4 w-4" aria-hidden />}>{card.location}</CardMeta>
           <CardMeta icon={<Ticket className="h-4 w-4" aria-hidden />}>
-            {card.capacity}명까지 · {card.cost_info ?? "비용 안내 없음"}
+            {card.capacity}명까지 · {card.cost_info ?? "비용 제안 없음"}
           </CardMeta>
           <CardMeta icon={<Clock3 className="h-4 w-4" aria-hidden />}>
             마감 {formatDateTime(card.deadline_at)}

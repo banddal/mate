@@ -69,6 +69,21 @@ function getNotificationCopy(type, payload) {
     };
   }
 
+  if (type === "room_created") {
+    return {
+      title: "Mate Room이 열렸어요",
+      body: payload.cardTitle ? `${payload.cardTitle} Room에서 만남 정보를 확인해보세요.` : "확정된 Room에서 만남 정보를 확인해보세요.",
+      url: payload.roomId ? `/rooms/${payload.roomId}` : "/me"
+    };
+  }
+
+  if (type === "room_message") {
+    return {
+      title: "새 Mate 메시지",
+      body: payload.senderName ? `${payload.senderName}: ${payload.preview || "새 메시지가 도착했어요."}` : payload.preview || "새 메시지가 도착했어요.",
+      url: payload.roomId ? `/rooms/${payload.roomId}` : "/me"
+    };
+  }
   if (type === "report_status_change") {
     return {
       title: "신고 처리 상태가 바뀌었어요",
