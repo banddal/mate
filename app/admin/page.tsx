@@ -411,7 +411,7 @@ function BannedWordsSection({ bannedWords }: { bannedWords: BannedWord[] }) {
                       className={
                         bannedWord.severity === "block"
                           ? "rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700"
-                          : "rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700"
+                          : "rounded-full bg-paper px-2 py-0.5 text-[11px] font-semibold text-ink/55"
                       }
                     >
                       {bannedWord.severity === "block" ? "차단" : "검수"}

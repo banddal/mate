@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         ink: "#3b2b20",
-        paper: "#fff7df",
+        paper: "#f4f3f1",
         warm: "rgba(255,255,255,0.62)",
         line: "rgba(159,109,179,0.18)",
         moss: "#cf5fa7",
@@ -21,7 +21,7 @@ const config: Config = {
         surface: "rgba(255,255,255,0.68)"
       },
       boxShadow: {
-        soft: "0 16px 36px rgba(127, 83, 38, 0.14)"
+        soft: "0 16px 36px rgba(78, 72, 84, 0.11)"
       },
       fontFamily: {
         sans: ["ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],

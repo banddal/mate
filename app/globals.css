@@ -13,7 +13,7 @@ select {
 }
 
 select option {
-  background-color: #fffaf0;
+  background-color: #f4f3f1;
   color: #3b2b20;
 }
 
@@ -240,7 +240,7 @@ h1 {
 }
 
 .bg-paper {
-  background-color: rgba(255, 250, 235, 0.94) !important;
+  background-color: rgba(244, 243, 241, 0.94) !important;
 }
 
 .bg-ink {
