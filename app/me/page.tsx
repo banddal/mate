@@ -15,7 +15,7 @@ import {
   UserRound
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
-import { isAdminUser } from "@/lib/auth/admin";
+import { diagnoseAdminLookup, isAdminUser } from "@/lib/auth/admin";
 import { hasServiceEnv } from "@/lib/env";
 import { DEV_AUTH_FALLBACK_USER_ID } from "@/lib/dev-auth";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
@@ -51,10 +51,11 @@ type NextAction = {
 
 export default async function MePage() {
   const { user, profile } = await requireOnboarded();
-  const [cards, rooms, isAdmin] = await Promise.all([
+  const [cards, rooms, isAdmin, adminLookup] = await Promise.all([
     getActivityCards(user.id),
     getActivityRooms(user.id),
-    isAdminUser(user.id)
+    isAdminUser(user.id),
+    diagnoseAdminLookup(user.id)
   ]);
 
   const hostedCards = cards.filter((card) => card.role === "host");
@@ -99,6 +100,7 @@ export default async function MePage() {
             <p>service env: {hasServiceEnv() ? "ok" : "MISSING (SUPABASE_SERVICE_ROLE_KEY 확인)"}</p>
             <p>vercel env: {process.env.VERCEL_ENV ?? "-"}</p>
             <p>admin 판정: {isAdmin ? "true" : "false"}</p>
+            <p>admin_users 조회: {adminLookup}</p>
           </section>
 
           {isAdmin ? (

@@ -19,13 +19,37 @@ export async function isAdminUser(userId: string) {
   }
 
   const admin = createServiceRoleSupabaseClient();
-  const { data: adminUser } = await admin
+  const { data: adminUser, error } = await admin
     .from("admin_users")
     .select("user_id")
     .eq("user_id", userId)
     .maybeSingle();
 
+  if (error) {
+    console.error("[isAdminUser] admin_users lookup failed:", error.code, error.message);
+  }
+
   return Boolean(adminUser);
+}
+
+// TODO(R102): 진단 전용 — admin 접근 문제 해결 후 제거
+export async function diagnoseAdminLookup(userId: string) {
+  if (!hasServiceEnv()) {
+    return "service env missing";
+  }
+
+  const admin = createServiceRoleSupabaseClient();
+  const { data, error } = await admin
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    return `query error: ${error.code ?? "?"} ${error.message}`;
+  }
+
+  return data ? "row found" : "row not found (RLS 차단 가능성: service key가 anon 키일 수 있음)";
 }
 
 export async function requireAdmin() {
