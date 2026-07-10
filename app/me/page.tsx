@@ -15,9 +15,8 @@ import {
   UserRound
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/auth/session";
-import { diagnoseAdminLookup, isAdminUser } from "@/lib/auth/admin";
+import { isAdminUser } from "@/lib/auth/admin";
 import { hasServiceEnv } from "@/lib/env";
-import { DEV_AUTH_FALLBACK_USER_ID } from "@/lib/dev-auth";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { getDemoActivityCards, getDemoActivityRooms } from "@/lib/demo-data";
 import { BottomNav } from "@/components/BottomNav";
@@ -51,11 +50,10 @@ type NextAction = {
 
 export default async function MePage() {
   const { user, profile } = await requireOnboarded();
-  const [cards, rooms, isAdmin, adminLookup] = await Promise.all([
+  const [cards, rooms, isAdmin] = await Promise.all([
     getActivityCards(user.id),
     getActivityRooms(user.id),
-    isAdminUser(user.id),
-    diagnoseAdminLookup(user.id)
+    isAdminUser(user.id)
   ]);
 
   const hostedCards = cards.filter((card) => card.role === "host");
@@ -89,18 +87,6 @@ export default async function MePage() {
             <Metric label="처리할 일" value={nextActions.length} tone={nextActions.length > 0 ? "strong" : "calm"} />
             <Metric label="진행 Room" value={activeRooms.length} tone="calm" />
             <Metric label="승인 신청" value={approvedApplications.length} tone="calm" />
-          </section>
-
-          {/* TODO(R102): admin 접근 문제 해결 후 이 진단 블록 제거 */}
-          <section className="rounded-md border border-line bg-white/70 p-3 text-[11px] leading-5 text-ink/55">
-            <p className="font-semibold text-ink/70">진단 (본인에게만 표시)</p>
-            <p>uid: {user.id}</p>
-            <p>email: {user.email ?? "-"}</p>
-            <p>dev세션 여부: {user.id === DEV_AUTH_FALLBACK_USER_ID ? "YES (dev 쿠키 활성)" : "no"}</p>
-            <p>service env: {hasServiceEnv() ? "ok" : "MISSING (SUPABASE_SERVICE_ROLE_KEY 확인)"}</p>
-            <p>vercel env: {process.env.VERCEL_ENV ?? "-"}</p>
-            <p>admin 판정: {isAdmin ? "true" : "false"}</p>
-            <p>admin_users 조회: {adminLookup}</p>
           </section>
 
           {isAdmin ? (
