@@ -112,6 +112,16 @@ export async function POST(request: Request, { params }: ApplyRouteContext) {
         return fail({ code: "ALREADY_APPLIED", message: "이미 신청한 카드입니다." }, 409);
       }
 
+      // applicant_id FK 위반 → profiles 행이 없는 세션 (예: dev 세션으로 신청 시도)
+      if (insertError.code === "23503") {
+        console.error("[apply] FK violation - applicant profile missing:", user.id);
+        return fail(
+          { code: "PROFILE_MISSING", message: "프로필 정보를 찾지 못했어요. 로그아웃 후 Google로 다시 로그인해주세요." },
+          409
+        );
+      }
+
+      console.error("[apply] insert failed:", insertError.code, insertError.message);
       return fail({ code: "APPLICATION_CREATE_FAILED", message: "신청을 저장하지 못했어요." }, 500);
     }
 
