@@ -14,6 +14,7 @@ import { getOpenCards, type FeedCard } from "@/lib/cards/queries";
 import { BottomNav } from "@/components/BottomNav";
 import { TopicScroller } from "./TopicScroller";
 import { CARD_CATEGORY_LABELS } from "@/lib/cards/categories";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -214,15 +215,12 @@ function CardMeta({ icon, children }: { icon: React.ReactNode; children: React.R
 
 function EmptyFeed() {
   return (
-    <section className="rounded-lg border border-line bg-white p-6 text-center shadow-soft">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-paper text-moss">
-        <RotateCw className="h-5 w-5" aria-hidden />
-      </div>
-      <h2 className="mt-4 text-xl font-bold tracking-normal text-ink">열린 카드가 아직 없어요</h2>
-      <p className="mt-2 leading-7 text-ink/68">
-        필터를 바꾸면 지금 열려 있는 다른 Mate 상황을 볼 수 있어요.
-      </p>
-    </section>
+    <EmptyState
+      align="center"
+      icon={<RotateCw className="h-5 w-5" aria-hidden />}
+      title="열린 카드가 아직 없어요"
+      body="필터를 바꾸면 지금 열려 있는 다른 Mate 상황을 볼 수 있어요."
+    />
   );
 }
 

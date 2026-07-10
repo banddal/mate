@@ -7,6 +7,8 @@ import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { ApplyCardSheet } from "./ApplyCardSheet";
 import { TrackEvent } from "@/components/TrackEvent";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { formatCardStatus } from "@/lib/cards/status";
 
 type CardDetailPageProps = {
   params: {
@@ -37,17 +39,9 @@ export default async function CardDetailPage({ params }: CardDetailPageProps) {
         <div className="space-y-5 rounded-lg border border-line bg-white p-5 shadow-soft">
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-moss/12 px-3 py-1 text-xs font-semibold text-moss">
-                {card.category}
-              </span>
-              <span className="rounded-full bg-paper px-3 py-1 text-xs font-semibold text-ink/60">
-                {card.level}
-              </span>
-              {isHost ? (
-                <span className="rounded-full bg-sun/15 px-3 py-1 text-xs font-semibold text-ink/70">
-                  내가 연 카드
-                </span>
-              ) : null}
+              <StatusChip tone="moss">{card.category}</StatusChip>
+              <StatusChip tone="paper">{card.level}</StatusChip>
+              {isHost ? <StatusChip tone="sun">내가 연 카드</StatusChip> : null}
             </div>
             <h1 className="text-3xl font-bold leading-tight tracking-normal text-ink">{card.title}</h1>
             <p className="leading-7 text-ink/70">{card.description}</p>
@@ -204,26 +198,6 @@ async function getMyApplicationStatus(cardId: string, userId: string) {
     .maybeSingle<{ id: string; status: "pending" | "approved" | "rejected_closed" }>();
 
   return data ?? null;
-}
-
-function formatCardStatus(status: string) {
-  if (status === "pending_review") {
-    return "검수 중";
-  }
-
-  if (status === "closed") {
-    return "마감";
-  }
-
-  if (status === "rejected") {
-    return "반려";
-  }
-
-  if (status === "cancelled") {
-    return "취소";
-  }
-
-  return "모집 중";
 }
 
 function formatDateTime(value: string) {

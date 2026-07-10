@@ -7,6 +7,7 @@ import { hasServiceEnv } from "@/lib/env";
 import { getCardDetail } from "@/lib/cards/queries";
 import { DEMO_CREATED_CARD_ID, DEMO_ROOM_ID, getDemoApplicants } from "@/lib/demo-data";
 import { ApproveApplicationButton } from "./ApproveApplicationButton";
+import { StatusChip } from "@/components/ui/StatusChip";
 
 type ApplicantsPageProps = {
   params: {
@@ -106,10 +107,10 @@ export default async function ApplicantsPage({ params }: ApplicantsPageProps) {
                     <p className="text-xs font-medium text-ink/45">{formatStatus(applicant.status)}</p>
                   </div>
                   {applicant.status === "approved" ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-moss/10 px-2 py-1 text-xs font-semibold text-moss">
+                    <StatusChip tone="moss">
                       <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
                       승인됨
-                    </span>
+                    </StatusChip>
                   ) : null}
                 </div>
 

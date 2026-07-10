@@ -20,6 +20,9 @@ import { hasServiceEnv } from "@/lib/env";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { getDemoActivityCards, getDemoActivityRooms } from "@/lib/demo-data";
 import { BottomNav } from "@/components/BottomNav";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusChip } from "@/components/ui/StatusChip";
+import { formatApplicationStatus, formatCardStatus as formatCardStatusLabel } from "@/lib/cards/status";
 
 export const dynamic = "force-dynamic";
 
@@ -134,9 +137,7 @@ export default async function MePage() {
                       <p className="text-sm font-semibold text-ink">{action.title}</p>
                       <p className="text-sm leading-6 text-ink/60">{action.body}</p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-white">
-                      {action.label}
-                    </span>
+                    <StatusChip tone="ink">{action.label}</StatusChip>
                   </div>
                 </Link>
               ))}
@@ -289,7 +290,7 @@ function ActivityRow({
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-start justify-between gap-3">
             <p className="text-xs font-semibold text-ink/45">{eyebrow}</p>
-            <span className="shrink-0 rounded-full bg-paper px-2 py-1 text-xs font-semibold text-ink/55">{badge}</span>
+            <StatusChip tone="paper">{badge}</StatusChip>
           </div>
           <p className="truncate text-sm font-semibold text-ink">{title}</p>
           <p className="flex items-center gap-1.5 text-xs text-ink/50">
@@ -299,31 +300,6 @@ function ActivityRow({
         </div>
       </div>
     </Link>
-  );
-}
-
-function EmptyState({
-  icon,
-  title,
-  body,
-  href,
-  action
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-  href: string;
-  action: string;
-}) {
-  return (
-    <div className="rounded-lg border border-line bg-white p-4 shadow-soft">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-paper text-moss">{icon}</div>
-      <p className="text-sm font-semibold text-ink">{title}</p>
-      <p className="mt-1 text-sm leading-6 text-ink/60">{body}</p>
-      <Link href={href} className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md mate-cta px-3 text-sm font-semibold text-white">
-        {action}
-      </Link>
-    </div>
   );
 }
 
@@ -504,34 +480,10 @@ function buildNextActions({
 
 function formatCardStatus(card: ActivityCard) {
   if (card.role === "applicant") {
-    if (card.application_status === "approved") {
-      return "승인";
-    }
-
-    if (card.application_status === "rejected_closed") {
-      return "마감";
-    }
-
-    return "대기";
+    return formatApplicationStatus(card.application_status);
   }
 
-  if (card.status === "open") {
-    return "모집 중";
-  }
-
-  if (card.status === "pending_review") {
-    return "검수 중";
-  }
-
-  if (card.status === "closed") {
-    return "마감";
-  }
-
-  if (card.status === "rejected") {
-    return "반려";
-  }
-
-  return "취소";
+  return formatCardStatusLabel(card.status);
 }
 
 function formatDateTime(value: string) {

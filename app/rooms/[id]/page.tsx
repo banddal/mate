@@ -9,6 +9,7 @@ import { getRoomAccess } from "@/lib/rooms/access";
 import { RoomMessagePanel } from "./RoomMessagePanel";
 import { CloseRoomButton } from "./CloseRoomButton";
 import { ReportRoomForm } from "./ReportRoomForm";
+import { StatusChip } from "@/components/ui/StatusChip";
 
 type RoomPageProps = {
   params: {
@@ -68,10 +69,10 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
         <section className="space-y-3 rounded-lg border border-line bg-white p-4 shadow-soft">
           <div className="flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-moss/10 px-3 py-1 text-xs font-semibold text-moss">
+            <StatusChip tone="moss">
               <LockKeyhole className="h-3.5 w-3.5" aria-hidden />
               {room.role === "host" ? "호스트" : "확정 참여자"}
-            </span>
+            </StatusChip>
             <Link href={`/cards/${room.card.id}`} className="text-xs font-semibold text-ink/55">
               카드 보기
             </Link>

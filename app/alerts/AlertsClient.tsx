@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Bell, BellOff, CheckCircle2, Clock3, Loader2, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { Bell, BellOff, BookmarkPlus, CheckCircle2, Clock3, Loader2, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type SubscriptionRow = {
   id: string;
@@ -431,11 +432,11 @@ export function AlertsClient({ categories }: AlertsClientProps) {
             ))}
           </div>
         ) : (
-          <div className="rounded-lg border border-line bg-white p-4 shadow-soft">
-            <p className="text-sm font-semibold text-ink">아직 저장한 상황이 없습니다.</p>
-            <p className="mt-1 text-sm leading-6 text-ink/60">
-              관심 있는 장소와 시간대를 저장하면 새 카드가 공개될 때 알림을 받을 수 있어요.
-            </p>
+          <EmptyState
+            icon={<BookmarkPlus className="h-4 w-4" aria-hidden />}
+            title="아직 저장한 상황이 없습니다."
+            body="관심 있는 장소와 시간대를 저장하면 새 카드가 공개될 때 알림을 받을 수 있어요."
+          >
             <button
               type="button"
               onClick={() => {
@@ -450,7 +451,7 @@ export function AlertsClient({ categories }: AlertsClientProps) {
             >
               추천 상황 채우기
             </button>
-          </div>
+          </EmptyState>
         )}
       </section>
     </div>
