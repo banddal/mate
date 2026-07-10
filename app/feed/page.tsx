@@ -205,7 +205,7 @@ function FeedCardItem({ card }: { card: FeedCard }) {
 
 function CardMeta({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="feed-card-meta-item flex items-center gap-2 rounded-md px-3 py-2">
+    <div className="feed-card-meta-item flex items-center gap-2 rounded-md">
       <span className="feed-card-meta-icon">{icon}</span>
       <span className="min-w-0 truncate">{children}</span>
     </div>
